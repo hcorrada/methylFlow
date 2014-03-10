@@ -1,7 +1,7 @@
 DEPSDIR=${PWD}/deps
 
 CPPFLAGS = 
-CXXFLAGS = -stdlib=libstdc++ -g -O0 -Wall
+CXXFLAGS = -g -O0 -Wall
 LDFLAGS = -L${DEPSDIR} -lemon -lglpk
 CXX = g++
 
@@ -32,7 +32,7 @@ test: MethylRead.o
 clean:
 	rm lemonTest *.o
 
-methylFlow: ${OBJS}
+methylFlow: Lemon.ts ${OBJS}
 	${CXX} ${CXXFLAGS} ${LDFLAGS} -o methylFlow ${OBJS}
 
 run1: methylFlow
