@@ -1,0 +1,10 @@
+prefix=/Users/hcorrada/Projects/methylFlow/src/methylFlow/deps
+exec_prefix=/Users/hcorrada/Projects/methylFlow/src/methylFlow/deps/bin
+libdir=/Users/hcorrada/Projects/methylFlow/src/methylFlow/deps/lib
+includedir=/Users/hcorrada/Projects/methylFlow/src/methylFlow/deps/include
+
+Name: LEMON
+Description: Library for Efficient Modeling and Optimization in Networks
+Version: 1.3
+Libs: -L${libdir} -lemon     
+Cflags: -I${includedir}
