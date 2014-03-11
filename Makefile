@@ -1,8 +1,9 @@
 DEPSDIR=${PWD}/deps
 
-CPPFLAGS = 
+CPPFLAGS = -I${DEPSDIR}/include 
 CXXFLAGS = -g -O0 -Wall
-LDFLAGS = -L${DEPSDIR} -lemon -lglpk
+LDFLAGS = -L${DEPSDIR}/lib
+LIBS=-lemon -lglpk
 CXX = g++
 
 OBJS = main.o MFGraph.o MethylRead.o MFGraph_solve.o MFRegionPrinter.o
@@ -30,10 +31,15 @@ test: MethylRead.o
 	make -C testing all
 
 clean:
-	rm lemonTest *.o
+	rm -f methylFlow
+	rm -f *.o
+
+distclean: 
+	make -C glpk distclean
+	rm -rf glpk/build Glpk.ts lemon/build Lemon.ts ${DEPSDIR}
 
 methylFlow: Lemon.ts ${OBJS}
-	${CXX} ${CXXFLAGS} ${LDFLAGS} -o methylFlow ${OBJS}
+	${CXX} ${LDFLAGS} -o methylFlow ${OBJS} ${LIBS}
 
 run1: methylFlow
 	./methylFlow -i testing/sim1.tsv -o testing -l 1.0 -s 10.0
@@ -43,17 +49,19 @@ run2: methylFlow
 
 Glpk.ts:
 	(cd glpk && \
-	./configure --prefix=${DEPSDIR} --disable-dependency-tracking && \
+	mkdir build && \
+	cd build && \
+	../configure --prefix=${DEPSDIR} --disable-dependency-tracking && \
 	make && \
 	make install && \
-	touch $@)
+	touch ../../$@)
 
 Lemon.ts: Glpk.ts
 	(cd lemon && \
 	mkdir build && \
 	cd build && \
-	cmake -DCMAKE_INSTALL_PREFIX=${DEPSDIR} -DLEMON_ENABLE_GLPK=YES -DLEMON_GLPK_ROOT_DIR=${DEPSDIR} .. && \
-	make && \
+	cmake -DCMAKE_INSTALL_PREFIX=${DEPSDIR} -DLEMON_ENABLE_GLPK=YES -DLEMON_GLPK_ROOT_DIR=${DEPSDIR} -DLEMON_DEFAULT_LP=GLPK .. && \
+	make VERBOSE=1 && \
 	make install && \
-	touch $@)
+	touch ../../$@)
 
