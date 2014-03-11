@@ -111,6 +111,7 @@ void MFGraph::print_graph()
   ListDigraph::Node node;
   int rightMostPos = 0;
 
+  const int READ_LIMIT = 100;
   #ifdef DEBUG
   bool check_count = true;
   #else
@@ -124,7 +125,7 @@ void MFGraph::print_graph()
     std::cout << "[methylFlow] Reading from file " << std::endl; 
   }
 
-  while (!check_count || count < 40) {
+  while (!check_count || count < READ_LIMIT) {
     std::getline( instream, input );
     if( !instream ) break; // checks end of file
     count++;
@@ -213,7 +214,7 @@ void MFGraph::print_graph()
     #endif
 
     // search for identical/superread/subread from left side of active set
-    for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); it != pactiveSet->end(); ++it) {
+    for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); it != pactiveSet->end(); ) {
       ListDigraph::Node active_node = *it;
       if (read_map[active_node]->start() > read->start()) {
 	// we're done here
@@ -226,6 +227,7 @@ void MFGraph::print_graph()
       std::cout << "checking for identical " << nodeName_map[active_node] << std::endl;
       #endif
 
+      bool erased = false;
       switch(cmp) {
       case IDENTICAL:
       case SUBREAD:
@@ -255,10 +257,12 @@ void MFGraph::print_graph()
 	#ifdef DEBUG
 	std::cout << "removing from active set " << nodeName_map[active_node] << std::endl;
 	#endif
-	pactiveSet->erase(it);
+	it = pactiveSet->erase(it);
+	erased = true;
       default:
 	break;
       }
+      if (!erased) ++it;
     }
 
 

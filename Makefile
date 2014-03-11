@@ -34,8 +34,7 @@ clean:
 	rm -f methylFlow
 	rm -f *.o
 
-distclean: 
-	make -C glpk distclean
+distclean: clean
 	rm -rf glpk/build Glpk.ts lemon/build Lemon.ts ${DEPSDIR}
 
 methylFlow: Lemon.ts ${OBJS}
