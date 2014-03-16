@@ -109,6 +109,7 @@ ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(mflib)
 ADD_SUBDIRECTORY(methylFlow)
+ADD_SUBDIRECTORY(simulator)
 ADD_SUBDIRECTORY(testing)
 
 ## Sometimes MSVC overwhelms you with compiler warnings which are impossible to
