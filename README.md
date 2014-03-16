@@ -20,6 +20,7 @@ version 2.6.
 $ git clone https://github.com/hcorrada/methylFlow.git
 $ cd methylFlow
 $ git submodule init
+$ git submodule update
 $ mkdir build && cd build
 $ cmake ..
 $ make
