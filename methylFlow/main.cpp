@@ -29,7 +29,7 @@
 #include <lemon/maps.h>
 
 #include "ezOptionParser.hpp"
-#include "MFGraph.hpp"
+#include "mflib/MFGraph.hpp"
 
 using namespace methylFlow;
 using namespace ez;

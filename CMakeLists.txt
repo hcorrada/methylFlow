@@ -105,7 +105,8 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
 ENDIF()
 
-ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(mflib)
+ADD_SUBDIRECTORY(methylFlow)
 
 
 ## Sometimes MSVC overwhelms you with compiler warnings which are impossible to

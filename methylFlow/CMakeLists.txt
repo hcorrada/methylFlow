@@ -1,7 +1,7 @@
 INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/src
-  ${CMAKE_BINARY_DIR}/src
+  ${CMAKE_SOURCE_DIR}/methylFlow
+  ${CMAKE_BINARY_DIR}/methylFlow
 )
 
 ## Here we define an executable target. Its name is 'lemon-project' and
@@ -12,10 +12,6 @@ INCLUDE_DIRECTORIES(
 
 ADD_EXECUTABLE(methylFlow
         main.cpp
-	MFGraph.cpp
-	MFGraph_solve.cpp
-	MethylRead.cpp
-	MFRegionPrinter.cpp
 )
 
 ## This tells cmake to install 'lemon-project' to $PREFIX/bin when
@@ -23,7 +19,7 @@ ADD_EXECUTABLE(methylFlow
 ## by whitespaces.
 
 TARGET_LINK_LIBRARIES(methylFlow
-  ${LEMON_LIBRARIES} glpk
+  mflib ${LEMON_LIBRARIES} glpk
 )
 
 INSTALL(
