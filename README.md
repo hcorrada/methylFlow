@@ -52,9 +52,9 @@ methylFlow -i reads.tsv -o mfoutput -l 10.0 -s 30.0
 
 ##Authors
 
-Hector Corrada Bravo <hcorrada@gmail.com>
-Faezeh Dorri
+Hector Corrada Bravo <hcorrada@gmail.com>  
+Faezeh Dorri  
 
-Center for Bioinformatics and Computational Biology
-University of Maryland
+Center for Bioinformatics and Computational Biology  
+University of Maryland  
 http://www.cbcb.umd.edu/~hcorrada
