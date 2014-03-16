@@ -105,9 +105,11 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
 ENDIF()
 
+ENABLE_TESTING()
+
 ADD_SUBDIRECTORY(mflib)
 ADD_SUBDIRECTORY(methylFlow)
-
+ADD_SUBDIRECTORY(testing)
 
 ## Sometimes MSVC overwhelms you with compiler warnings which are impossible to
 ## avoid. Then comment out these sections. Normally you won't need it as the
@@ -124,8 +126,6 @@ ADD_SUBDIRECTORY(methylFlow)
 # #        (performance warning)
 # # C4996: 'function': was declared deprecated
 # ENDIF(MSVC)
-
-ENABLE_TESTING()
 
 ## The auxiliary doxygen files (.dox) should be placed in the 'doc'
 ## subdirectory. The next line includes the CMAKE config of that directory.
