@@ -169,7 +169,7 @@ void simulator::simulate(){
     //cout << "Read built" << endl;
     //cout << data[30].methyl.size() << endl;
 	for(unsigned int i=0; i <data.size(); i++){
-        cout << i;
+        //cout << i;
 		writeMethylRead(data[i], i);
 	}
 }
