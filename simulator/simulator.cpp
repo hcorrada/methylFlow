@@ -149,25 +149,25 @@ void simulator::writeMethylRead(MethylRead read, int k){
 void simulator::simulate(){
 	vector<MethylRead> data;
     readData();
-    cout << "read Done" << endl;
+    //cout << "read Done" << endl;
     buildMethylHap(dnaLength, pos, HapNum, methylHapVec);
-    cout << "hap built" << endl;
+    //cout << "hap built" << endl;
     for(int i=0; i < coverage*dnaLength/readLength; i++){
         int hap=0;
         int pos=0;
         MethylRead read;
         selectHP(readLength, dnaLength, freq, hap, pos);
-        cout << "HP Seleced " << i << endl;
-        cout << "hap " << hap << endl;
-        cout << "pos " << pos << endl;
+        //cout << "HP Seleced " << i << endl;
+        //cout << "hap " << hap << endl;
+        //cout << "pos " << pos << endl;
         buildRead(hap, pos, readLength, error, methylHapVec, read);
 		data.push_back(read);
 		
-        cout << "read Wrote" << endl;
+      //  cout << "read Wrote" << endl;
     }
 	sort(data.begin(), data.end());
-    cout << "Read built" << endl;
-    cout << data[30].methyl.size() << endl;
+    //cout << "Read built" << endl;
+    //cout << data[30].methyl.size() << endl;
 	for(unsigned int i=0; i <data.size(); i++){
         cout << i;
 		writeMethylRead(data[i], i);
