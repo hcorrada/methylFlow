@@ -55,7 +55,7 @@ void simulator::readData(){
 
 void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vector<MethylHap>& methylHapVec){
 	
-	patternFile.open("/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt");
+	patternFile.open("simPattern.txt");
     char type;
     for(int i=0; i<HapNum; i++){
         vector<MethylInfo> hapInfo;
@@ -133,14 +133,14 @@ void simulator::buildRead(int hap, int pos,int readLength, int error, vector<Met
 
 void simulator::writeMethylRead(MethylRead read, int k){
 	
-    cout << "read" << k <<  "\t" << read.start << "\t" << read.length << "\t" << "W" << "\t";
+    cout << "read" << k <<  "\t" << read.start + 1 << "\t" << read.length << "\t" << "W" << "\t";
     if(read.methyl.size()==0)
 		cout << "*" ;
     else{
         for(unsigned int i=0; i< read.methyl.size()-1; i++){
-            cout << read.methyl[i].pos - read.start  << ":" << read.methyl[i].type << ",";
+            cout << read.methyl[i].pos - read.start  + 1 << ":" << read.methyl[i].type << ",";
         }
-        cout << read.methyl[read.methyl.size()-1].pos - read.start  << ":" << read.methyl[read.methyl.size()-1].type;
+        cout << read.methyl[read.methyl.size()-1].pos - read.start + 1 << ":" << read.methyl[read.methyl.size()-1].type;
     }
     cout << "\t" << "MismatchData" << endl;
 }

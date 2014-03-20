@@ -400,6 +400,7 @@ void MFGraph::print_graph()
     std::stack<ListDigraph::Node> stack;
     stack.push(source);
     bool doagain = false;
+    ListDigraph::NodeMap<bool> reached(mfGraph, false);
 
     while (!stack.empty()) {
       // grab and pop next node to process
@@ -443,10 +444,11 @@ void MFGraph::print_graph()
 	stack.push(curNode);
 	doagain = false;
       } else {
+	reached[curNode] = true;
 	// push children of current node to stack
 	for (ListDigraph::OutArcIt arc(mfGraph, curNode); arc != INVALID; ++arc) {
 	  ListDigraph::Node otherNode = mfGraph.target(arc);
-	  stack.push(otherNode);
+	  if (!reached[otherNode]) stack.push(otherNode);
 	}
       }
     }
