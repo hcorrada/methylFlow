@@ -30,7 +30,6 @@ public:
   const int length() const;
   const int end() const;
   const std::size_t ncpgs() const;
-  //  bool operate < (const MethylRead &m) const;
 
 protected:
   // TODO: we need to distinguish region coordinates for modeling and read coordinates for genome coverage
@@ -62,11 +61,12 @@ protected:
     return this->cpgOffset.size();
   }
 
-//  bool MethylRead::operator < (const MethylRead& m) const
-//	{
-//		return (this->start < m.start || (this->start == m.start && this->length > m.length));
-//	}
-//
+  struct CompareReadStarts : public std::binary_function<MethylRead *, MethylRead *, bool>
+  {
+  public:
+    bool operator()(const MethylRead *x, const MethylRead *y) const;
+  };
+
 } // namespace methylFlow
 
 #endif // METHYLREAD_H

@@ -9,10 +9,10 @@
 
 namespace methylFlow {
 
-  MFGraph::MFGraph() : mfGraph(), nodeName_map(mfGraph), coverage_map(mfGraph), read_map(mfGraph),
+  MFGraph::MFGraph() : mfGraph(), nodeName_map(mfGraph), coverage_map(mfGraph), normalized_coverage_map(mfGraph), read_map(mfGraph),
 		     flow_map(mfGraph), effectiveLength_map(mfGraph),
 		     source(), sink(), fake(mfGraph, false),
-		     parentless(mfGraph, false), childless(mfGraph, false)
+		       parentless(mfGraph, false), childless(mfGraph, false), is_normalized(false)
 {
 }
 
@@ -39,6 +39,9 @@ MFGraph::~MFGraph()
   ListDigraph::Node n = mfGraph.addNode();
   nodeName_map[n] = name;
   coverage_map[n] = coverage;
+  if (is_normalized) {
+    normalized_coverage_map[n] = (float) coverage;
+  }
 
   if (read) read->node = n;
   read_map[n] = read;
@@ -58,6 +61,11 @@ void MFGraph::print_graph()
   MethylRead *read;
   for(ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
     std::cout << "Node: " << nodeName_map[n] << " cov: " << coverage_map[n];
+
+    if (is_normalized) {
+      std::cout << " normalized_cov: " << normalized_coverage_map[n];
+    }
+
     if (read_map[n]) {
       read = read_map[n];
       std::cout << " " << read->getString();
@@ -112,7 +120,7 @@ void MFGraph::print_graph()
   int rightMostPos = 0;
 
   const int READ_LIMIT = 100;
-  #ifdef DEBUG
+  #ifndef NDEBUG
   bool check_count = true;
   #else
   bool check_count = false;
@@ -143,7 +151,7 @@ void MFGraph::print_graph()
      if (methStr != "*")
        m->parseMethyl(methStr);
 
-     #ifdef DEBUG
+     #ifndef NDEBUG
      std::cout << "read: " << readid << " " << m->getString() << std::endl;
      #endif
 
@@ -204,7 +212,7 @@ void MFGraph::print_graph()
 
   bool MFGraph::processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet)
   {
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "processing read " << readid << std::endl;
     std::cout << "current active set: ";
     for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); it != pactiveSet->end(); ++it) {
@@ -223,7 +231,7 @@ void MFGraph::print_graph()
 
       ReadComparison cmp = read_map[active_node]->compare(read);
 
-      #ifdef DEBUG
+      #ifndef NDEBUG
       std::cout << "checking for identical " << nodeName_map[active_node] << std::endl;
       #endif
 
@@ -234,7 +242,7 @@ void MFGraph::print_graph()
 	// increase coverage of corresponding node
 	// stop looking through active set
 	coverage_map[active_node] += 1;
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	std::cout << "found!" << std::endl;
 	#endif
 	return false;
@@ -244,7 +252,7 @@ void MFGraph::print_graph()
 	coverage_map[active_node] += 1;
 	if (read_map[active_node]) delete read_map[active_node];
 	read_map[active_node] = read;
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	std::cout << "found!" << std::endl;
 	#endif
 	return false;
@@ -254,7 +262,7 @@ void MFGraph::print_graph()
 	break;
       case NONE:
 	// remove node from active set since no more possible overlaps to be found
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	std::cout << "removing from active set " << nodeName_map[active_node] << std::endl;
 	#endif
 	it = pactiveSet->erase(it);
@@ -266,7 +274,7 @@ void MFGraph::print_graph()
     }
 
 
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "new node added" << std::endl;
     #endif
 
@@ -280,13 +288,13 @@ void MFGraph::print_graph()
     ListDigraph::NodeMap<bool> reachable(mfGraph, false);
     for (std::list<ListDigraph::Node>::reverse_iterator rit = pactiveSet->rbegin(); rit != pactiveSet->rend(); ++rit) {
       ListDigraph::Node active_node = *rit;
-      #ifdef DEBUG
+      #ifndef NDEBUG
       std::cout << "comparing node " << nodeName_map[active_node] << std::endl;
       #endif
 
 //      if (read_map[active_node]->start() >= read->start()) {
 //	// we're done
-//	#ifdef DEBUG
+//	#ifndef NDEBUG
 //	std::cout << "got to left-most point" << std::endl;
 //	#endif
 //	break;
@@ -294,7 +302,7 @@ void MFGraph::print_graph()
 //
       if (reachable[active_node]) {
 	// this node is reachable so ignore
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	std::cout << "reachable" << std::endl;
 	#endif
 	continue;
@@ -303,7 +311,7 @@ void MFGraph::print_graph()
       ReadComparison cmp = read_map[active_node]->compare(read);
       switch(cmp) {
       case METHOVERLAP:
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	std::cout << "consistent overlap" << std::endl;
 	#endif
 
@@ -315,27 +323,27 @@ void MFGraph::print_graph()
 	for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); &*it != &*rit; ++it) {
 	  ListDigraph::Node search_node = *it;
 	  
-	  #ifdef DEBUG
+	  #ifndef NDEBUG
 	  std::cout << "is this node reachable" << nodeName_map[search_node] << std::endl;
 	  #endif
 
 	  if (reachable[search_node]) {
 	    // this node is already reachable so skip
-	    #ifdef DEBUG
+	    #ifndef NDEBUG
 	    std::cout << "it is, skip" << std::endl;
 	    #endif
 	    continue;
 	  }
 
 	  // see if we can reach this node
-	  #ifdef DEBUG
+	  #ifndef NDEBUG
 	  std::cout << "try bfs" << std::endl;
 	  #endif
 
 	  Bfs<ListDigraph> bfs(mfGraph);
 	  reachable[search_node] = bfs.run(search_node, new_node);
 	  if (reachable[search_node]) {
-	    #ifdef DEBUG
+	    #ifndef NDEBUG
 	    std::cout << "reached! mark all the rest" << std::endl;
 	    #endif
 
@@ -343,20 +351,20 @@ void MFGraph::print_graph()
 	    // now mark all nodes in the path
 	    Path<ListDigraph> path = bfs.path(new_node);
 	    for (PathNodeIt<Path<ListDigraph> > reachable_node(mfGraph, path); reachable_node != INVALID; ++reachable_node) {
-	      #ifdef DEBUG
+	      #ifndef NDEBUG
 	      std::cout << nodeName_map[reachable_node] << " ";
 	      #endif
 
 	      reachable[reachable_node] = true;
 	    }
-	    #ifdef DEBUG
+	    #ifndef NDEBUG
 	    std::cout << std::endl;
 	    #endif
 	  }
 	}
 	break;
       case OVERLAP:
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	std::cout << "inconsistent overlap, keep going" << std::endl;
 	#endif
 	// do not do anything
@@ -377,7 +385,7 @@ void MFGraph::print_graph()
     // now add it to the active set
     pactiveSet->push_back(new_node);
 
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << std::endl << std::endl;
     #endif
     return true;
@@ -390,6 +398,7 @@ void MFGraph::print_graph()
 
 
     coverage_map[v] += coverage_map[u];
+    normalized_coverage_map[v] += normalized_coverage_map[u];
     read_map[v]->merge(read_map[u]);
     if (read_map[u]) delete read_map[u];
     mfGraph.contract(v, u);
@@ -417,12 +426,13 @@ void MFGraph::print_graph()
 	if (countInArcs(mfGraph, otherNode) == 1 && !fake[otherNode]) {
 	  // we can merge these nodes
 	  doagain = true;
-#ifdef DEBUG
+#ifndef NDEBUG
 	  std::cout << "Merging nodes: " << nodeName_map[curNode] << " " << nodeName_map[otherNode] << std::endl;
 #endif
 
 	  // add coverage to current node
 	  coverage_map[curNode] += coverage_map[otherNode];
+	  normalized_coverage_map[curNode] += normalized_coverage_map[otherNode];
 
 	  // merge methylation patterns
 	  read_map[curNode]->merge(read_map[otherNode]);
@@ -477,6 +487,15 @@ void MFGraph::print_graph()
     return out;
   }
 
+  const float MFGraph::total_normalized_coverage() const
+  {
+    float out = 0.;
+    for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
+      out += normalized_coverage_map[n];
+    }
+    return out;
+  }
+  
   const float MFGraph::total_flow() const
   {
     float total_flow = 0.;
@@ -494,15 +513,25 @@ void MFGraph::print_graph()
 				    const float scale_mult, 
 				    const bool verbose ) 
   {
+    #ifndef NDEBUG
+    std::cout << "starting run_component" << std::endl;
+    print_graph();
+    #endif
+
+    normalize_coverage();
+    #ifndef NDEBUG
+    std::cout << "normaliza complete" << std::endl;
+    print_graph();
+    #endif
+
     preprocess();
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "preprocess complete" << std::endl;
     print_graph();
     #endif
 
-
     merge_chains();
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "merge complete" << std::endl;
     print_graph();
     #endif
@@ -519,7 +548,7 @@ void MFGraph::print_graph()
     }
     print_regions( region_stream, scale_mult, componentID );
 
-    #ifdef DEBUG
+    #ifndef NDEBUG
     print_graph();
     #endif
 

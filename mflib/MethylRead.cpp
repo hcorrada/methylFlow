@@ -155,4 +155,10 @@ namespace methylFlow {
     return 0;
   }
 
+  bool CompareReadStarts::operator()(const MethylRead *x, const MethylRead *y) const
+    {
+      return x->start() < y->start();
+    }
+  
+
 } // namespace methylFlow

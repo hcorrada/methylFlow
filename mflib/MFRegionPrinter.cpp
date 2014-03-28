@@ -30,9 +30,11 @@ if (node == mfGraph->get_source() || node == mfGraph->get_sink()) return;
 MethylRead * read = mfGraph->read(node);
 if (!read) return;
 
-getstream() << read->start() << "\t" << read->end();
-getstream() << "\t" << componentID << "\t" << mfGraph->node_name(node);
-getstream() << "\t" << mfGraph->coverage(node) << "\t" << mfGraph->expected_coverage(node, scale_mult);
-getstream() << "\t" << read->getMethString() << std::endl;
+ getstream() << read->start() << "\t" << read->end();
+ getstream() << "\t" << componentID << "\t" << mfGraph->node_name(node);
+ getstream() << "\t" << mfGraph->coverage(node);
+ getstream() << "\t" << (mfGraph->isNormalized() ? mfGraph->normalized_coverage(node) : 0.);
+ getstream() << "\t" << mfGraph->expected_coverage(node, scale_mult);
+ getstream() << "\t" << read->getMethString() << std::endl;
 }
 						} // namespace methylFlow

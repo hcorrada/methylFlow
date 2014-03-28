@@ -27,6 +27,9 @@ public:
   const int &coverage(const ListDigraph::Node &node) const;
   int &coverage(const ListDigraph::Node &node);
 
+  const float &normalized_coverage(const ListDigraph::Node &node) const;
+  float &normalized_coverage(const ListDigraph::Node &node);
+
   const MethylRead * read(const ListDigraph::Node &node) const;
   MethylRead * read(const ListDigraph::Node &node);
  
@@ -42,12 +45,18 @@ public:
   const ListDigraph::Node & get_source() const;
   const ListDigraph::Node & get_sink() const;
 
+  const bool &isNormalized() const;
+
   // return total coverage
   const int total_coverage() const;
+  
+  // return total normalized coverage
+  const float total_normalized_coverage() const;
 
   // return total flow
   const float total_flow() const;
 
+  // return expected coverage
   const float expected_coverage(const ListDigraph::Node node, const float scale) const;
 
   // tsv file with readid, pos, length, strand (ignored), methylString, subString
@@ -80,6 +89,11 @@ public:
   // add source and sink to graph
   void preprocess();
   
+  // normalize coverage per position
+  void normalize_coverage();
+
+  float calculate_median(std::vector<float> x);
+
   // solve the optimization problem
   // lambda: penalty parameter
   // length_mult: scale on length
@@ -105,6 +119,7 @@ protected:
 
   ListDigraph::NodeMap<std::string> nodeName_map;
   ListDigraph::NodeMap<int> coverage_map;
+  ListDigraph::NodeMap<float> normalized_coverage_map;
   ListDigraph::NodeMap<MethylRead *> read_map;
 
   ListDigraph::ArcMap<float> flow_map;
@@ -114,6 +129,7 @@ private:
   IterableBoolMap<ListDigraph, ListDigraph::Node> fake;
   ListDigraph::NodeMap<bool> parentless;
   ListDigraph::NodeMap<bool> childless;
+  bool is_normalized;
 };
 
 inline const ListDigraph &MFGraph::get_graph() const
@@ -146,6 +162,16 @@ inline ListDigraph &MFGraph::get_graph()
   inline int &MFGraph::coverage(const ListDigraph::Node &node)
   {
     return coverage_map[node];
+  }
+
+  inline const float &MFGraph::normalized_coverage(const ListDigraph::Node &node) const
+  {
+    return normalized_coverage_map[node];
+  }
+  
+  inline float &MFGraph::normalized_coverage(const ListDigraph::Node &node)
+  {
+    return normalized_coverage_map[node];
   }
 
   inline const MethylRead * MFGraph::read(const ListDigraph::Node &node) const
@@ -186,6 +212,11 @@ inline ListDigraph &MFGraph::get_graph()
   inline const ListDigraph::Node & MFGraph::get_sink() const
   {
     return sink;
+  }
+
+  inline const bool &MFGraph::isNormalized() const
+  {
+    return is_normalized;
   }
 
 template<typename V>

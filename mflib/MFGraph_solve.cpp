@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 
 #include <lemon/lp.h>
 #include <lemon/path.h>
@@ -51,6 +52,110 @@ void MFGraph::preprocess()
   }
 }
 
+  float MFGraph::calculate_median(std::vector<float> x) {
+    float median;
+    size_t size = x.size();
+    
+    sort(x.begin(), x.end());
+    if (size % 2 == 0) {
+      median = (x[size / 2 - 1] + x[size / 2]) / 2.;
+    } else {
+      median = x[size / 2];
+    }
+
+    return median;
+  }
+
+
+  void MFGraph::normalize_coverage()
+  {
+    // put nodes in a priority queue by start position
+    // to ensure we iterate in the proper order
+    std::priority_queue<MethylRead*, std::vector<MethylRead*>, CompareReadStarts> position_queue;
+    for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
+      MethylRead *read = read_map[n];
+      std::cout << read->start() << std::endl;
+      position_queue.push(read);
+    }
+
+    std::vector<float> coverage_per_position;
+    std::vector<ListDigraph::Node> current_nodes;
+
+    int current_startpos = -1;
+    float current_coverage = 0.;
+
+    while (! position_queue.empty() ) {
+      MethylRead *read = position_queue.top();
+      position_queue.pop();
+
+      ListDigraph::Node n = read->node;
+
+      #ifndef DEBUG
+      std::cout << "current node:" << read->start() << " " << coverage_map[n] << std::endl;
+      #endif
+
+      if (current_startpos == -1 ) {
+	current_startpos = read->start();
+	current_coverage = coverage_map[n];
+	current_nodes.push_back(n);
+	continue;
+      }
+
+      if (read->start() < current_startpos) {
+	coverage_per_position.push_back(current_coverage);
+	
+	#ifndef NDEBUG
+	std::cout << "new position!" << std::endl;
+	std::cout << current_startpos << " " << current_coverage << std::endl;
+	#endif
+
+	// divide by position coverage
+	for (std::vector<ListDigraph::Node>::iterator it = current_nodes.begin(); it != current_nodes.end(); ++it) {
+	  ListDigraph::Node node = *it;
+	  normalized_coverage_map[node] = (float) coverage_map[node] / current_coverage;
+	  #ifndef NDEBUG
+	  std::cout << coverage_map[node] << " " << normalized_coverage_map[node] << std::endl;
+	  #endif
+	}
+
+	#ifndef NDEBUG
+	std::cout << std::endl;
+	#endif
+
+	current_nodes.clear();
+	current_nodes.push_back(n);
+	current_coverage = (float) coverage_map[n];
+	current_startpos = read->start();
+      } if (read->start() == current_startpos) {
+	current_coverage += (float) coverage_map[n];
+	current_nodes.push_back(n);
+      } else {
+	std::cerr << "nodes out of order" << std::endl;
+	return;
+      }
+    }
+
+    // process last position
+    coverage_per_position.push_back(current_coverage);
+    for (std::vector<ListDigraph::Node>::iterator it = current_nodes.begin(); it != current_nodes.end(); ++it) {
+      ListDigraph::Node node = *it;
+      normalized_coverage_map[node] = (float) coverage_map[node] / current_coverage;
+      #ifndef NDEBUG
+      std::cout << coverage_map[node] << " " << normalized_coverage_map[node] << std::endl;
+      #endif
+    }
+
+    float median_coverage = calculate_median(coverage_per_position);
+    #ifndef DEBUG
+    std::cout << "median coverage: " << median_coverage << std::endl;
+    #endif
+
+    for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
+      normalized_coverage_map[n] *= median_coverage;
+    }
+    is_normalized = true;
+  }
+
   int MFGraph::solve(const float lambda, const float length_mult)
 {
   Lp lp;
@@ -83,12 +188,12 @@ void MFGraph::preprocess()
   }
   Lp::Expr obj;
 
-  #ifdef DEBUG
+  #ifndef NDEBUG
   std::cout << "running solver on " << countNodes(mfGraph) << " nodes" << std::endl;
   #endif
 
   for (ListDigraph::NodeIt v(mfGraph); v != INVALID; ++v) {
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "Processing node " << nodeName_map[v] << std::endl;
     #endif
 
@@ -107,14 +212,14 @@ void MFGraph::preprocess()
     // add node's nu variable
     nu[v] = lp.addCol();
 
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "LP vars added" << std::endl;
     #endif
 
     // add node's term in objective 
-    obj += coverage_map[v] * (beta[v] - alpha[v]);
+    obj += normalized_coverage_map[v] * (beta[v] - alpha[v]);
 
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "obj added" << std::endl;
     #endif
   }
@@ -124,7 +229,7 @@ void MFGraph::preprocess()
     ListDigraph::Node v = mfGraph.target(arc);
     rows[arc] = lp.addRow(nu[v] <= 0);
   }
-  #ifdef DEBUG
+  #ifndef NDEBUG
   std::cout << "nu bounds added" << std::endl;
   #endif
 
@@ -134,7 +239,7 @@ void MFGraph::preprocess()
     rows[arc] = lp.addRow(scaled_length[arc] * beta[v] - 
 			  scaled_length[arc] * alpha[v] - nu[v] <= 0);
   }
-  #ifdef DEBUG
+  #ifndef NDEBUG
   std::cout << "sink constraints added" << std::endl;
   #endif
 
@@ -151,7 +256,7 @@ void MFGraph::preprocess()
       rows[arc] = lp.addRow(scaled_length[arc] * beta[v] - 
 			    scaled_length[arc] * alpha[v] - nu[v] + nu[u] <= 0);
     }
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "constraints added" << std::endl;
     #endif
   }
@@ -160,7 +265,7 @@ void MFGraph::preprocess()
   lp.max();
   lp.solve();
 
-  #ifdef DEBUG
+  #ifndef NDEBUG
   std::cout << "Called solver" << std::endl;
   #endif
 
@@ -171,7 +276,7 @@ void MFGraph::preprocess()
 
   // extract flows
   for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
-    #ifdef DEBUG
+    #ifndef NDEBUG
     std::cout << "Extracting flow of arc: " << std::endl;
     std::cout << nodeName_map[mfGraph.source(arc)];
     std::cout << " -> ";
@@ -187,7 +292,7 @@ void MFGraph::preprocess()
 {
   // compute total flow
   float total_flow = this->total_flow();
-  #ifdef DEBUG
+  #ifndef NDEBUG
   std::cout << "total flow: " << total_flow << std::endl;
   #endif
 
