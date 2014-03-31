@@ -18,6 +18,7 @@ void simulator::readData(){
         }
         for(int i =0; i<HapNum; i++){
             freq[i] = freq[i]*100/sum;
+            //cout << freq[i] << endl;
         }
         
         bool* A = new bool[dnaLength];

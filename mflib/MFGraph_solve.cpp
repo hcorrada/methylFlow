@@ -11,6 +11,8 @@ namespace methylFlow {
 void MFGraph::preprocess()
 {
   int rightMostStart = -1;
+  int leftMostEnd = -1;
+
   // find childless nodes
   for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
     if (countOutArcs(mfGraph, n) == 0) {
@@ -18,6 +20,7 @@ void MFGraph::preprocess()
       if (read_map[n] && read_map[n]->start() > rightMostStart) {
 	rightMostStart = read_map[n]->start();
       }
+        leftMostEnd = rightMostStart + read_map[n]->length();
     }
   }
 
@@ -42,7 +45,7 @@ void MFGraph::preprocess()
     }
   }
 
-  MethylRead *sink_read = new MethylRead(rightMostStart + 1, 1);
+  MethylRead *sink_read = new MethylRead(leftMostEnd , 1);
   sink = addNode("t", 0, sink_read);
   fake[sink] = true;
   for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
