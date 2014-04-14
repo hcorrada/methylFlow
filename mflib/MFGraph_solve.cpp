@@ -11,16 +11,19 @@ namespace methylFlow {
 void MFGraph::preprocess()
 {
   int rightMostStart = -1;
-  int leftMostEnd = -1;
+  int rightMostEnd = -1;
+    
 
   // find childless nodes
   for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
     if (countOutArcs(mfGraph, n) == 0) {
       childless[n] = true;
       if (read_map[n] && read_map[n]->start() > rightMostStart) {
-	rightMostStart = read_map[n]->start();
+          rightMostStart = read_map[n]->start();
+          rightMostEnd = rightMostStart + read_map[n]->length();
+          std::cout << "rightMostEnd" << rightMostEnd << std::endl;
+
       }
-        leftMostEnd = rightMostStart + read_map[n]->length();
     }
   }
 
@@ -30,7 +33,7 @@ void MFGraph::preprocess()
     if (countInArcs(mfGraph, n) == 0) {
       parentless[n] = true;
       if (read_map[n] && read_map[n]->start() < leftMostStart) {
-	leftMostStart = read_map[n]->start();
+          leftMostStart = read_map[n]->start();
       }
     }
   }
@@ -44,13 +47,13 @@ void MFGraph::preprocess()
       addArc(source, n, read_map[n]->start() - source_read->start());
     }
   }
-
-  MethylRead *sink_read = new MethylRead(leftMostEnd , 1);
+  MethylRead *sink_read = new MethylRead(rightMostStart , rightMostEnd- rightMostStart+1);
   sink = addNode("t", 0, sink_read);
   fake[sink] = true;
   for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
     if (childless[n]) {
       addArc(n, sink, sink_read->start() - read_map[n]->start());
+    //addArc(n, sink, 1);
     }
   }
 }
@@ -182,7 +185,7 @@ void MFGraph::preprocess()
     nodename << "lambda_" << lamcnt;
     ListDigraph::Node newNode = addNode(nodename.str(), 0);
     ListDigraph::Node node = mfGraph.source(arc);
-    ListDigraph::Arc newArc = addArc(node, newNode, 0);
+    ListDigraph::Arc newArc = addArc(node, newNode, 1);
     scaled_length[newArc] = scaled_length[arc];
     mfGraph.changeSource(arc, newNode);
     scaled_length[arc] = - lambda;

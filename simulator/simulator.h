@@ -31,7 +31,7 @@ public:
     
     vector<int> freq;
     vector<int> pos;
-    int dnaLength, readLength, HapNum, coverage, error, flag;
+    int dnaLength, readLength, HapNum, coverage, error, flag, corrDist;
 	vector<MethylHap> methylHapVec;
 	
 	simulator(){};
@@ -39,7 +39,8 @@ public:
     ~simulator(){};
 
     void readData();
-	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<MethylHap>& methylHapVec);
+    int computeMethylProbability(int corrDist, int dist, int HapNum);
+	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<MethylHap>& methylHapVec, int flag);
 //    void buildMethylHap(int length, vector<int> pos, int HapNum);
 
 	void selectHP(int readLength, int dnaLength, vector<int> freq, int& hap, int& pos);

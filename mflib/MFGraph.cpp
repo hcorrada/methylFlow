@@ -548,9 +548,9 @@ void MFGraph::print_graph()
     }
     print_regions( region_stream, scale_mult, componentID );
 
-    #ifndef NDEBUG
+    //#ifndef NDEBUG
     print_graph();
-    #endif
+    //#endif
 
     // decompose
     float tflow = total_flow();
