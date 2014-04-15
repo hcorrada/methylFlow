@@ -60,7 +60,7 @@ int main(int argc, const char **argv)
   ezOptionParser opt;
   opt.overview = "MethylFlow: methylation pattern reconstruction";
   opt.syntax = "methylFlow -i reads.tsv -o mfoutput [OPTIONS]";
-  opt.example = "methylFlow -i reads.tsv -o mfoutput -l 10.0 -s 30.0";
+  opt.example = "methylFlow -i reads.tsv -o mfoutput -l 10.0 -s 30.0 -e 0.1";
 
   // help and usage
   opt.add(

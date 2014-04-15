@@ -34,6 +34,7 @@ USAGE: methylFlow -i reads.tsv -o mfoutput [OPTIONS]
 
 OPTIONS:
 
+-e, -eps, -E, --eps ARG           Regularization parameter search threshold.
 -h, -help, --help, --usage        Display usage instructions.
 -i, -in, --in, --input ARG        Read input file. Tab-separated format:
                                   start length strand
@@ -46,7 +47,7 @@ OPTIONS:
 -v, -verbose, -V, --verbose       Verbose option.
 EXAMPLES:
 
-methylFlow -i reads.tsv -o mfoutput -l 10.0 -s 30.0
+methylFlow -i reads.tsv -o mfoutput -l 10.0 -s 30.0 -e 0.1
 </pre>
 
 
