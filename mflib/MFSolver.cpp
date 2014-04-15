@@ -24,7 +24,21 @@ namespace methylFlow {
     int res;
     res = make_lp(length_mult);
     if (res) return res;
-    return solve_for_lambda(lambda);
+
+    if (lambda >= 0.)
+      return solve_for_lambda(lambda);
+
+    float best_lambda;
+    res = search_lambda(.1, best_lambda);
+    if (res) return res;
+
+    return solve_for_lambda(best_lambda);
+  }
+
+  int MFSolver::search_lambda(const float epsilon, float &best_lambda)
+  {
+    best_lambda = 1.;
+    return solve_for_lambda(best_lambda);
   }
 
   int MFSolver::make_lp(const float length_mult)

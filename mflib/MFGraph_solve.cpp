@@ -21,7 +21,7 @@ void MFGraph::add_terminals()
       if (read_map[n] && read_map[n]->start() > rightMostStart) {
           rightMostStart = read_map[n]->start();
           rightMostEnd = rightMostStart + read_map[n]->length();
-          std::cout << "rightMostEnd" << rightMostEnd << std::endl;
+	  //          std::cout << "rightMostEnd" << rightMostEnd << std::endl;
 
       }
     }
@@ -80,7 +80,7 @@ void MFGraph::add_terminals()
     std::priority_queue<MethylRead*, std::vector<MethylRead*>, CompareReadStarts> position_queue;
     for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
       MethylRead *read = read_map[n];
-      std::cout << read->start() << std::endl;
+      //      std::cout << read->start() << std::endl;
       position_queue.push(read);
     }
 
@@ -96,7 +96,7 @@ void MFGraph::add_terminals()
 
       ListDigraph::Node n = read->node;
 
-      #ifndef DEBUG
+      #ifndef NDEBUG
       std::cout << "current node:" << read->start() << " " << coverage_map[n] << std::endl;
       #endif
 
@@ -152,7 +152,7 @@ void MFGraph::add_terminals()
     }
 
     float median_coverage = calculate_median(coverage_per_position);
-    #ifndef DEBUG
+    #ifndef NDEBUG
     std::cout << "median coverage: " << median_coverage << std::endl;
     #endif
 
