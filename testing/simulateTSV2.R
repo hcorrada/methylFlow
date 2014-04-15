@@ -15,18 +15,22 @@ cpgMat["blue",] <- rep(c("black"), c(9))
 fragments <- c(2,4,6)
 nFragments <- sum(fragments)
 
-readsPerFragment <- 20
+readsPerFragment <- 100
 rlen <- 20
 
 set.seed(1)
 # sample starting points
 readLocs <- sample(1:(regionWidth-rlen),size=readsPerFragment*nFragments,replace=TRUE)
+readLocs <- c(readLocs, readLocs)
 
 # sample frag
 frag <- sample(size=readsPerFragment*nFragments, x=rownames(cpgMat), p=fragments/nFragments, replace=TRUE)
+frag <- c(frag,frag)
 
 # sample component
-offset <- sample(c(0,100), length(readLocs), replace=TRUE)
+offset <- rep(c(0,100), each=length(readLocs)/2)
+
+#offset <- sample(c(0,100), length(readLocs), replace=TRUE)
 o <- order(readLocs + offset,frag)
 readLocs <- readLocs[o]
 frag <- frag[o]
