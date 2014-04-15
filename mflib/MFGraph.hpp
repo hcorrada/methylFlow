@@ -3,6 +3,7 @@
 
 #include <lemon/list_graph.h>
 #include <lemon/maps.h>
+#include <lemon/lp.h>
 
 #include "MethylRead.hpp"
 
@@ -12,8 +13,11 @@ using namespace lemon;
 #define MFGRAPH_H
 
 namespace methylFlow {
+  class MFSolver;
 
 class MFGraph {
+  friend class MFSolver;
+
 public:
   MFGraph();
   ~MFGraph();
@@ -59,9 +63,6 @@ public:
   // return expected coverage
   const float expected_coverage(const ListDigraph::Node node, const float scale) const;
 
-  // tsv file with readid, pos, length, strand (ignored), methylString, subString
-  bool processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet);
-  
   // run reading from instream
   int run( std::istream & instream,
 	   std::ostream & comp_stream,
@@ -70,6 +71,38 @@ public:
 	   const float lambda,
 	   const float scale_mult,
 	   const bool verbose );
+
+  // tsv file with readid, pos, length, strand (ignored), methylString, subString
+  bool processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet);
+
+  // print the graph
+  void print_graph();
+
+  void print_regions( std::ostream & region_stream,
+		      const float scale_mult, 
+		      const int componentId );
+  
+  // clear graph, delete pointers to read/region objects
+  void clear_graph();
+
+
+protected:
+  ListDigraph mfGraph;
+
+  ListDigraph::NodeMap<std::string> nodeName_map;
+  ListDigraph::NodeMap<int> coverage_map;
+  ListDigraph::NodeMap<float> normalized_coverage_map;
+  ListDigraph::NodeMap<MethylRead *> read_map;
+
+  ListDigraph::ArcMap<float> flow_map;
+  ListDigraph::ArcMap<int> effectiveLength_map;
+  ListDigraph::Node source, sink;
+  IterableBoolMap<ListDigraph, ListDigraph::Node> fake;
+  ListDigraph::NodeMap<bool> parentless;
+  ListDigraph::NodeMap<bool> childless;
+
+private:
+  bool is_normalized;
 
   // run on current component
   const int run_component( const int componentID,
@@ -93,50 +126,15 @@ public:
   void normalize_coverage();
   float calculate_median(std::vector<float> x);
 
-  // make the LP object
-  void make_lp(const float length_mult);
-
-  // solve the optimization problem
-  // lambda: penalty parameter
-  int solve_for_lambda(const float lambda);
-
-  // find the best lambda
-  int search_lambda(const float epislon, float &best_lambda);
+  // add nodes for regularization penalty
+  void regularize();
 
   // solve wrapper
-  int solve(const float length_mult);
+  int solve(const float lambda, const float length_mult);
 
   // run decomposition algorithm
   // componentID: used for printing
   int decompose(const int componentID, std::ostream & patt_stream);
-
-  // print the graph
-  void print_graph();
-
-  void print_regions( std::ostream & region_stream,
-		      const float scale_mult, 
-		      const int componentId );
-
-  // clear graph, delete pointers to read/region objects
-  void clear_graph();
-
-
-protected:
-  ListDigraph mfGraph;
-
-  ListDigraph::NodeMap<std::string> nodeName_map;
-  ListDigraph::NodeMap<int> coverage_map;
-  ListDigraph::NodeMap<float> normalized_coverage_map;
-  ListDigraph::NodeMap<MethylRead *> read_map;
-
-  ListDigraph::ArcMap<float> flow_map;
-  ListDigraph::ArcMap<int> effectiveLength_map;
-private:
-  ListDigraph::Node source, sink;
-  IterableBoolMap<ListDigraph, ListDigraph::Node> fake;
-  ListDigraph::NodeMap<bool> parentless;
-  ListDigraph::NodeMap<bool> childless;
-  bool is_normalized;
 };
 
 inline const ListDigraph &MFGraph::get_graph() const

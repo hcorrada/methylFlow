@@ -10,8 +10,8 @@
 namespace methylFlow {
 
   MFGraph::MFGraph() : mfGraph(), nodeName_map(mfGraph), coverage_map(mfGraph), normalized_coverage_map(mfGraph), read_map(mfGraph),
-		     flow_map(mfGraph), effectiveLength_map(mfGraph),
-		     source(), sink(), fake(mfGraph, false),
+		       flow_map(mfGraph), effectiveLength_map(mfGraph),
+		       source(), sink(), fake(mfGraph, false),
 		       parentless(mfGraph, false), childless(mfGraph, false), is_normalized(false)
 {
 }
@@ -540,9 +540,9 @@ void MFGraph::print_graph()
       std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
     }
     // solve
-    int res = solve( scale_mult );
+    int res = solve( lambda, scale_mult );
     if (res) {
-      std::cerr << "[methylFlow] Error solving LP" << std::endl;
+      std::cerr << "[methylFlow] Error solving" << std::endl;
       return res;
     }
 

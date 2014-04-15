@@ -1,11 +1,11 @@
 #include <iostream>
 #include <queue>
 
-#include <lemon/lp.h>
 #include <lemon/path.h>
 #include <lemon/dijkstra.h>
 
 #include "MFGraph.hpp"
+#include "MFSolver.hpp"
 
 namespace methylFlow {
 void MFGraph::add_terminals()
@@ -162,24 +162,8 @@ void MFGraph::add_terminals()
     is_normalized = true;
   }
 
-  int MFGraph::solve(const float length_mult)
-{
-  const float lambda = 1.0;
-
-  Lp lp;
-  
-  ListDigraph::NodeMap<Lp::Col> alpha(mfGraph);
-  ListDigraph::NodeMap<Lp::Col> beta(mfGraph);
-  ListDigraph::NodeMap<Lp::Col> nu(mfGraph);
-
-  ListDigraph::ArcMap<Lp::Row> rows(mfGraph);
-  ListDigraph::ArcMap<float> scaled_length(mfGraph);
-
-  // scale the lengths
-  for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
-    scaled_length[arc] = effectiveLength_map[arc] / length_mult;
-  }
-
+  void MFGraph::regularize()
+  {
   // add the lambda edges
   int lamcnt = 0;
   for (ListDigraph::InArcIt arc(mfGraph, sink); arc != INVALID; ++arc, ++lamcnt) {
@@ -188,113 +172,31 @@ void MFGraph::add_terminals()
     ListDigraph::Node newNode = addNode(nodename.str(), 0);
     ListDigraph::Node node = mfGraph.source(arc);
     ListDigraph::Arc newArc = addArc(node, newNode, 1);
-    scaled_length[newArc] = scaled_length[arc];
+
     mfGraph.changeSource(arc, newNode);
-    scaled_length[arc] = - lambda;
     childless[node] = false;
     childless[newNode] = true;
   }
-  Lp::Expr obj;
-
-  #ifndef NDEBUG
-  std::cout << "running solver on " << countNodes(mfGraph) << " nodes" << std::endl;
-  #endif
-
-  for (ListDigraph::NodeIt v(mfGraph); v != INVALID; ++v) {
-    #ifndef NDEBUG
-    std::cout << "Processing node " << nodeName_map[v] << std::endl;
-    #endif
-
-    if (fake[v]) continue;
-
-    // add node's alpha variable and bounds
-    alpha[v] = lp.addCol();
-    lp.colLowerBound(alpha[v], 0.);
-    lp.colUpperBound(alpha[v], 1.);
-
-    // add node's beta variable and bounds
-    beta[v] = lp.addCol();
-    lp.colLowerBound(beta[v], 0.);
-    lp.colUpperBound(beta[v], 1.);
-
-    // add node's nu variable
-    nu[v] = lp.addCol();
-
-    #ifndef NDEBUG
-    std::cout << "LP vars added" << std::endl;
-    #endif
-
-    // add node's term in objective 
-    obj += normalized_coverage_map[v] * (beta[v] - alpha[v]);
-
-    #ifndef NDEBUG
-    std::cout << "obj added" << std::endl;
-    #endif
   }
 
-  // bound nu variable for source targets
-  for (ListDigraph::OutArcIt arc(mfGraph, source); arc != INVALID; ++arc) {
-    ListDigraph::Node v = mfGraph.target(arc);
-    rows[arc] = lp.addRow(nu[v] <= 0);
-  }
-  #ifndef NDEBUG
-  std::cout << "nu bounds added" << std::endl;
-  #endif
+  int MFGraph::solve(const float lambda, const float length_mult)
+{
+  int res;
 
-  // add sink constraints
-  for (ListDigraph::InArcIt arc(mfGraph, sink); arc != INVALID; ++arc) {
-    ListDigraph::Node v = mfGraph.source(arc);
-    rows[arc] = lp.addRow(scaled_length[arc] * beta[v] - 
-			  scaled_length[arc] * alpha[v] - nu[v] <= 0);
-  }
-  #ifndef NDEBUG
-  std::cout << "sink constraints added" << std::endl;
-  #endif
+  regularize();
 
-  // add remaining constraints (if not childless)
-  for (IterableBoolMap<ListDigraph, ListDigraph::Node>::FalseIt v(fake); v != INVALID; ++v) {
-    if (childless[v]) continue;
-    
-    for (ListDigraph::OutArcIt arc(mfGraph, v); arc != INVALID; ++arc) {
-      ListDigraph::Node u = mfGraph.target(arc);
-      if (u == INVALID) {
-	std::cout << "error getting target from arc" << std::endl;
-	return -1;
-      }
-      rows[arc] = lp.addRow(scaled_length[arc] * beta[v] - 
-			    scaled_length[arc] * alpha[v] - nu[v] + nu[u] <= 0);
-    }
-    #ifndef NDEBUG
-    std::cout << "constraints added" << std::endl;
-    #endif
+  MFSolver solver(this);
+  res = solver.solve(lambda, length_mult);
+
+  if (res) {
+    std::cerr << "[methylFlow] Error solving for scale =" << length_mult << std::endl;
+    return res;
   }
 
-  lp.obj(obj);
-  lp.max();
-  lp.solve();
-
-  #ifndef NDEBUG
-  std::cout << "Called solver" << std::endl;
-  #endif
-
-  if (lp.primalType() != Lp::OPTIMAL) {
-    std::cout << "Did not find optimum" << std::endl;
-    return -1;
-  }
-
-  // extract flows
-  for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
-    #ifndef NDEBUG
-    std::cout << "Extracting flow of arc: " << std::endl;
-    std::cout << nodeName_map[mfGraph.source(arc)];
-    std::cout << " -> ";
-    std::cout << nodeName_map[mfGraph.target(arc)] << std::endl;
-    #endif
-    Lp::Row row = rows[arc];
-    flow_map[arc] = lp.dual(row);
-  }
+  solver.extract_flows();
   return 0;
 }
+
 
   int MFGraph::decompose(const int componentID, std::ostream & patt_stream)
 {

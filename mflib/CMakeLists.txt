@@ -7,6 +7,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(mflib
   MFGraph.cpp
   MFGraph_solve.cpp
+  MFSolver.cpp
   MethylRead.cpp
   MFRegionPrinter.cpp
 )
