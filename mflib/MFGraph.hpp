@@ -70,6 +70,7 @@ public:
 	   std::ostream & region_stream,
 	   const float lambda,
 	   const float scale_mult,
+	   const float epsilon,
 	   const bool verbose );
 
   // tsv file with readid, pos, length, strand (ignored), methylString, subString
@@ -111,6 +112,7 @@ private:
 			   std::ostream & region_stream,
 			   const float lambda,
 			   const float scale_mult,
+			   const float epsilon,
 			   const bool verbose );
 
   // merge chains in read overlap graph
@@ -130,7 +132,7 @@ private:
   void regularize();
 
   // solve wrapper
-  int solve(const float lambda, const float length_mult, const bool verbose);
+  int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose);
 
   // run decomposition algorithm
   // componentID: used for printing

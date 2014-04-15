@@ -108,6 +108,7 @@ void MFGraph::print_graph()
 		    std::ostream & region_stream,
 		    const float lambda,
 		    const float scale_mult,
+		    const float epsilon,
 		    const bool verbose )
 {
   std::string readid, rStrand, methStr, substStr;
@@ -174,6 +175,7 @@ void MFGraph::print_graph()
 			region_stream,
 			lambda, 
 			scale_mult,
+			epsilon,
 			verbose );
 	 clear_graph();
        }
@@ -205,6 +207,7 @@ void MFGraph::print_graph()
 		 region_stream,
 		 lambda,
 		 scale_mult,
+		 epsilon,
 		 verbose );
   clear_graph();
   return 0;
@@ -511,6 +514,7 @@ void MFGraph::print_graph()
 				    std::ostream & region_stream,
 				    const float lambda,
 				    const float scale_mult, 
+				    const float epsilon,
 				    const bool verbose ) 
   {
     #ifndef NDEBUG
@@ -540,7 +544,7 @@ void MFGraph::print_graph()
       std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
     }
     // solve
-    int res = solve( lambda, scale_mult, verbose );
+    int res = solve( lambda, scale_mult, epsilon, verbose );
     if (res) {
       std::cerr << "[methylFlow] Error solving" << std::endl;
       return res;

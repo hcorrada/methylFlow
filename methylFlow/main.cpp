@@ -134,6 +134,22 @@ int main(int argc, const char **argv)
           "--scale"
           );
 
+  // epsilon parameter
+  const float DEFAULT_EPSILON = 0.1;
+  buffer.str("");
+  buffer << DEFAULT_EPSILON;
+  opt.add(
+          buffer.str().c_str(), // default
+          0, // not required, uses default
+          1, // num args
+          0, // no delimiter
+          "Regularization parameter search threshold.", // help description
+          "-e", // flag tokens
+          "-E",
+          "-eps",
+          "--eps"
+          );
+
   // verbose option
   const bool DEFAULT_VERBOSE = true;
   buffer.str("");
@@ -226,6 +242,13 @@ int main(int argc, const char **argv)
     scale_mult = DEFAULT_SCALE; // can get from opt?
   }
 
+  float epsilon;
+  if (opt.isSet("-e")) {
+    opt.get("-e")->getFloat(epsilon);
+  } else {
+    epsilon = DEFAULT_EPSILON; // can we get from opt?
+  }
+
   bool verbose;
   if (opt.isSet("-v")) {
     verbose = true;
@@ -240,6 +263,7 @@ int main(int argc, const char **argv)
                   region_stream,
                   lambda,
                   scale_mult,
+                  epsilon,
                   verbose );
 
   // streams are closed when object

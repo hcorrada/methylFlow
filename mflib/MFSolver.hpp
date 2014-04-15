@@ -13,7 +13,7 @@ namespace methylFlow {
     ~MFSolver();
     
     // does everything
-    int solve(const float lambda, const float length_mult, const bool solve);
+    int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose);
 
     // extract flows from LP solution
     int extract_flows();

@@ -179,7 +179,7 @@ void MFGraph::add_terminals()
   }
   }
 
-  int MFGraph::solve(const float lambda, const float length_mult, const bool verbose)
+  int MFGraph::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose)
 {
   int res;
 
@@ -192,7 +192,7 @@ void MFGraph::add_terminals()
   if (verbose) {
     std::cout << "[methylFlow] Solving optimization problem" << std::endl;
   }
-  res = solver.solve(lambda, length_mult, verbose);
+  res = solver.solve(lambda, length_mult, epsilon, verbose);
 
   if (res) {
     std::cerr << "[methylFlow] Error solving for scale =" << length_mult << std::endl;

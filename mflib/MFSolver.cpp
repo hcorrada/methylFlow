@@ -21,7 +21,7 @@ namespace methylFlow {
   {
   }
 
-  int MFSolver::solve(const float lambda, const float length_mult, const bool verbose)
+  int MFSolver::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose)
   {
     int res;
     res = make_lp(length_mult);
@@ -35,7 +35,7 @@ namespace methylFlow {
       std::cout << "[methylFlow] Searching for best lambda" << std::endl;
     }
 
-    res = search_lambda(.1, best_lambda, verbose);
+    res = search_lambda(epsilon, best_lambda, verbose);
     if (res) return res;
 
     return solve_for_lambda(best_lambda);
