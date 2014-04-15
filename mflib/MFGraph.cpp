@@ -120,7 +120,7 @@ void MFGraph::print_graph()
   ListDigraph::Node node;
   int rightMostPos = 0;
 
-  const int READ_LIMIT = 100;
+  const int READ_LIMIT = 100000000000;
   #ifndef NDEBUG
   bool check_count = true;
   #else

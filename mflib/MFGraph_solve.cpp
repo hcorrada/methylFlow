@@ -95,6 +95,8 @@ void MFGraph::add_terminals()
       position_queue.pop();
 
       ListDigraph::Node n = read->node;
+      // keep going if node is invalid
+      if (!mfGraph.valid(n)) continue;
 
       #ifndef NDEBUG
       std::cout << "current node:" << read->start() << " " << coverage_map[n] << std::endl;

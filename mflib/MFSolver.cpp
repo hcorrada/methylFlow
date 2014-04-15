@@ -97,12 +97,12 @@ namespace methylFlow {
   Lp::Expr obj;
 
   #ifndef NDEBUG
-  std::cout << "making LP on " << countNodes(mfGraph) << " nodes" << std::endl;
+  std::cout << "making LP on " << countNodes(mf->mfGraph) << " nodes" << std::endl;
   #endif
   
   for (ListDigraph::NodeIt v(mfGraph); v != INVALID; ++v) {
     #ifndef NDEBUG
-    std::cout << "Processing node " << nodeName_map[v] << std::endl;
+    std::cout << "Processing node " << mf->nodeName_map[v] << std::endl;
     #endif
 
     if (mf->fake[v]) continue;
@@ -217,9 +217,9 @@ namespace methylFlow {
     for (ListDigraph::ArcIt arc(mf->get_graph()); arc != INVALID; ++arc) {
     #ifndef NDEBUG
     std::cout << "Extracting flow of arc: " << std::endl;
-    std::cout << nodeName_map[mfGraph.source(arc)];
+    std::cout << mf->nodeName_map[mf->get_graph().source(arc)];
     std::cout << " -> ";
-    std::cout << nodeName_map[mfGraph.target(arc)] << std::endl;
+    std::cout << mf->nodeName_map[mf->get_graph().target(arc)] << std::endl;
     #endif
     Lp::Row row = rows[arc];
     mf->flow_map[arc] = lp->dual(row);
