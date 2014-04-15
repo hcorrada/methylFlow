@@ -103,7 +103,7 @@ int main(int argc, const char **argv)
           );
 
   // lambda
-  const float DEFAULT_LAMBDA = 1.0;
+  const float DEFAULT_LAMBDA = -1.0;
   buffer.str("");
   buffer << DEFAULT_LAMBDA;
   opt.add(

@@ -130,7 +130,7 @@ private:
   void regularize();
 
   // solve wrapper
-  int solve(const float lambda, const float length_mult);
+  int solve(const float lambda, const float length_mult, const bool verbose);
 
   // run decomposition algorithm
   // componentID: used for printing

@@ -540,7 +540,7 @@ void MFGraph::print_graph()
       std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
     }
     // solve
-    int res = solve( lambda, scale_mult );
+    int res = solve( lambda, scale_mult, verbose );
     if (res) {
       std::cerr << "[methylFlow] Error solving" << std::endl;
       return res;

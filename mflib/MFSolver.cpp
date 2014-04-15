@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cmath>
+
 #include <lemon/lp.h>
 
 #include "MFSolver.hpp"
@@ -19,25 +21,65 @@ namespace methylFlow {
   {
   }
 
-  int MFSolver::solve(const float lambda, const float length_mult)
+  int MFSolver::solve(const float lambda, const float length_mult, const bool verbose)
   {
     int res;
     res = make_lp(length_mult);
     if (res) return res;
 
-    if (lambda >= 0.)
+    if (lambda >= 0.) 
       return solve_for_lambda(lambda);
 
     float best_lambda;
-    res = search_lambda(.1, best_lambda);
+    if (verbose) {
+      std::cout << "[methylFlow] Searching for best lambda" << std::endl;
+    }
+
+    res = search_lambda(.1, best_lambda, verbose);
     if (res) return res;
 
     return solve_for_lambda(best_lambda);
   }
 
-  int MFSolver::search_lambda(const float epsilon, float &best_lambda)
+  int MFSolver::search_lambda(const float epsilon, float &best_lambda, const bool verbose)
   {
-    best_lambda = 1.;
+    const double powlimit = 6.0;
+
+    float best_deviance;
+    float current_deviance;
+    int res;
+    float current_lambda;
+    float factor;
+
+    best_lambda = -1;
+    for (double curpow = -powlimit; curpow <= powlimit; curpow+=.5) {
+      current_lambda = pow(2., curpow);
+      res = solve_for_lambda(current_lambda);
+      if (res) return res;
+
+      current_deviance = get_deviance(current_lambda);
+      if (verbose) {
+	std::cout << "lam=2^" << curpow << " dev=" << current_deviance;
+      }
+
+      if (best_lambda < 0) {
+	best_deviance = current_deviance;
+	best_lambda = current_lambda;
+	std::cout << std::endl;
+	continue;
+      }
+
+      factor = best_deviance / current_deviance;
+      std::cout << " fact=" << factor << std::endl;
+      if (factor >= 1.0 - epsilon) {
+	best_deviance = current_deviance;
+	best_lambda = current_lambda;
+      }
+    }
+
+    if (verbose) {
+      std::cout << "[methylFlow] best lamda found " << best_lambda << " deviance=" << best_deviance << std::endl;
+    }
     return solve_for_lambda(best_lambda);
   }
 
@@ -164,9 +206,7 @@ namespace methylFlow {
     if (lp->primalType() != Lp::OPTIMAL) {
       std::cout << "Did not find optimum" << std::endl;
       return -1;
-    } else {
-      std::cout << "lambda=" << lambda << " dev= " << get_deviance(lambda) << std::endl;
-    }
+    } 
     return 0;
   }
 

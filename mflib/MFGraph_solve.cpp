@@ -179,14 +179,20 @@ void MFGraph::add_terminals()
   }
   }
 
-  int MFGraph::solve(const float lambda, const float length_mult)
+  int MFGraph::solve(const float lambda, const float length_mult, const bool verbose)
 {
   int res;
 
+  if (verbose) {
+    std::cout << "[methylFlow] Extending graph with regularization nodes" << std::endl;
+  }
   regularize();
 
   MFSolver solver(this);
-  res = solver.solve(lambda, length_mult);
+  if (verbose) {
+    std::cout << "[methylFlow] Solving optimization problem" << std::endl;
+  }
+  res = solver.solve(lambda, length_mult, verbose);
 
   if (res) {
     std::cerr << "[methylFlow] Error solving for scale =" << length_mult << std::endl;
