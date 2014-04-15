@@ -118,6 +118,15 @@ namespace methylFlow {
   return 0;
   }
 
+  float MFSolver::get_deviance(const float lambda)
+  {
+    float obj = lp->primal();
+    for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
+      obj -= lambda * lp->dual(rows[arc]);
+    }
+    return obj;
+  }
+
   int MFSolver::solve_for_lambda(const float lambda)
   {
     // modify lambda constraints
@@ -141,6 +150,8 @@ namespace methylFlow {
     if (lp->primalType() != Lp::OPTIMAL) {
       std::cout << "Did not find optimum" << std::endl;
       return -1;
+    } else {
+      std::cout << "lambda=" << lambda << " dev= " << get_deviance(lambda) << std::endl;
     }
     return 0;
   }
