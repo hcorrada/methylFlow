@@ -134,6 +134,11 @@ void MFGraph::print_graph()
     std::cout << "[methylFlow] Reading from file " << std::endl; 
   }
 
+  // print headers to output files
+  comp_stream << "start\tend\tcid\tnpatterns\ttotal_coverage\ttotal_flow\n";
+
+  patt_stream << "start\tend\tcid\tpid\tabundance\tmethylpat\n";
+  region_stream << "start\tend\tcid\trid\traw_coverage\tnorm_coverage\texp_coverage\tmethylpat\n";
   while (!check_count || count < READ_LIMIT) {
     std::getline( instream, input );
     if( !instream ) break; // checks end of file
