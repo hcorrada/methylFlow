@@ -474,8 +474,8 @@ void MFGraph::print_graph()
     }
 
     // remove source and sink
-    mfGraph.erase(source);
-    mfGraph.erase(sink);
+    //    mfGraph.erase(source);
+    //    mfGraph.erase(sink);
   }
 
   const int MFGraph::total_coverage() const
@@ -524,7 +524,7 @@ void MFGraph::print_graph()
     print_graph();
     #endif
 
-    preprocess();
+    add_terminals();
     #ifndef NDEBUG
     std::cout << "preprocess complete" << std::endl;
     print_graph();
@@ -540,8 +540,11 @@ void MFGraph::print_graph()
       std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
     }
     // solve
-    preprocess();
-    solve( lambda, scale_mult );
+    int res = solve( scale_mult );
+    if (res) {
+      std::cerr << "[methylFlow] Error solving LP" << std::endl;
+      return res;
+    }
 
     if (verbose) {
       std::cout << "[methylFlow] Component " << componentID << " estimation complete. Writing regions to file." << std::endl;

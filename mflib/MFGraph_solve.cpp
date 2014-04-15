@@ -8,7 +8,7 @@
 #include "MFGraph.hpp"
 
 namespace methylFlow {
-void MFGraph::preprocess()
+void MFGraph::add_terminals()
 {
   int rightMostStart = -1;
   int rightMostEnd = -1;
@@ -162,8 +162,10 @@ void MFGraph::preprocess()
     is_normalized = true;
   }
 
-  int MFGraph::solve(const float lambda, const float length_mult)
+  int MFGraph::solve(const float length_mult)
 {
+  const float lambda = 1.0;
+
   Lp lp;
   
   ListDigraph::NodeMap<Lp::Col> alpha(mfGraph);

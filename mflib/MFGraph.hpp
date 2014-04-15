@@ -87,17 +87,24 @@ public:
   void merge_nodes(ListDigraph::Arc arc);
 
   // add source and sink to graph
-  void preprocess();
-  
+  void add_terminals();
+
   // normalize coverage per position
   void normalize_coverage();
-
   float calculate_median(std::vector<float> x);
+
+  // make the LP object
+  void make_lp(const float length_mult);
 
   // solve the optimization problem
   // lambda: penalty parameter
-  // length_mult: scale on length
-  int solve(const float lambda, const float length_mult);
+  int solve_for_lambda(const float lambda);
+
+  // find the best lambda
+  int search_lambda(const float epislon, float &best_lambda);
+
+  // solve wrapper
+  int solve(const float length_mult);
 
   // run decomposition algorithm
   // componentID: used for printing
