@@ -1,6 +1,10 @@
 // to be run :
 //./Simulate < input.in > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/test0.tsv
+// flag = 0  >>> read CpG sites from file
+// flag > 0 >>>> flag equals the number of cpg sites
+// flag < 0 >>> read the data from rest of the file
 #include "simulator.h"
+#include <math.h>
 #include <fstream>
 #include <iostream>
 
@@ -37,18 +41,35 @@ void simulator::readData(){
         
     }
     else if( flag == 0){
-        methylPosFile.open("CpGInfo.txt");
+        int sum = 0;
+        for( int i=0; i < HapNum; i++){
+            freq.push_back(rand() %100);
+            sum += freq[i];
+        }
+        for(int i =0; i<HapNum; i++){
+            freq[i] = freq[i]*100/sum;
+            //cout << freq[i] << endl;
+        }
+        
+
+        methylPosFile.open("/cbcb/project-scratch/fdorri/Code/Methylation/methylFlow/1_CpGInfo.txt");
         vector<int> posVec;
         int s, p;
         char t;
         string dummyLine;
         getline(methylPosFile, dummyLine);
-        
-        while(!methylPosFile.eof()) {
-            
+        int i = 0;
+        //while(!methylPosFile.eof()) {
+        while( i < 100){
+            i++;
             methylPosFile >> s >> p >> t;
+            dnaLength = max(dnaLength, s + p );
+            //readLength = max(readLength, p);
             pos.push_back(s + p);
         }
+        //cout << dnaLength << endl;
+        //cout << readLength << endl;
+
         methylPosFile.close();
     }
     else{
@@ -68,9 +89,13 @@ void simulator::readData(){
     
     
 }
-int simulator::computeMethylProbability(int corrDist, int dist, int HapNum){
-	
-	if( dist < corrDist){
+double simulator::sigmoid(double x, int corrDist){
+    return 1.0/ (1.0 + exp(-(x-corrDist)));
+}
+int simulator::computeMethylProbability(int corrDist, int dist){
+	double r = double(rand())/ RAND_MAX;
+	//if( dist < corrDist){
+    if ( r > sigmoid(dist, corrDist)){
         return 0;
     }
     else if(rand() % 100 < 50)
@@ -89,15 +114,34 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
     if(flag >0 ){
         for(int i=0; i<HapNum; i++){
             //cout << "pos.size " << pos.size() << endl;
+            //hapInfo.clear();
+            //for(unsigned int j=0; j<pos.size(); j++){
+              //  if(rand() % 100 < 50){
+                //    type = 'M';
+                //}
+                //else{
+                  //  type ='U';
+                //}
+                //hapInfo.push_back(MethylInfo(pos[j], type));
+            //}
             hapInfo.clear();
-            for(unsigned int j=0; j<pos.size(); j++){
-                if(rand() % 100 < 50){
-                    type = 'M';
-                }
+            if(rand() % 100 < 50){
+                type = 'M';
+            }
+            else{
+                type ='U';
+            }
+            hapInfo.push_back(MethylInfo(pos[0], type));
+            for( unsigned int i=1; i < pos.size() ; i++){
+                int dist = pos[i] - pos[i-1];
+                if (computeMethylProbability(corrDist, dist) == 0)
+                hapInfo.push_back(MethylInfo(pos[i], type));
                 else{
-                    type ='U';
+                    if (type == 'M')
+                    hapInfo.push_back(MethylInfo(pos[i], 'U'));
+                    if (type == 'U')
+                    hapInfo.push_back(MethylInfo(pos[i], 'M'));
                 }
-                hapInfo.push_back(MethylInfo(pos[j], type));
             }
             MethylHap methylHap;
             methylHap.length = dnaLength;
@@ -124,7 +168,7 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
             hapInfo.push_back(MethylInfo(pos[0], type));
             for( unsigned int i=1; i < pos.size() ; i++){
                 int dist = pos[i] - pos[i-1];
-                if (computeMethylProbability(corrDist, dist, HapNum) == 0)
+                if (computeMethylProbability(corrDist, dist) == 0)
                     hapInfo.push_back(MethylInfo(pos[i], type));
                 else{
                     if (type == 'M')
@@ -133,7 +177,19 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
                         hapInfo.push_back(MethylInfo(pos[i], 'M'));
                 }
             }
+            MethylHap methylHap;
+            methylHap.length = dnaLength;
+            methylHap.methyl = hapInfo;
+            methylHapVec.push_back(methylHap);
+            patternFile << methylHapVec[i].length << "\t";
+            for(unsigned int j=0; j < methylHapVec[i].methyl.size(); j++){
+                patternFile << methylHapVec[i].methyl[j].pos   << ":" << methylHapVec[i].methyl[j].type << ",";
+            }
+            patternFile << "\n" ;
+            
         }
+        patternFile.close();
+ 
     }
 }
 
@@ -204,21 +260,26 @@ void simulator::writeMethylRead(MethylRead read, int k){
 void simulator::simulate(){
 	vector<MethylRead> data;
     readData();
-    //cout << "read Done" << endl;
+    //cout << "DNA Lenght" << "\t" << dnaLength<< endl;
     buildMethylHap(dnaLength, pos, HapNum, methylHapVec, flag);
     //cout << "hap built" << endl;
+    //cout << "max_i" << coverage*dnaLength/readLength << endl;
+
     for(int i=0; i < coverage*dnaLength/readLength; i++){
         int hap=0;
         int pos=0;
         MethylRead read;
+        //cout << "dnaLength" << dnaLength << endl;
+
         selectHP(readLength, dnaLength, freq, hap, pos);
         //cout << "HP Seleced " << i << endl;
         //cout << "hap " << hap << endl;
         //cout << "pos " << pos << endl;
+        //cout << "read Length" <<  readLength << endl;
         buildRead(hap, pos, readLength, error, methylHapVec, read);
 		data.push_back(read);
 		
-      //  cout << "read Wrote" << endl;
+        //cout << "read Wrote" << endl;
     }
 	sort(data.begin(), data.end());
     //cout << "Read built" << endl;

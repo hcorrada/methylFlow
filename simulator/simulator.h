@@ -39,7 +39,8 @@ public:
     ~simulator(){};
 
     void readData();
-    int computeMethylProbability(int corrDist, int dist, int HapNum);
+    double sigmoid(double x, int corrDist);
+    int computeMethylProbability(int corrDist, int dist);
 	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<MethylHap>& methylHapVec, int flag);
 //    void buildMethylHap(int length, vector<int> pos, int HapNum);
 
