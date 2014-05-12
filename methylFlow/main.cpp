@@ -81,12 +81,25 @@ int main(int argc, const char **argv)
           1, // Required (for now, will switch to stdin if missing in future)
           1, // number of args expected
           0, // delimiter, not needed
-          "Read input file. Tab-separated format:\nstart length strand methyl<string>(offset<int>[M|U] substitutions<string>(ignored))", // Help description
+          "Read input file. Default:Tab-separated format:\nstart length strand methyl<string>(offset<int>[M|U] substitutions<string>(ignored))", // Help description
           "-i", //flag token
           "-in", // flag token
           "--in", // flag token
           "--input" //flag token
           );
+    
+    // Sam file input
+    opt.add(
+            "", // Default.
+            0, // Required (for now, will switch to stdin if missing in future)
+            0, // number of args expected
+            0, // delimiter, not needed
+            "SAM input file. Tab-separated format:Default SAM file", // Help description
+            "-sam", // flag token
+            "-SAM", // flag token
+            "--sam" //flag token
+            );
+
 
   const char * DEFAULT_OUTDIR = "mfoutput";
   // output directory
@@ -227,7 +240,12 @@ int main(int argc, const char **argv)
     std::cerr << "[methylFlow] Error opening file." << std::endl;
     return -1;
   }
-
+    
+  bool flag_SAM = false;
+  if (opt.isSet("-sam")) {
+      flag_SAM = true;
+  }
+    
   float lambda;
   if (opt.isSet("-l")) {
     opt.get("-l")->getFloat(lambda);
@@ -261,6 +279,7 @@ int main(int argc, const char **argv)
                   comp_stream,
                   pattern_stream,
                   region_stream,
+                  flag_SAM,
                   lambda,
                   scale_mult,
                   epsilon,

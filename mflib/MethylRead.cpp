@@ -52,6 +52,34 @@ namespace methylFlow {
     }
     return 0;
   }
+    
+    
+  int MethylRead::parseXMtag(std::string XM){
+      std::size_t foundU, foundM, found;
+      std::size_t curStringOffset = XM.find("XM:Z:", 0) + 5;
+      
+      int curPos = 0;
+      bool curMeth = false;
+      
+      while (curStringOffset < XM.length()) {
+          foundM = XM.find("Z", curStringOffset);
+          foundU = XM.find("z", curStringOffset);
+          
+          found = std::min(foundM, foundU);
+          
+          if (found == std::string::npos) {
+              break;
+          }
+          curPos = found - 5;
+          curMeth = (XM[found] == 'Z');
+          cpgOffset.push_back(curPos);
+          methyl.push_back(curMeth);
+          curStringOffset = found + 1;
+      }
+      return 0;
+      
+  }
+
 
   const std::string MethylRead::getMethString() const
   {
