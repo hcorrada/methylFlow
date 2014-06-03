@@ -206,7 +206,7 @@ void MFGraph::add_terminals()
 }
 
 
-  int MFGraph::decompose(const int componentID, std::ostream & patt_stream)
+  int MFGraph::decompose(const int componentID, std::ostream & patt_stream, int chr)
 {
   // compute total flow
   float total_flow = this->total_flow();
@@ -258,7 +258,7 @@ void MFGraph::add_terminals()
       }
     }
 
-    patt_stream << read_map[source]->start() + 1 << "\t" << read_map[sink]->end();
+    patt_stream << chr << "\t" <<read_map[source]->start() + 1 << "\t" << read_map[sink]->end();
     patt_stream << "\t" << componentID << "\t" << flownum << "\t" << path_flow;
     patt_stream << "\t" << pattern.getMethString() << std::endl;
 

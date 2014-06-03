@@ -1,4 +1,5 @@
 #include <iostream>
+#include<string>
 #include <stack>
 
 #include <lemon/bfs.h>
@@ -103,9 +104,9 @@ namespace methylFlow {
     }
     
     void MFGraph::print_regions( std::ostream & region_stream,
-                                const float scale_mult, const int componentId )
+                                const float scale_mult, const int componentId, int chr )
     {
-        MFRegionPrinter regionPrinter(this, &region_stream, componentId, scale_mult);
+        MFRegionPrinter regionPrinter(this, &region_stream, componentId, scale_mult, chr);
         BfsVisit<ListDigraph, MFRegionPrinter, BfsVisitDefaultTraits<ListDigraph> > bfs(mfGraph, regionPrinter);
         
         bfs.run(source);
@@ -116,6 +117,7 @@ namespace methylFlow {
                      std::ostream & comp_stream,
                      std::ostream & patt_stream,
                      std::ostream & region_stream,
+                     int chr,
                      const bool flag_SAM,
                      const float lambda,
                      const float scale_mult,
@@ -149,10 +151,10 @@ namespace methylFlow {
         }
         
         // print headers to output files
-        comp_stream << "start\tend\tcid\tnpatterns\ttotal_coverage\ttotal_flow\n";
+        comp_stream << "chr\tstart\tend\tcid\tnpatterns\ttotal_coverage\ttotal_flow\n";
         
-        patt_stream << "start\tend\tcid\tpid\tabundance\tmethylpat\n";
-        region_stream << "start\tend\tcid\trid\traw_coverage\tnorm_coverage\texp_coverage\tmethylpat\n";
+        patt_stream << "chr\tstart\tend\tcid\tpid\tabundance\tmethylpat\n";
+        region_stream << "chr\tstart\tend\tcid\trid\traw_coverage\tnorm_coverage\texp_coverage\tmethylpat\n";
         if(flag_SAM){
             while (std::getline(instream, input)){
                 std::cerr << "[methylFlow] 0 Discarding lines start with " << input << std::endl;
@@ -167,6 +169,8 @@ namespace methylFlow {
             count++;
             if( !instream ) break; // checks end of file
             MethylRead * m;
+            
+            int lastChr = 0;
             
             if(!flag_SAM){
                 // parse tab-separated line
@@ -187,10 +191,6 @@ namespace methylFlow {
 #ifndef NDEBUG
                 std::cout << "read: " << readid << " " << m->getString() << std::endl;
 #endif
-                else{
-                    std::cerr << "Unknown input Format" << std::endl;
-                }
-                
             }
             else if(flag_SAM){
                 //parse SAM format
@@ -200,9 +200,17 @@ namespace methylFlow {
                     std::cerr << "[methylFlow] Error parsing SAM input" << std::endl;
                     return -1;
                 }
+                //parse chr name
+                std::string::size_type sz;
+                std::string chromosome =  RNAME.substr(3);
+                chr = atoi(chromosome.c_str());
+                
+                std::cout << "chr " << chr << std::endl;
+                
                 rPos = POS;
-                rLen = findLength(QNAME);
-                // std::cout << "rLen " << rLen << std::endl;
+                rLen = SEQ.length();
+                //rLen = findLength(QNAME);
+                std::cout << "rLen " << rLen << std::endl;
                 // construct object with read info
                 m = new MethylRead(rPos, rLen);
                 if (methStr != "*"){
@@ -213,25 +221,26 @@ namespace methylFlow {
 #ifndef NDEBUG
                 std::cout << "read: " << readid << " " << m->getString() << std::endl;
 #endif
-                else{
-                    std::cerr << "Unknown input Format" << std::endl;
-                }
                 //std::cout << "read: " << readid << " " << m->getString() << std::endl;
                 
             }
-        }
-        
-        sort(mVector.begin(), mVector.end(), CompareReadStarts());
-        for(unsigned int i = 0; i < mVector.size(); i++){
-            MethylRead * m;
-            m = mVector.at(i);
+            
+            // we assume the input file is sorted
+            //sort(mVector.begin(), mVector.end(), CompareReadStarts());
+            //for(unsigned int i = 0; i < mVector.size(); i++){
+            //MethylRead * m;
+            //m = mVector.at(i);
             std::cout << "read: " << readid << " " << m->getString() << std::endl;
             
             // does this read start after the rightMost end position?
-            if (m->start() > rightMostPos) {
+            if (m->start() > rightMostPos || chr != lastChr) {
+                std::cout << "chr " << chr << std::endl;
+   
+                lastChr = chr;
                 // clear active reads if necessary
-                if (!activeSet.empty())
+                if (!activeSet.empty()){
                     activeSet.clear();
+                }
                 
                 // process this connected component
                 if (count > 1) {
@@ -244,6 +253,7 @@ namespace methylFlow {
                                   comp_stream,
                                   patt_stream,
                                   region_stream,
+                                  chr,
                                   flag_SAM,
                                   lambda,
                                   scale_mult,
@@ -270,13 +280,15 @@ namespace methylFlow {
         }
         
         componentCount++;
-        if (verbose) {
+        if (verbose)
+        {
             std::cout << "[methylFlow] Processing last component " << componentCount << std::endl;
         }
         run_component( componentCount,
                       comp_stream,
                       patt_stream,
                       region_stream,
+                      chr,
                       flag_SAM,
                       lambda,
                       scale_mult,
@@ -285,6 +297,7 @@ namespace methylFlow {
         clear_graph();
         return 0;
     }
+    
     
     bool MFGraph::processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet)
     {
@@ -467,6 +480,7 @@ namespace methylFlow {
         return true;
     }
     
+    
     void MFGraph::merge_nodes(ListDigraph::Arc arc)
     {
         ListDigraph::Node v = mfGraph.source(arc);
@@ -585,6 +599,7 @@ namespace methylFlow {
                                      std::ostream & comp_stream,
                                      std::ostream & patt_stream,
                                      std::ostream & region_stream,
+                                     int chr,
                                      const bool flag_SAM,
                                      const float lambda,
                                      const float scale_mult,
@@ -627,7 +642,7 @@ namespace methylFlow {
         if (verbose) {
             std::cout << "[methylFlow] Component " << componentID << " estimation complete. Writing regions to file." << std::endl;
         }
-        print_regions( region_stream, scale_mult, componentID );
+        print_regions( region_stream, scale_mult, componentID, chr );
         
 #ifndef NDEBUG
         print_graph();
@@ -636,7 +651,7 @@ namespace methylFlow {
         // decompose
         float tflow = total_flow();
         int tcov = total_coverage();
-        int npatterns = decompose(componentID, patt_stream);
+        int npatterns = decompose(componentID, patt_stream, chr);
         
         if (verbose) {
             std::cout << "[methylFlow] Component " << componentID << " wrote " << npatterns << " patterns to file." << std::endl;
@@ -645,12 +660,11 @@ namespace methylFlow {
         int start = read(source)->start() + 1;
         int end = read(sink)->end();
         
-        comp_stream << start << "\t" << end;
+        comp_stream << chr << "\t" << start << "\t" << end;
         comp_stream << "\t" << componentID << "\t" << npatterns;
         comp_stream << "\t" << tcov << "\t" << tflow << std::endl;
         std::cout << "[methylFlow] Finished processing component " << componentID << std::endl;
         return 0;
     }
-    
 } // namespace MethylFlow
 
