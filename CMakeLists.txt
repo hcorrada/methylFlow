@@ -107,10 +107,12 @@ ENDIF()
 
 ENABLE_TESTING()
 
+ADD_SUBDIRECTORY(evaluation)
 ADD_SUBDIRECTORY(mflib)
 ADD_SUBDIRECTORY(methylFlow)
 ADD_SUBDIRECTORY(simulator)
 ADD_SUBDIRECTORY(testing)
+
 
 ## Sometimes MSVC overwhelms you with compiler warnings which are impossible to
 ## avoid. Then comment out these sections. Normally you won't need it as the

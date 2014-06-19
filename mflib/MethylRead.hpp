@@ -18,11 +18,13 @@ namespace methylFlow {
         MethylRead(const MethylRead &read);
         ~MethylRead();
         
+        float distance(MethylRead* other);
         bool isMethConsistent(MethylRead *other);
         ReadComparison compare(MethylRead *other);
         int parseMethyl(std::string methylString);
         int parseXMtag(std::string XM);
         int merge(MethylRead *other);
+        void write();
         
         const std::string getMethString() const;
         std::string getMethString();

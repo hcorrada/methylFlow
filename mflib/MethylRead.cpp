@@ -115,6 +115,51 @@ namespace methylFlow {
     return out.str();
   }
 
+    float MethylRead::distance(MethylRead* other) {
+        int offset = other->start() - this->start();
+        std::size_t j = 0;
+        float match = 0;
+        for (std::size_t i=0; i < this->cpgOffset.size(); ++i) {
+            // advance pointer of other as long as needed
+            while( j < other->cpgOffset.size() && (this->cpgOffset[i] - offset) > other->cpgOffset[j] )
+                j++;
+            
+         //   std::cout << i << " " << j << std::endl;
+         //   std::cout << this->cpgOffset.size() << " " << other->cpgOffset.size() << std::endl;
+            // no more cpgs on other, so return true
+            if (j == this->cpgOffset.size()) break;
+            
+            // check if pointers at same position
+            if ( this->cpgOffset[i] - offset == other->cpgOffset[j] ) {
+                // we are, check if consistent
+                if ( this->methyl[i] == other->methyl[j] ) match++;
+            }
+            
+            // no more cpgs on other, so return true
+            if (j == this->cpgOffset.size()) break;
+        }
+        std::cout << "match 1 = " << match << std::endl;
+        std::cout << "match 2 = " << this->cpgOffset.size() << std::endl;
+        
+        if (this->cpgOffset.size() > 0)
+            return 1.0 - float(match)/float(this->cpgOffset.size());
+        else
+            return 0;
+        
+    }
+    
+    void MethylRead::write() {
+        std::cout << "write Methyl" << std::endl;
+        for (unsigned int i=0; i<this->cpgOffset.size(); i++) {
+            if (this->methyl[i]) {
+                std::cout << this->cpgOffset.at(i) << ":" << "U, ";
+            } else{
+                std::cout << this->cpgOffset.at(i) << ":" << "M, ";
+            }
+        }
+        std::cout << std::endl;
+    }
+    
   bool MethylRead::isMethConsistent(MethylRead *other)
   {
     // always assume comparing left read to right read
