@@ -28,10 +28,10 @@ struct MethylRead{
 
 class simulator {
 public:
-    
+    int chr;
     vector<int> freq;
     vector<int> pos;
-    int dnaLength, readLength, HapNum, coverage, error, flag, corrDist;
+    int dnaLength, startDNA, readLength, HapNum, freqFlag, coverage, error, dataFlag, corrDist;
 	vector<MethylHap> methylHapVec;
 	
 	simulator(){};
@@ -41,7 +41,7 @@ public:
     void readData();
     double sigmoid(double x, int corrDist);
     int computeMethylProbability(int corrDist, int dist);
-	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<MethylHap>& methylHapVec, int flag);
+	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<int> freq,  vector<MethylHap>& methylHapVec, int dataFlag);
 //    void buildMethylHap(int length, vector<int> pos, int HapNum);
 
 	void selectHP(int readLength, int dnaLength, vector<int> freq, int& hap, int& pos);
