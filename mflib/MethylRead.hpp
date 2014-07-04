@@ -18,7 +18,7 @@ namespace methylFlow {
         MethylRead(const MethylRead &read);
         ~MethylRead();
         
-        float distance(MethylRead* other);
+        float distance(MethylRead* other, int &common);
         bool isMethConsistent(MethylRead *other);
         ReadComparison compare(MethylRead *other);
         int parseMethyl(std::string methylString);
@@ -35,12 +35,13 @@ namespace methylFlow {
         const int end() const;
         const std::size_t ncpgs() const;
         
-        
+        std::vector<int> cpgOffset;
+
         
     protected:
         // TODO: we need to distinguish region coordinates for modeling and read coordinates for genome coverage
         int rPos, rLen;
-        std::vector<int> cpgOffset;
+        //std::vector<int> cpgOffset;
         std::vector<bool> methyl;
         int coverage;
         lemon::ListDigraph::Node node;

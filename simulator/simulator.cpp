@@ -183,11 +183,18 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
         methylHapVec.push_back(methylHap);
         //patternFile << methylHapVec[i].length << "\t";
         patternFile << chr << "\t" << startDNA << "\t" << dnaLength << "\t" <<"1"  << "\t" << i << "\t" << freq[i] << "\t";
-        cout << "dnaLength" << dnaLength << endl;
+        if( i < HapNum -1){
+        //cout << "dnaLength" << dnaLength << endl;
         for(unsigned int j=0; j < methylHapVec[i].methyl.size(); j++){
-            patternFile << (methylHapVec[i].methyl[j].pos - methylHapVec[i].methyl[0].pos) << ":" << methylHapVec[i].methyl[j].type << ",";
+            patternFile << (methylHapVec[i].methyl[j].pos - startDNA) << ":" << methylHapVec[i].methyl[j].type << ",";
         }
         patternFile << endl ;
+        }
+        if(i == HapNum -1 ){
+            for(unsigned int j=0; j < methylHapVec[i].methyl.size(); j++){
+                patternFile << (methylHapVec[i].methyl[j].pos - startDNA) << ":" << methylHapVec[i].methyl[j].type << ",";
+            }
+        }
         
     }
     patternFile.close();
@@ -245,16 +252,16 @@ void simulator::buildRead(int hap, int pos,int readLength, int error, vector<Met
 
 void simulator::writeMethylRead(MethylRead read, int k){
 	
-    cout << "read" << k <<  "\t" << read.start + 1 << "\t" << read.length << "\t" << "W" << "\t";
+    cout << "read" << k <<  "\t" << read.start  << "\t" << read.length << "\t" << "W" << "\t";
     if(read.methyl.size() == 0)
-        cout << "*" << endl;
+        cout << "*";
 
     if(read.methyl.size() > 0){
         //cout << "read" << k <<  "\t" << read.start + 1 << "\t" << read.length << "\t" << "W" << "\t";
         for(unsigned int i=0; i< read.methyl.size()-1; i++){
-            cout << read.methyl[i].pos - read.start  + 1 << ":" << read.methyl[i].type << ",";
+            cout << read.methyl[i].pos - read.start  << ":" << read.methyl[i].type << ",";
         }
-        cout << read.methyl[read.methyl.size()-1].pos - read.start + 1 << ":" << read.methyl[read.methyl.size()-1].type;
+        cout << read.methyl[read.methyl.size()-1].pos - read.start << ":" << read.methyl[read.methyl.size()-1].type;
         //cout << "\t" << "MismatchData" << endl;
     }
     cout << "\t" << "MismatchData" << endl;

@@ -115,7 +115,7 @@ namespace methylFlow {
     return out.str();
   }
 
-    float MethylRead::distance(MethylRead* other) {
+    float MethylRead::distance(MethylRead* other, int &common) {
         int offset = other->start() - this->start();
         std::size_t j = 0;
         float match = 0;
@@ -132,17 +132,19 @@ namespace methylFlow {
             // check if pointers at same position
             if ( this->cpgOffset[i] - offset == other->cpgOffset[j] ) {
                 // we are, check if consistent
+                common++;
                 if ( this->methyl[i] == other->methyl[j] ) match++;
             }
             
             // no more cpgs on other, so return true
             if (j == this->cpgOffset.size()) break;
         }
-        std::cout << "match 1 = " << match << std::endl;
-        std::cout << "match 2 = " << this->cpgOffset.size() << std::endl;
+        
+        //std::cout << "match 1 = " << match << std::endl;
+        //std::cout << "match 2 = " << this->cpgOffset.size() << std::endl;
         
         if (this->cpgOffset.size() > 0)
-            return 1.0 - float(match)/float(this->cpgOffset.size());
+            return match;
         else
             return 0;
         
@@ -151,7 +153,7 @@ namespace methylFlow {
     void MethylRead::write() {
         std::cout << "write Methyl" << std::endl;
         for (unsigned int i=0; i<this->cpgOffset.size(); i++) {
-            if (this->methyl[i]) {
+            if (!this->methyl[i]) {
                 std::cout << this->cpgOffset.at(i) << ":" << "U, ";
             } else{
                 std::cout << this->cpgOffset.at(i) << ":" << "M, ";
