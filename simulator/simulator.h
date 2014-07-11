@@ -28,7 +28,7 @@ struct MethylRead{
 
 class simulator {
 public:
-    int chr;
+    int chr, var;
     vector<int> freq;
     vector<int> pos;
     int dnaLength, startDNA, readLength, HapNum, freqFlag, coverage, error, dataFlag, corrDist;

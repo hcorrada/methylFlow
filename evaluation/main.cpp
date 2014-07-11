@@ -62,6 +62,20 @@ std::map<int, int> matchEstimated_map;
 std::map<int, float> weight_map;
 
 
+//Varibales for computing the avarage error matrices
+
+float methylCallError = 0;
+float abndncError = 0;
+int TP, FP, FN = 0;
+
+vector<float> thr;
+std::map<float, vector<float> > abdncErr_avg_map;
+std::map<float, vector<float> > methylErr_avg_map;
+std::map<float, vector<int> > TP_avg_map;
+std::map<float, vector<int> > FN_avg_map;
+std::map<float, vector<int> > FP_avg_map;
+
+
 
 Graph::Node addNode_Read(MethylRead *read, float abndnc)
 {
@@ -79,12 +93,12 @@ void readTruePattern(int start, int end){
 	while(!truePatternFile.eof()) {
 		i++;
 		truePatternFile >> chr >> s >> e >> cid >> pid >> abundance >> methylString;
-        cout << "Ture read : "<< chr << " " << s << " " << e <<endl;
+        //cout << "Ture read : "<< chr << " " << s << " " << e <<endl;
 		if( s >= start && e <= end){
             MethylRead* m = new MethylRead(s, e-s+1);
             m->parseMethyl(methylString);
             
-            m->write();
+            //m->write();
             
             trueMethylData.push_back(m);
             trueAbundanceData.push_back(abundance);
@@ -105,12 +119,12 @@ void readEstimatedPattern(int start, int end){
 		i++;
 		estimatedPatternFile >> chr >> s >> e >> cid >> pid >> abundance >> methylString;
         
-        cout << "Estimated read : "<< chr << " " << s << " " << e <<endl;
+        //cout << "Estimated read : "<< chr << " " << s << " " << e <<endl;
 		if( s >= start -1  &&  e <= end){
             
             MethylRead* m = new MethylRead(s, e-s+1);
             m->parseMethyl(methylString);
-            m->write();
+            //m->write();
             estimatedMethylData.push_back(m);
             estimatedAbundanceData.push_back(abundance);
 		}
@@ -131,35 +145,35 @@ float cost(Graph::Node u, Graph::Node v) {
     int common = 0 ;
     //  cout << "Distance start" << endl;
     int match =  readU->distance(readV, common);
-    cout << "match " << match <<  endl;
+    //cout << "match " << match <<  endl;
     
-    cout << "common " << common <<  endl;
+    //cout << "common " << common <<  endl;
     
     int mismatch = readU->cpgOffset.size() + readV->cpgOffset.size() - match - common ;
     int totalCpG = readU->cpgOffset.size() + readV->cpgOffset.size() - common;
-    cout << "cost " << (float(mismatch) / totalCpG) <<  endl;
+    //cout << "cost " << (float(mismatch) / totalCpG) <<  endl;
     
     return (float(mismatch) / totalCpG) ;
 }
 
 void buildGraph() {
     
-    cout << "trueMethylSize = " << trueMethylData.size() << endl;
-    cout << "estimatedMethylSize = " << estimatedMethylData.size() << endl;
+    //cout << "trueMethylSize = " << trueMethylData.size() << endl;
+    //cout << "estimatedMethylSize = " << estimatedMethylData.size() << endl;
     for (int i=0; i < trueMethylData.size(); i++) {
-        cout << "Add true node " << i << endl;
+        //cout << "Add true node " << i << endl;
         addNode_Read(trueMethylData.at(i), trueAbundanceData.at(i));
     }
     
     for (int i=0; i < estimatedMethylData.size(); i++) {
-        cout << "Add estimated node " << i << endl;
+        //cout << "Add estimated node " << i << endl;
         addNode_Read(estimatedMethylData.at(i), estimatedAbundanceData.at(i));
     }
     
     for (RedNodeIt u(g); u != INVALID; ++u) {
         for (RedNodeIt v(g); v != INVALID; ++v) {
             if (g.id(u) < trueMethylData.size() && g.id(v) >= trueMethylData.size()) {
-                cout << "Add arc " << g.id(u) << " " <<g.id(v) << endl;
+                //cout << "Add arc " << g.id(u) << " " <<g.id(v) << endl;
                 
                 g.addArc(u, v);
             }
@@ -175,7 +189,7 @@ void buildGraph() {
         BlueNode v = g.target(e);
         length[e] = cost(u, v);
         
-        cout << "Cost arc (" << g.id(u) <<", " << g.id(v) << ") = " << length[e] << endl;
+        //cout << "Cost arc (" << g.id(u) <<", " << g.id(v) << ") = " << length[e] << endl;
     }
 }
 
@@ -270,11 +284,11 @@ void computeErrorMatrix(double threshold) {
             methylCallError += weight_map[i];
             match++;
         }
-        else{
+        /*else{
             abndncError += pow(double(abdnc_map[i]),2) /10000;
             abndncError += pow(double(abdnc_map[matchTrue_map[i]]),2) /10000;
             //methylCallError += weight_map[i];
-        }
+        }*/
     }
     
     for(int i = truePatternNum; i < truePatternNum + estimatedPatternNum ; i++){
@@ -290,6 +304,22 @@ void computeErrorMatrix(double threshold) {
     int FP = estimatedPatternNum - match;
     
     methylCallError = methylCallError/match;
+    if( !TP == 0 ){
+    thr.push_back(threshold);
+    abdncErr_avg_map[threshold].push_back(sqrt(abndncError/TP));
+    methylErr_avg_map[threshold].push_back(methylCallError);
+    TP_avg_map[threshold].push_back(TP);
+    FN_avg_map[threshold].push_back(FN);
+    FP_avg_map[threshold].push_back(FP);
+    }
+    else{
+        thr.push_back(threshold);
+        abdncErr_avg_map[threshold].push_back(0);
+        methylErr_avg_map[threshold].push_back(0);
+        TP_avg_map[threshold].push_back(TP);
+        FN_avg_map[threshold].push_back(FN);
+        FP_avg_map[threshold].push_back(FP);
+    }
     
     //evalFile.open("/cbcb/project-scratch/fdorri/Code/methylFlow/testing/eval.txt", std::ios_base::app);
     
@@ -298,14 +328,49 @@ void computeErrorMatrix(double threshold) {
     
     //std:cout << abndncError << "\t" << methylCallError << "\t" << TP << "\t" << FN  << "\t"  << FP << std::endl;
     
+    
+    
 
 }
+/*
+float meanFloat(vector<float> vec){
+    float sum = 0;
+    for (unsigned int i; i < vec.size() ; i++) {
+        sum += vec[i];
+    }
+    return sum/vec.size();
+}
+
+float meanInt(vector<int> vec){
+    float sum = 0;
+    for (unsigned int i; i < vec.size() ; i++) {
+        sum += vec[i];
+    }
+    //cout <<  "vec size " << vec.size() << endl;
+    return sum/vec.size();
+}
+ */
+
+/*void computeAverageErrorMatrix(){
+    
+    for (unsigned int i; i < thr.size(); i++) {
+        
+        abndncError = meanFloat(abdncErr_avg_map[thr[i]]);
+        methylCallError = meanFloat(methylErr_avg_map[thr[i]]);
+        TP = meanInt(TP_avg_map[thr[i]]);
+        FP = meanInt(FP_avg_map[thr[i]]);
+        FN = meanInt(FN_avg_map[thr[i]]);
+        
+        evalFile << thr[i] << "\t" <<abndncError << "\t" << methylCallError << "\t" << TP << "\t" << FN  << "\t"  << FP << std::endl;
+    }
+
+}*/
 
 int main (int argc, char* argv[]) {
     
     
 	int start, end;
-	cout << "start main" << endl;
+	//cout << "start main" << endl;
     
 	if(argc < 7){
 		cout << "Please enter your input" << endl;
@@ -323,11 +388,11 @@ int main (int argc, char* argv[]) {
     
 	
 	//################     read the input .tsv data to the "line" number
-	cout << "reading data " << start << endl;
+	//cout << "reading data " << start << endl;
 	readTruePattern(start , end);
     readEstimatedPattern(start , end);
     
-	cout << "build Graph " << start << endl;
+	//cout << "build Graph " << start << endl;
     buildGraph();
     
     
@@ -345,8 +410,11 @@ int main (int argc, char* argv[]) {
     
     
     //// computing Error Metric ////////
-    for (double thresh=0.05; thresh<0.30; thresh +=0.05)
+    for (double thresh=0.04; thresh<0.6; thresh +=0.02)
         computeErrorMatrix(thresh);
+    
+    
+   // computeAverageErrorMatrix();
     
 
 //}

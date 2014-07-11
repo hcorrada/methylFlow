@@ -230,7 +230,7 @@ namespace methylFlow {
             //for(unsigned int i = 0; i < mVector.size(); i++){
             //MethylRead * m;
             //m = mVector.at(i);
-            std::cout << "read: " << readid << " " << m->getString() << std::endl;
+           // std::cout << "read: " << readid << " " << m->getString() << std::endl;
             
             // does this read start after the rightMost end position?
             if (m->start() > rightMostPos || chr != lastChr) {
