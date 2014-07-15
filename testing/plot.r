@@ -13,6 +13,12 @@ CpGAvg <- read.table(paste(dir,"evalAvgCpG.txt",sep=""), sep="\t", row.names=NUL
 readLengthAvg <- read.table(paste(dir,"evalAvgReadLength.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
 coverageAvg <- read.table(paste(dir,"evalAvgCoverage.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
 
+mcfCpG <- read.table(paste(dir,"mcfCpG.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+mcfReadLength <- read.table(paste(dir,"mcfReadLength.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+mcfCoverage <- read.table(paste(dir,"mcfCoverage.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+
+
+
 
 ############## different plots for differnet # CPG #################################################################
 
@@ -169,6 +175,14 @@ sensitivity = CpGAvg[,5]/(CpGAvg[,5] + CpGAvg[,6])
 # get the range for the x and y axis
 xrange <- range(CpGAvg[,1])
 yrange <- range(sensitivity)
+
+yy  <- ifelse(is.na(yrange[2]) , 0, yrange[2])
+yrange[2] <- yy
+
+yy  <- ifelse(is.na(yrange[1]) , 0, yrange[1])
+yrange[1] <- yy
+
+
 ntrees <- length(unique(CpGAvg[,2]))
 # set up the plot
 plot(0, 0,
@@ -305,6 +319,19 @@ text(lx[sel1], ly[sel1] - 0.02, txt[sel1], cex=0.5, srt=90)
 
 dev.off()
 
+
+
+####### plot min cost flow error ########
+
+
+print("plot min cost flow error vs #CpG sites")
+pdf(paste(dir,"/fig/","mcfCpG.pdf",sep=""))
+
+agg = aggregate(mcfCpG[,2], list(numberofCpG = mcfCpG[,1]), FUN =  mean)
+
+plot(agg)
+
+dev.off()
 
 
 
@@ -612,6 +639,17 @@ text(lx[sel1], ly[sel1] - 0.02, txt[sel1], cex=0.5, srt=90)
 dev.off()
 
 
+####### plot min cost flow error for differnet read length ########
+
+
+print("plot min cost flow error vs ReadLength")
+pdf(paste(dir,"/fig/","mcfReadLength.pdf",sep=""))
+
+agg = aggregate(mcfReadLength[,2], list(readLength = mcfReadLength[,1]), FUN =  mean)
+
+plot(agg)
+
+dev.off()
 
 
 
@@ -770,6 +808,13 @@ sensitivity = coverageAvg[,5]/(coverageAvg[,5] + coverageAvg[,6])
 # get the range for the x and y axis
 xrange <- range(coverageAvg[,1])
 yrange <- range(sensitivity)
+
+yy  <- ifelse(is.na(yrange[2]) , 0, yrange[2])
+yrange[2] <- yy
+
+yy  <- ifelse(is.na(yrange[1]) , 0, yrange[1])
+yrange[1] <- yy
+
 ntrees <- length(unique(coverageAvg[,2]))
 # set up the plot
 plot(0, 0,
@@ -905,6 +950,20 @@ text(lx[sel1], ly[sel1] - 0.02, txt[sel1], cex=0.5, srt=90)
 
 
 dev.off()
+
+
+####### plot min cost flow error for differnet coverage ########
+
+
+print("plot min cost flow error vs Coverage")
+pdf(paste(dir,"/fig/","mcfCoverage.pdf",sep=""))
+
+agg = aggregate(mcfCoverage[,2], list(coverage = mcfCoverage[,1]), FUN =  mean)
+
+plot(agg)
+
+dev.off()
+
 
 
 

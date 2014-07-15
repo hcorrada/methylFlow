@@ -25,6 +25,7 @@ typedef Graph::Node RedNode;
 typedef Graph::Node BlueNode;
 typedef Graph::NodeIt RedNodeIt;
 typedef Graph::NodeIt BlueNodeIt;
+typedef Graph::NodeIt NodeIt;
 typedef Graph::Node Node;
 typedef Graph::Arc Edge;
 typedef Graph::ArcIt EdgeIt;
@@ -34,9 +35,10 @@ typedef Graph::ArcMap<float> LengthMap;
 using namespace methylFlow;
 
 std::map<RedNode, MethylRead*> read_map;
-std::map<RedNode, int> abundance_map;
+std::map<RedNode, float> abundance_map;
 
 std::ofstream evalFile;
+std::ofstream MCFFile;
 
 
 
@@ -46,6 +48,7 @@ Graph g;
 LengthMap length(g);
 
 int chr,var;
+float minCostFlowErr;
 
 std::ifstream truePatternFile, estimatedPatternFile, mFile, wFile;
 std::ofstream weightFile, matchFile;
@@ -104,6 +107,13 @@ void readTruePattern(int start, int end){
             trueAbundanceData.push_back(abundance);
 		}
 	}
+    float sum =0;
+    for(unsigned int j= 0; j<trueAbundanceData.size(); j++){
+        sum += trueAbundanceData.at(j);
+    }
+    for(unsigned int j= 0; j<trueAbundanceData.size(); j++){
+        trueAbundanceData.at(j) = trueAbundanceData.at(j)/sum ;
+    }
     
 }
 
@@ -134,7 +144,7 @@ void readEstimatedPattern(int start, int end){
         sum += estimatedAbundanceData.at(j);
     }
     for(unsigned int j= 0; j<estimatedAbundanceData.size(); j++){
-        estimatedAbundanceData.at(j) = estimatedAbundanceData.at(j)*100/sum ;
+        estimatedAbundanceData.at(j) = estimatedAbundanceData.at(j)/sum ;
     }
     
 }
@@ -145,15 +155,25 @@ float cost(Graph::Node u, Graph::Node v) {
     int common = 0 ;
     //  cout << "Distance start" << endl;
     int match =  readU->distance(readV, common);
+    //readU->write();
+
+    //cout <<  "node " << g.id(u) << ", " << g.id(v) << endl;
     //cout << "match " << match <<  endl;
     
     //cout << "common " << common <<  endl;
     
     int mismatch = readU->cpgOffset.size() + readV->cpgOffset.size() - match - common ;
     int totalCpG = readU->cpgOffset.size() + readV->cpgOffset.size() - common;
+    //cout << "mismatch " << mismatch <<  endl;
+    
+    //cout << "totalCpG " << totalCpG <<  endl;
+    
+    
     //cout << "cost " << (float(mismatch) / totalCpG) <<  endl;
     
-    return (float(mismatch) / totalCpG) ;
+    return (float(mismatch) / common) ;
+
+    //return (float(mismatch) / totalCpG) ;
 }
 
 void buildGraph() {
@@ -280,7 +300,7 @@ void computeErrorMatrix(double threshold) {
     
     for (int i = 0 ; i < truePatternNum ; i ++){
         if(weight_map[i] < threshold) {
-            abndncError += pow(double(abdnc_map[i] - abdnc_map[matchTrue_map[i]]),2) / 10000;
+            abndncError += pow(double(abdnc_map[i] - abdnc_map[matchTrue_map[i]]),2)/1.0;
             methylCallError += weight_map[i];
             match++;
         }
@@ -293,7 +313,7 @@ void computeErrorMatrix(double threshold) {
     
     for(int i = truePatternNum; i < truePatternNum + estimatedPatternNum ; i++){
         if (matchEstimated_map.find(i) == matchEstimated_map.end()) {
-            abndncError += pow(double(abdnc_map[i]),2) /10000;
+            abndncError += pow(double(abdnc_map[i]),2) /1.0;
         }
         
     }
@@ -332,39 +352,76 @@ void computeErrorMatrix(double threshold) {
     
 
 }
-/*
-float meanFloat(vector<float> vec){
-    float sum = 0;
-    for (unsigned int i; i < vec.size() ; i++) {
-        sum += vec[i];
-    }
-    return sum/vec.size();
-}
 
-float meanInt(vector<int> vec){
-    float sum = 0;
-    for (unsigned int i; i < vec.size() ; i++) {
-        sum += vec[i];
-    }
-    //cout <<  "vec size " << vec.size() << endl;
-    return sum/vec.size();
-}
- */
-
-/*void computeAverageErrorMatrix(){
+float computeMinCostFlowError(){
+    lemon::Lp lp;
+    lp.min();
     
-    for (unsigned int i; i < thr.size(); i++) {
+    std::map<Edge, lemon::Lp::Col> f;
+    
+    std::map<RedNode, lemon::Lp::Col> alpha;
+    
+    //  std::map<Graph::BlueNode, lemon::Lp::Col> beta;
+    
+    
+    lemon::Lp::Expr obj;
+  
+    
+    for (EdgeIt e(g); e != INVALID; ++e) {
         
-        abndncError = meanFloat(abdncErr_avg_map[thr[i]]);
-        methylCallError = meanFloat(methylErr_avg_map[thr[i]]);
-        TP = meanInt(TP_avg_map[thr[i]]);
-        FP = meanInt(FP_avg_map[thr[i]]);
-        FN = meanInt(FN_avg_map[thr[i]]);
+        f[e] = lp.addCol();
+        obj += f[e]* length[e];
+        lp.colLowerBound(f[e], 0.0);
+        cerr << "length " <<  g.id(g.source(e)) <<
+        "\t" << g.id(g.target(e)) << "\t" << length[e] << endl;
+
         
-        evalFile << thr[i] << "\t" <<abndncError << "\t" << methylCallError << "\t" << TP << "\t" << FN  << "\t"  << FP << std::endl;
     }
 
-}*/
+    for (NodeIt u(g); u != INVALID; ++u) {
+        cerr <<  g.id(u) << "\t" << abundance_map[u] << endl;
+        lemon::Lp::Expr c;
+        if (g.id(u) < trueMethylData.size()) {
+            for (lemon::ListDigraph::OutArcIt arcIt(g, u); arcIt != INVALID; ++arcIt) {
+                
+                Edge arc(arcIt);
+                c += f[arc];
+               
+            }
+            lp.addRow(c >= abundance_map[u]);
+            
+        
+        }
+        else{
+            for (lemon::ListDigraph::InArcIt arcIt(g, u); arcIt != INVALID; ++arcIt) {
+                
+                Edge arc(arcIt);
+                c += f[arc];
+                
+            }
+            lp.addRow(c >= abundance_map[u]);
+            
+        }
+    }
+    
+    
+    lp.obj(obj);
+    lp.solve();
+    
+    float v = lp.primal();
+    cout << "mincostflow error = " << v << endl;
+    for (EdgeIt e(g); e != INVALID; ++e) {
+        lemon::Lp::Col col = f[e];
+        float val = lp.primal(col);
+        cerr << "primal " << g.id(g.source(e)) << "\t " << g.id(g.target(e)) << "\t" << val << endl;
+    }
+    
+    return v;
+    
+    
+    
+}
+
 
 int main (int argc, char* argv[]) {
     
@@ -376,16 +433,17 @@ int main (int argc, char* argv[]) {
 		cout << "Please enter your input" << endl;
 		return -1;
 	}
-	if (argc >= 7){
-		start = atoi(argv[4]);
-		end = atoi(argv[5]);
-		var = atoi(argv[6]);
+	if (argc >= 8){
+		start = atoi(argv[5]);
+		end = atoi(argv[6]);
+		var = atoi(argv[7]);
         
 	}
 	truePatternFile.open(argv[1]);
     estimatedPatternFile.open(argv[2]);
     evalFile.open(argv[3],std::ios_base::app);
-    
+    MCFFile.open(argv[4],std::ios_base::app);
+
 	
 	//################     read the input .tsv data to the "line" number
 	//cout << "reading data " << start << endl;
@@ -402,6 +460,9 @@ int main (int argc, char* argv[]) {
     /// then each line is estimated pattern id , abundance of pattern
     // then the weight information of edges and matching information is seen in the rest of file
     
+    minCostFlowErr =  computeMinCostFlowError();
+    MCFFile << var << "\t" << minCostFlowErr << endl;
+    
     
     writeMatchMatrix();
     
@@ -414,7 +475,6 @@ int main (int argc, char* argv[]) {
         computeErrorMatrix(thresh);
     
     
-   // computeAverageErrorMatrix();
     
 
 //}

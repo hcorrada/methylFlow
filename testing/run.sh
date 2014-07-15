@@ -3,6 +3,7 @@
 cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/
 ########  evaluation for different coverages ########
 echo -n "" > evalAvgCoverage.txt
+echo -n "" > mcfCoverage.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -10,8 +11,8 @@ for i in $(seq 5 3 100)
 do
 echo -n "" > evalCoverage.txt
 echo -n "" > input.txt
-echo 1 757121 230 60 2 1 $i 0 50 10 >> input.txt
-echo 75 25 >> input.txt
+echo 1 757121 230 60 10 1 $i 0 50 10 >> input.txt
+echo 10 10 10 10 10 10 10 10 10 10 >> input.txt
 #echo $i >> evalCoverage.txt
 #echo -n "   " >> evalCoverage.txt
 
@@ -28,7 +29,7 @@ echo "MethylFlowCoverage"
 
 
 echo "EvaluateCoverage"
-../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/patterns.tsv /cbcb/project-scratch/fdorri/Code/methylFlow/testing/evalCoverage.txt 757121 757353 $i
+../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/patterns.tsv /cbcb/project-scratch/fdorri/Code/methylFlow/testing/evalCoverage.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/mcfCoverage.txt 757121 757353 $i
 
 done
 echo "avgEval Start"
@@ -41,6 +42,7 @@ done
 ########  evaluation for different read lengthes ########
 
 echo -n "" > evalAvgReadLength.txt
+echo -n "" > mcfReadLength.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -48,8 +50,8 @@ for i in $(seq 10 5 150)
 do
 echo -n "" > evalReadLength.txt
 echo -n "" > input.txt
-echo 1 757121 230 $i 2 1 20 0 50 10 >> input.txt
-echo 75 25 >> input.txt
+echo 1 757121 230 $i 10 1 20 0 50 10 >> input.txt
+echo 10 10 10 10 10 10 10 10 10 10 >> input.txt
 #echo $i >> evalReadLength.txt
 #echo -n "   " >> evalReadLength.txt
 echo $i
@@ -64,7 +66,7 @@ echo "MethylFlowReadLength"
 
 
 echo "EvaluateReadLength"
-../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/patterns.tsv /cbcb/project-scratch/fdorri/Code/methylFlow/testing/evalReadLength.txt 757121 757353 $i
+../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/patterns.tsv /cbcb/project-scratch/fdorri/Code/methylFlow/testing/evalReadLength.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/mcfReadLength.txt 757121 757353 $i
 
 done
 
@@ -78,6 +80,7 @@ done
 ########  evaluation for different number of CpG sites ########
 
 echo -n "" > evalAvgCpG.txt
+echo -n "" > mcfCpG.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -88,8 +91,8 @@ for i in $(seq 30 2 120)
 do
 echo -n "" > evalCpG.txt
 echo -n "" > input.txt
-echo 1 757121 230 60 2 1 20 0 $i 10  >> input.txt
-echo 75 25 >> input.txt
+echo 1 757121 230 60 10 1 20 0 $i 10  >> input.txt
+echo 10 10 10 10 10 10 10 10 10 10 >> input.txt
 #echo $i >> evalCpG.txt
 #echo -n "   " >> evalCpG.txt
 echo $i
@@ -112,7 +115,7 @@ echo "MethylFlowCpG"
 
 
 echo "EvaluateCpG"
-../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/patterns.tsv /cbcb/project-scratch/fdorri/Code/methylFlow/testing/evalCpG.txt 757121 757353 $i
+../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/patterns.tsv /cbcb/project-scratch/fdorri/Code/methylFlow/testing/evalCpG.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/mcfCpG.txt 757121 757353 $i
 
 
 done
