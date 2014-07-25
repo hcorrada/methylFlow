@@ -10,6 +10,9 @@
 #include <sstream>
 #include <stdlib.h>
 #include "simulator.h"
+
+std::ifstream inputFile;
+
 unsigned long mix(unsigned long a, unsigned long b, unsigned long c)
 {
     a=a-b;  a=a-c;  a=a^(c >> 13);
@@ -28,8 +31,38 @@ int main (int argc, char* argv[]) {
     unsigned long seed = mix(clock(), time(NULL), getpid());
     srand(seed);
     cerr << "rand check " << rand()%1000 << endl;
+    
+
+    if(argc < 3){
+		cout << "Please enter your input" << endl;
+		return -1;
+	}
+    
+    inputFile.open(argv[1]);
+    std::string outdirname = argv[2];
+    std::stringstream buffer;
+
+    buffer.str("");
+    std::ofstream patternFile;
+    buffer << outdirname << "/simPattern.txt";
+    patternFile.open( buffer.str().c_str() );
+    
+    
+    buffer.str("");
+    std::ofstream shortReadFile;
+    buffer << outdirname << "/shortRead.txt";
+    shortReadFile.open( buffer.str().c_str() );
+    
+
+    
+    //patternFile.open(argv[2]);
+   // shortReadFile.open(argv[3],std::ios_base::app);
+    
     simulator * sim= new simulator();
-    sim->simulate();
+    sim->simulate(inputFile, patternFile, shortReadFile);
+    inputFile.close();
+    patternFile.close();
+    shortReadFile.close();
     delete sim;
 	return 1;
 }

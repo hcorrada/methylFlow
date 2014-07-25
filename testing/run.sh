@@ -1,5 +1,20 @@
 #!/bin/bash
 
+
+
+## input file
+##>> chr >> startDNA >> dnaLength >> readLength >> HapNum >> freqFlag >> coverage >> error >> dataFlag >> corrDist ;
+
+# dataFlag = 0  >>> read CpG sites from file
+# dataFlag > 0 >>>> dataFlag equals the number of cpg sites
+# dataFlag < 0 >>> read the data from rest of the file
+
+# freqFlag = 0 >>> randomly choose the frequency of each pattern
+# freqFlag = 1 >>> read the frequency of patterns from rest of the file(second line)
+
+
+
+
 cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/
 ########  evaluation for different coverages ########
 echo -n "" > evalAvgCoverage.txt
@@ -7,7 +22,7 @@ echo -n "" > mcfCoverage.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
-for i in $(seq 5 3 100)
+for i in $(seq 5 3 5)
 do
 echo -n "" > evalCoverage.txt
 echo -n "" > input.txt

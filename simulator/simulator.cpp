@@ -11,17 +11,18 @@
 #include <fstream>
 #include <iostream>
 
-std::ofstream patternFile;
+//std::ofstream patternFile;
 std::ifstream methylPosFile;
 
-void simulator::readData(){
+void simulator::readData(std::ifstream &inputFile){
     
-    cin >> chr >> startDNA >> dnaLength >> readLength >> HapNum >> freqFlag >> coverage >> error >> dataFlag >> corrDist ;
+    inputFile >> chr >> startDNA >> dnaLength >> readLength >> HapNum >> freqFlag >> coverage >> error >> dataFlag >> corrDist ;
+    
     if(dataFlag > 0){
         if (freqFlag == 1){
             int x;
             for( int i=0; i < HapNum; i++){
-                cin >> x;
+                inputFile >> x;
                 cerr << "freq " << x << endl;
                 freq.push_back(x);
             }
@@ -57,7 +58,7 @@ void simulator::readData(){
         if (freqFlag == 1){
             int x;
             for( int i=0; i < HapNum; i++){
-                cin >> x;
+                inputFile >> x;
                 cerr << "freq " << x << endl;
                 freq.push_back(x);
             }
@@ -115,14 +116,14 @@ void simulator::readData(){
     else{
         for(int i=0; i < HapNum; i++){
             int f;
-            cin >> f;
+            inputFile >> f;
             freq.push_back(f);
         }
         int posNum;
-        cin >> posNum;
+        inputFile >> posNum;
         for(int i=0; i < posNum; i++){
             int p;
-            cin >> p;
+            inputFile >> p;
             pos.push_back(p);
         }
     }
@@ -146,7 +147,7 @@ int simulator::computeMethylProbability(int corrDist, int dist){
 }
 
 
-void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vector<int> freq, vector<MethylHap>& methylHapVec, int dataFlag){
+void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vector<int> freq, vector<MethylHap>& methylHapVec, int dataFlag, std::ofstream &patternFile){
 	
 /*    stringstream ss;
     ss << var;
@@ -160,7 +161,7 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
     fileName += ".txt";
     patternFile.open(fileName.c_str());
  */
-    patternFile.open("/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt");
+   // patternFile.open("/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt");
     
     char type;
     vector<MethylInfo> hapInfo;
@@ -263,30 +264,31 @@ void simulator::buildRead(int hap, int pos,int readLength, int error, vector<Met
     }
 }
 
-void simulator::writeMethylRead(MethylRead read, int k){
+void simulator::writeMethylRead(MethylRead read, int k, std::ofstream &readFile){
 	
-    cout << "read" << k <<  "\t" << read.start  << "\t" << read.length << "\t" << "W" << "\t";
+    readFile << "read" << k <<  "\t" << read.start  << "\t" << read.length << "\t" << "W" << "\t";
     if(read.methyl.size() == 0)
-        cout << "*";
+        readFile << "*";
 
     if(read.methyl.size() > 0){
         //cout << "read" << k <<  "\t" << read.start + 1 << "\t" << read.length << "\t" << "W" << "\t";
         for(unsigned int i=0; i< read.methyl.size()-1; i++){
-            cout << read.methyl[i].pos - read.start  << ":" << read.methyl[i].type << ",";
+            readFile << read.methyl[i].pos - read.start  << ":" << read.methyl[i].type << ",";
         }
-        cout << read.methyl[read.methyl.size()-1].pos - read.start << ":" << read.methyl[read.methyl.size()-1].type;
+        readFile << read.methyl[read.methyl.size()-1].pos - read.start << ":" << read.methyl[read.methyl.size()-1].type;
         //cout << "\t" << "MismatchData" << endl;
     }
-    cout << "\t" << "MismatchData" << endl;
+    readFile << "\t" << "MismatchData" << endl;
 
 }
 
 
-void simulator::simulate(){
+void simulator::simulate(std::ifstream &inputFile, std::ofstream &patternFile, std::ofstream &readFile){
 	vector<MethylRead> data;
-    readData();
+    cerr << "start read from input" << endl;
+    readData(inputFile);
     cerr << "DNA Lenght" << "\t" << dnaLength<< endl;
-    buildMethylHap(dnaLength, pos, HapNum, freq, methylHapVec, dataFlag);
+    buildMethylHap(dnaLength, pos, HapNum, freq, methylHapVec, dataFlag, patternFile);
     cerr << "hap built" << endl;
     //cerr << "max_i" << coverage*dnaLength/readLength << endl;
     
@@ -311,7 +313,7 @@ void simulator::simulate(){
     cerr << data[30].methyl.size() << endl;
 	for(unsigned int i=0; i <data.size(); i++){
         //cout << i;
-		writeMethylRead(data[i], i);
+		writeMethylRead(data[i], i, readFile);
 	}
 }
 

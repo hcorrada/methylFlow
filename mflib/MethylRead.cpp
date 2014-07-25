@@ -26,13 +26,20 @@ namespace methylFlow {
     std::size_t curStringOffset = 0; 
     int curPos = 0;
     bool curMeth = false;
+      if (methString.length() == 0) {
+          std::cout << "Error parsing methylation string, There is no read" << std::endl;
+          return -1;
 
-    methString.append(1, ',');
+      }
+      char  lastChar = methString.at( methString.length() - 1 );
+      if (lastChar != ',') {
+          methString.append(1, ',');
+      }
     while (curStringOffset < methString.length()) {
       found = methString.find(":", curStringOffset);
 
       if (found == std::string::npos) {
-	std::cout << "Error parsing methylation string" << std::endl;
+          std::cout << "Error parsing methylation string, : is not found" << std::endl;
 	return -1;
       }
 
@@ -42,7 +49,7 @@ namespace methylFlow {
       found = methString.find(",", curStringOffset);
 
       if (found == std::string::npos) {
-	std::cout << "Error parsing methylation string" << std::endl;
+	std::cout << "Error parsing methylation string, , is not found" << std::endl;
 	return -1;
       }
       curMeth = (methString.substr(curStringOffset, found - curStringOffset) == "M"); 

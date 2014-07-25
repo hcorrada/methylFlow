@@ -38,17 +38,17 @@ public:
     
     ~simulator(){};
 
-    void readData();
+    void readData(std::ifstream &inputFile);
     double sigmoid(double x, int corrDist);
     int computeMethylProbability(int corrDist, int dist);
-	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<int> freq,  vector<MethylHap>& methylHapVec, int dataFlag);
+	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<int> freq,  vector<MethylHap>& methylHapVec, int dataFlag, std::ofstream &patternFile);
 //    void buildMethylHap(int length, vector<int> pos, int HapNum);
 
 	void selectHP(int readLength, int dnaLength, vector<int> freq, int& hap, int& pos);
 	void buildRead(int hap, int pos,int readLength, int error, vector<MethylHap> methylHapVec, MethylRead& read);
     
-    void writeMethylRead(MethylRead read, int k);
-    void simulate();
+    void writeMethylRead(MethylRead read, int k, std::ofstream &readFile);
+    void simulate(std::ifstream &inputFile, std::ofstream &patternFile, std::ofstream &readFile);
 	
 	
 };

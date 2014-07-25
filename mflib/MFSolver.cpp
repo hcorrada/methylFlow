@@ -60,6 +60,7 @@ namespace methylFlow {
             current_deviance = get_deviance(current_lambda);
             if (verbose) {
                 std::cout << "lam=2^" << curpow << " dev=" << current_deviance;
+                std::cout << " , opt = " <<  lp->primal() ;
             }
             
             if (best_lambda < 0) {

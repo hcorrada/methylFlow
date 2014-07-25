@@ -24,7 +24,7 @@
 
 using namespace std;
 
-int var;
+float var;
 std::string input, output;
 
 
@@ -56,14 +56,20 @@ void readData(){
     //fileName += str;
     std::string line;
     int chek =0;
-
+    thr.clear();
    while (std::getline(inputFile, line)) {
        std::stringstream ss(line);
     //for(int i =0 ; i <10 ; i++){
         ss >> threshold >> abdErr >> methErr >> TP1 >> FN1 >> FP1;
-        cout << threshold << "\t" << abdErr<< "\t" << methErr << "\t"<< TP1 << "\t" << FN1<< "\t" << FP1 << endl;
+        //cout << threshold << "\t" << abdErr<< "\t" << methErr << "\t"<< TP1 << "\t" << FN1<< "\t" << FP1 << endl;
         if ( thr.find(threshold) == thr.end()){
             thr.insert(threshold);
+            abdncErr_avg_map[threshold].clear();
+            methylErr_avg_map[threshold].clear();
+            TP_avg_map[threshold].clear();
+            FN_avg_map[threshold].clear();
+            FP_avg_map[threshold].clear();
+            
         }
        if( abs(threshold - 0.1) < 0.001 ){
        chek++;
@@ -89,7 +95,7 @@ float meanFloat(vector<float> vec){
 }
 
 
-void computeAverageErrorMatrix(int var, std::ofstream *avgFile){
+void computeAverageErrorMatrix(float var, std::ofstream *avgFile){
     
     
     std::set<float>::iterator it;
@@ -100,9 +106,9 @@ void computeAverageErrorMatrix(int var, std::ofstream *avgFile){
 
         //cout << "threshold " << *it << endl;
         abndncError = meanFloat(abdncErr_avg_map[*it]);
-        cout << "abd size " <<abdncErr_avg_map[*it].size()<< endl;
+        //cout << "abd size " <<abdncErr_avg_map[*it].size()<< endl;
         methylCallError = meanFloat(methylErr_avg_map[*it]);
-        cout << "meth size " <<methylErr_avg_map[*it].size()<< endl;
+        //cout << "meth size " <<methylErr_avg_map[*it].size()<< endl;
 
         TP = meanFloat(TP_avg_map[*it]);
         FP = meanFloat(FP_avg_map[*it]);
@@ -115,7 +121,8 @@ void computeAverageErrorMatrix(int var, std::ofstream *avgFile){
 
 int main (int argc, char* argv[]) {
     
-    
+    std::stringstream buffer;
+
 	cout << "start main" << endl;
     
 	if(argc < 4){
@@ -123,9 +130,24 @@ int main (int argc, char* argv[]) {
 		return -1;
 	}
 	
-    inputFile.open(argv[1]);
-    outputFile.open(argv[2], ios::app );
-    var = atoi(argv[3]);
+    std::string indirname = argv[1];
+    
+    buffer.str("");
+    buffer << indirname << "/eval.txt";
+    inputFile.open( buffer.str().c_str() );
+    
+
+    std::string outdirname = argv[2];
+    
+    buffer.str("");
+    buffer << outdirname << "/evalAvg.txt";
+    outputFile.open( buffer.str().c_str() ,std::ios_base::app);
+    
+    
+   // inputFile.open(argv[1]);
+   // outputFile.open(argv[2], ios::app );
+    
+    var = atof(argv[3]);
     
 	
 	//################     read the input .tsv data to the "line" number
