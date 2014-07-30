@@ -1,9 +1,13 @@
 #!/bin/bash
 
-### run :  sh cpg.sh par
-### par = 0 > simple
-### par = 1 > moderate
-### par = 2 > Hard
+### run :  sh cpg.sh par1 par2
+
+### par1 = 0 > Auto-lambda
+### par1 = 1 > Non-Auto - lambda is hard coded
+
+### par2 = 0 > simple
+### par2 = 1 > moderate
+### par2 = 2 > Hard
 
 
 ## input file
@@ -18,11 +22,212 @@
 
 
 
+####### run with auto lambda ###############################################################
+
+########  evaluation for different number of CpG sites ########
+if [ "$1" == 0 ]
+then
+
+if [ "$2" == 2 ]
+then
+
+echo "Hard Setting"
+
+cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/
+
+
+echo -n "" > evalAvg.txt
+echo -n "" > mcf.txt
+echo -n "" > weight.txt
+echo -n "" > match.txt
+
+#echo "var"  "u"   "v"    "weight "  >> weight.txt
+
+
+for i in $(seq 30 2 120)
+do
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/eval.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/input.txt
+echo 1 757121 230 60 10 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/input.txt
+echo 10 10 10 10 10 10 10 10 10 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/input.txt
+#echo $i >> evalCpG.txt
+#echo -n "   " >> evalCpG.txt
+echo $i
+for j in {1..100}
+do
+
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/shortRead.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/simPattern.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/patterns.tsv
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/weight.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/match.txt
+
+
+#change directory to /cbcb/project-scratch/fdorri/Code/methylFlow/testing/
+cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/
+
+
+echo "SimulateCpG"
+
+../build/simulator/mfSimulate /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/input.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto
+
+
+echo "MethylFlowCpG"
+../build/methylFlow/methylFlow -i /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/shortRead.txt -o /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/  -chr 0
+
+
+echo "EvaluateCpG"
+../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto 757121 757353 $i
+
+
+done
+#sed -e "s/$/$i/" eval.txt
+echo "avgEval Start"
+
+../build/avgEval/avgEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto $i
+echo "avgCpGEval end"
+
+done
+
+
+elif [ "$2" == 1 ]
+then
+
+echo "Moderate Setting"
+
+cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/
+
+
+echo -n "" > evalAvg.txt
+echo -n "" > mcf.txt
+echo -n "" > weight.txt
+echo -n "" > match.txt
+
+#echo "var"  "u"   "v"    "weight "  >> weight.txt
+
+
+for i in $(seq 30 2 120)
+do
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/eval.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/input.txt
+echo 1 757121 230 60 4 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/input.txt
+echo 15 15 35 35 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/input.txt
+#echo $i >> evalCpG.txt
+#echo -n "   " >> evalCpG.txt
+echo $i
+for j in {1..100}
+do
+
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/shortRead.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/simPattern.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/patterns.tsv
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/weight.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/match.txt
+
+#change directory to /cbcb/project-scratch/fdorri/Code/methylFlow/testing/
+cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/
+
+
+echo "SimulateCpG"
+
+../build/simulator/mfSimulate /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/input.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto
+
+
+echo "MethylFlowCpG"
+../build/methylFlow/methylFlow -i /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/shortRead.txt -o /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/ -chr 0
+
+
+echo "EvaluateCpG"
+../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto 757121 757353 $i
+
+
+done
+#sed -e "s/$/$i/" eval.txt
+echo "avgEval Start"
+
+../build/avgEval/avgEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto $i
+echo "avgCpGEval end"
+
+done
+
+
+elif [ "$2" == 0 ]
+then
+
+echo "Simple Setting"
+
+cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/
+
+
+echo -n "" > evalAvg.txt
+echo -n "" > mcf.txt
+echo -n "" > weight.txt
+echo -n "" > match.txt
+
+#echo "var"  "u"   "v"    "weight "  >> weight.txt
+
+
+for i in $(seq 3 2 120)
+do
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/eval.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/input.txt
+echo 1 757121 230 60 2 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/input.txt
+echo 25 75 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/input.txt
+#echo $i >> evalCpG.txt
+#echo -n "   " >> evalCpG.txt
+echo $i
+for j in {1..100}
+do
+
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/shortRead.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/simPattern.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/patterns.tsv
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/weight.txt
+echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/match.txt
+
+#change directory to /cbcb/project-scratch/fdorri/Code/methylFlow/testing/
+cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/
+
+
+echo "SimulateCpG"
+
+../build/simulator/mfSimulate /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/input.txt /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto
+
+
+echo "MethylFlowCpG"
+../build/methylFlow/methylFlow -i /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/shortRead.txt -o /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/ -chr 0
+
+
+echo "EvaluateCpG"
+../build/evaluation/mfEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto 757121 757353 $i
+
+
+done
+#sed -e "s/$/$i/" eval.txt
+echo "avgEval Start"
+
+../build/avgEval/avgEvaluation /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto $i
+echo "avgCpGEval end"
+
+done
+
+
+else
+
+echo " your input should be 0, 1 or 2"
+
+fi
+
+
+
+####### run with hard coded lambda ###############################################################
 
 
 ########  evaluation for different number of CpG sites ########
+elif [ "$1" == 1 ]
+then
 
-if [ "$1" == 2 ]
+if [ "$2" == 2 ]
 then
 
 echo "Hard Setting"
@@ -84,7 +289,7 @@ echo "avgCpGEval end"
 done
 
 
-elif [ "$1" == 1 ]
+elif [ "$2" == 1 ]
 then
 
 echo "Moderate Setting"
@@ -145,7 +350,7 @@ echo "avgCpGEval end"
 done
 
 
-elif [ "$1" == 0 ]
+elif [ "$2" == 0 ]
 then
 
 echo "Simple Setting"
@@ -211,6 +416,21 @@ else
 echo " your input should be 0, 1 or 2"
 
 fi
+
+
+else
+
+echo " your input should be 0 for auto and 1 for hard coded lambda"
+
+fi
+
+
+
+
+
+
+
+
 
 
 

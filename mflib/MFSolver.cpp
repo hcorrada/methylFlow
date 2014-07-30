@@ -46,9 +46,9 @@ namespace methylFlow {
         const double powlimit = 6.0;
         
         float best_deviance;
-        float current_deviance;
+        float current_deviance, zero_deviance;
         int res;
-        float current_lambda;
+        float current_lambda, zero_lambda;
         float factor;
         
         best_lambda = -1;
@@ -64,15 +64,15 @@ namespace methylFlow {
             }
             
             if (best_lambda < 0) {
-                best_deviance = current_deviance;
-                best_lambda = current_lambda;
+                zero_lambda = 0;
+                zero_deviance = get_deviance(zero_lambda);
                 std::cout << std::endl;
                 continue;
             }
             
-            factor = best_deviance / current_deviance;
+            factor = zero_deviance / current_deviance;
             std::cout << " fact=" << factor << std::endl;
-            if (factor >= 1.0 - epsilon) {
+            if (factor >= 1.0 - epsilon ) {
                 best_deviance = current_deviance;
                 best_lambda = current_lambda;
             }
