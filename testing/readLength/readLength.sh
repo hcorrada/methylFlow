@@ -36,13 +36,18 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard-Auto/
 ########  evaluation for different read lengthes ########
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 10 5 150)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard-Auto/input.txt
 echo 1 757121 230 $i 10 1 20 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard-Auto/input.txt
 echo 10 10 10 10 10 10 10 10 10 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard-Auto/input.txt
@@ -98,13 +103,18 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate-Auto
 ########  evaluation for different read lengthes ########
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 10 5 150)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate-Auto/input.txt
 echo 1 757121 230 $i 4 1 20 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate-Auto/input.txt
 echo 15 15 35 35 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate-Auto/input.txt
@@ -160,13 +170,18 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple-Auto/
 ########  evaluation for different read lengthes ########
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 10 5 150)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple-Auto/input.txt
 echo 1 757121 230 $i 2 1 20 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple-Auto/input.txt
 echo 25 75 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple-Auto/input.txt
@@ -233,13 +248,18 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard/
 ########  evaluation for different read lengthes ########
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 10 5 150)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard/input.txt
 echo 1 757121 230 $i 10 1 20 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard/input.txt
 echo 10 10 10 10 10 10 10 10 10 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/hard/input.txt
@@ -295,13 +315,18 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate/
 ########  evaluation for different read lengthes ########
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 10 5 150)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate/input.txt
 echo 1 757121 230 $i 4 1 20 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate/input.txt
 echo 15 15 35 35 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/moderate/input.txt
@@ -357,13 +382,18 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple/
 ########  evaluation for different read lengthes ########
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 10 5 150)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple/input.txt
 echo 1 757121 230 $i 2 1 20 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple/input.txt
 echo 25 75 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/readLength/simple/input.txt

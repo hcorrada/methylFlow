@@ -18,9 +18,9 @@ dir <- "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/"
 if ( data[1] == 0){
     if ( data[2] == "2"){
         print("Hard Setting Plot")
-        CpGAvg <- read.table(paste(dir,"hard-Auto/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+        CpGAvg <- read.table(paste(dir,"hard-Auto/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
         
-        mcfCpG <- read.table(paste(dir,"hard-Auto/mcf.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+        mcfCpG <- read.table(paste(dir,"hard-Auto/mcf.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
         
         dir <- "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/"
         
@@ -28,9 +28,9 @@ if ( data[1] == 0){
     
     if ( data[2] == "1"){
         print("Moderate Setting Plot")
-        CpGAvg <- read.table(paste(dir,"moderate-Auto/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+        CpGAvg <- read.table(paste(dir,"moderate-Auto/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
         
-        mcfCpG <- read.table(paste(dir,"moderate-Auto/mcf.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+        mcfCpG <- read.table(paste(dir,"moderate-Auto/mcf.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
         
         dir <- "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/"
         
@@ -38,9 +38,9 @@ if ( data[1] == 0){
     }
     if ( data[2] == "0"){
         print("Simple Setting Plot")
-        CpGAvg <- read.table(paste(dir,"simple-Auto/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+        CpGAvg <- read.table(paste(dir,"simple-Auto/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
         
-        mcfCpG <- read.table(paste(dir,"simple-Auto/mcf.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+        mcfCpG <- read.table(paste(dir,"simple-Auto/mcf.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
         
         dir <- "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/"
         
@@ -51,9 +51,9 @@ if ( data[1] == 0){
 if ( data[1] == 1){
 if ( data[2] == "2"){
     print("Hard Setting Plot")
-    CpGAvg <- read.table(paste(dir,"hard/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+    CpGAvg <- read.table(paste(dir,"hard/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
     
-    mcfCpG <- read.table(paste(dir,"hard/mcf.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+    mcfCpG <- read.table(paste(dir,"hard/mcf.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
     
     dir <- "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard/"
 
@@ -61,9 +61,9 @@ if ( data[2] == "2"){
 
 if ( data[2] == "1"){
     print("Moderate Setting Plot")
-    CpGAvg <- read.table(paste(dir,"moderate/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+    CpGAvg <- read.table(paste(dir,"moderate/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
     
-    mcfCpG <- read.table(paste(dir,"moderate/mcf.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+    mcfCpG <- read.table(paste(dir,"moderate/mcf.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
     
     dir <- "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate/"
 
@@ -71,9 +71,9 @@ if ( data[2] == "1"){
 }
 if ( data[2] == "0"){
     print("Simple Setting Plot")
-    CpGAvg <- read.table(paste(dir,"simple/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+    CpGAvg <- read.table(paste(dir,"simple/evalAvg.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
     
-    mcfCpG <- read.table(paste(dir,"simple/mcf.txt",sep=""), sep="\t", row.names=NULL, header = FALSE)
+    mcfCpG <- read.table(paste(dir,"simple/mcf.txt",sep=""), sep="\t", row.names=NULL, header = TRUE)
     
     dir <- "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple/"
 

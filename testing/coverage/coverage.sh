@@ -33,13 +33,18 @@ echo "Hard Setting"
 cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard/
 ########  evaluation for different coverages ########
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 5 3 100)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard/eval.txt
+echo threshold  abdncError  methylCallError TP  FN  FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard/eval.txt
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard/input.txt
 
 #echo -n "" > eval.txt
@@ -96,13 +101,18 @@ echo "Moderate Setting"
 cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate/
 ########  evaluation for different coverages ########
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 5 3 100)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate/eval.txt
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate/input.txt
 
 echo 1 757121 230 60 4 1 $i 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate/input.txt
@@ -156,13 +166,18 @@ echo "Simple Setting"
 cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple/
 ########  evaluation for different coverages ########
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 5 3 100)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple/eval.txt
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple/input.txt
 echo 1 757121 230 60 2 1 $i 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple/input.txt
 echo 25 75 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple/input.txt
@@ -223,13 +238,19 @@ echo "Hard Setting"
 cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard-Auto/
 ########  evaluation for different coverages ########
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 5 3 100)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard-Auto/input.txt
 
 #echo -n "" > eval.txt
@@ -286,13 +307,19 @@ echo "Moderate Setting"
 cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate-Auto/
 ########  evaluation for different coverages ########
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 5 3 100)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate-Auto/input.txt
 
 echo 1 757121 230 60 4 1 $i 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate-Auto/input.txt
@@ -346,13 +373,19 @@ echo "Simple Setting"
 cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple-Auto/
 ########  evaluation for different coverages ########
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
 for i in $(seq 5 3 100)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple-Auto/input.txt
 echo 1 757121 230 60 2 1 $i 0 50 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple-Auto/input.txt
 echo 25 75 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple-Auto/input.txt

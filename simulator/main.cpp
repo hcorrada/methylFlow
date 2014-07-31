@@ -46,13 +46,15 @@ int main (int argc, char* argv[]) {
     std::ofstream patternFile;
     buffer << outdirname << "/simPattern.txt";
     patternFile.open( buffer.str().c_str() );
+    patternFile << "chr" << "\t" << "startDNA" << "\t" << "dnaLength" << "\t" << "ComponentID"  << "\t" << "PatternID"<< "\t" << "PatternFreq" << "\t" << "methylInfo" << endl;
     
     
     buffer.str("");
     std::ofstream shortReadFile;
     buffer << outdirname << "/shortRead.txt";
     shortReadFile.open( buffer.str().c_str() );
-    
+    //shortReadFile << "readID" << "\t" << "start"  << "\t" << "length" << "\t" << "W" << "\t" << "methylInfo" << endl;
+
 
     
     //patternFile.open(argv[2]);

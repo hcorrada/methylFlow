@@ -37,7 +37,10 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/
 
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -47,6 +50,8 @@ echo -n "" > match.txt
 for i in $(seq 30 2 120)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/input.txt
 echo 1 757121 230 60 10 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/input.txt
 echo 10 10 10 10 10 10 10 10 10 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard-Auto/input.txt
@@ -99,7 +104,11 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/
 
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -109,6 +118,8 @@ echo -n "" > match.txt
 for i in $(seq 30 2 120)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/input.txt
 echo 1 757121 230 60 4 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/input.txt
 echo 15 15 35 35 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate-Auto/input.txt
@@ -160,7 +171,11 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/
 
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -170,6 +185,8 @@ echo -n "" > match.txt
 for i in $(seq 3 2 120)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple-Auto/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/input.txt
 echo 1 757121 230 60 2 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/input.txt
 echo 25 75 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple-Auto/input.txt
@@ -236,7 +253,11 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard/
 
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -246,6 +267,8 @@ echo -n "" > match.txt
 for i in $(seq 30 2 120)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/hard/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard/input.txt
 echo 1 757121 230 60 10 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard/input.txt
 echo 10 10 10 10 10 10 10 10 10 10 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/hard/input.txt
@@ -298,7 +321,11 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate/
 
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -308,6 +335,8 @@ echo -n "" > match.txt
 for i in $(seq 30 2 120)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/moderate/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate/input.txt
 echo 1 757121 230 60 4 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate/input.txt
 echo 15 15 35 35 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/moderate/input.txt
@@ -359,7 +388,11 @@ cd /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple/
 
 
 echo -n "" > evalAvg.txt
+echo -e var'\t'threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> evalAvg.txt
+
 echo -n "" > mcf.txt
+echo -e var'\t'minCostFlow >> mcf.txt
+
 echo -n "" > weight.txt
 echo -n "" > match.txt
 
@@ -369,6 +402,8 @@ echo -n "" > match.txt
 for i in $(seq 3 2 120)
 do
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple/eval.txt
+echo -e threshold'\t'abdncError'\t'methylCallError'\t'TP'\t'FN'\t'FP >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/coverage/simple/eval.txt
+
 echo -n "" > /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple/input.txt
 echo 1 757121 230 60 2 1 20 0 $i 10  >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple/input.txt
 echo 25 75 >> /cbcb/project-scratch/fdorri/Code/methylFlow/testing/cpg/simple/input.txt

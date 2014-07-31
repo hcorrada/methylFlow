@@ -55,6 +55,8 @@ void readData(){
     //std::string fileName = dir;
     //fileName += str;
     std::string line;
+    std::string dummyLine;
+    getline(inputFile, dummyLine);
     int chek =0;
     thr.clear();
    while (std::getline(inputFile, line)) {

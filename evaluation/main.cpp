@@ -94,6 +94,8 @@ void readTruePattern(int start, int end){
 	int  s, e, cid, pid;
     float abundance;
 	string chr, methylString;
+    string dummyLine;
+    getline(truePatternFile, dummyLine);
 	int i = 0;
 	while(!truePatternFile.eof()) {
 		i++;
