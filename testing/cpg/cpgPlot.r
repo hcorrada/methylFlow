@@ -93,9 +93,9 @@ print("plot abundance Error vs #CpG sites")
 pdf(paste(dir,"abdVCpG.pdf",sep=""))
 
 # get the range for the x and y axis
-xrange <- range(CpGAvg[,1])
-yrange <- range(CpGAvg[,3])
-ntrees <- length(unique(CpGAvg[,2]))
+xrange <- range(CpGAvg$var)
+yrange <- range(CpGAvg$abdncError)
+ntrees <- length(unique(CpGAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -110,9 +110,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(CpGAvg[,2]==j)
-    lines(CpGAvg[sel, 1],
-    CpGAvg[sel, 3],
+    sel <- which(CpGAvg$threshold==j)
+    lines(CpGAvg$var[sel],
+    CpGAvg$abdncError[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -123,7 +123,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(CpGAvg[,2])
+txt <- unique(CpGAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -140,9 +140,9 @@ pdf(paste(dir,"methylVCpG.pdf",sep=""))
 
 
 # get the range for the x and y axis
-xrange <- range(CpGAvg[,1])
-yrange <- range(CpGAvg[,4])
-ntrees <- length(unique(CpGAvg[,2]))
+xrange <- range(CpGAvg$var)
+yrange <- range(CpGAvg$methylCallError)
+ntrees <- length(unique(CpGAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -157,9 +157,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(CpGAvg[,2]==j)
-    lines(CpGAvg[sel, 1],
-    CpGAvg[sel, 4],
+    sel <- which(CpGAvg$threshold == j)
+    lines(CpGAvg$var[sel],
+    CpGAvg$methylCallError[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -170,7 +170,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(CpGAvg[,2])
+txt <- unique(CpGAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -186,9 +186,9 @@ pdf(paste(dir,"TPVCpG.pdf",sep=""))
 
 
 # get the range for the x and y axis
-xrange <- range(CpGAvg[,1])
-yrange <- range(CpGAvg[,5])
-ntrees <- length(unique(CpGAvg[,2]))
+xrange <- range(CpGAvg$var)
+yrange <- range(CpGAvg$TP)
+ntrees <- length(unique(CpGAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -203,9 +203,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(CpGAvg[,2]==j)
-    lines(CpGAvg[sel, 1],
-    CpGAvg[sel, 5],
+    sel <- which(CpGAvg$threshold==j)
+    lines(CpGAvg$var[sel],
+    CpGAvg$TP[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -216,7 +216,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(CpGAvg[,2])
+txt <- unique(CpGAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -234,10 +234,10 @@ dev.off()
 print("plot sensitivity vs #CpG sites")
 pdf(paste(dir,"sensitivityVCpG.pdf",sep=""))
 
-sensitivity = CpGAvg[,5]/(CpGAvg[,5] + CpGAvg[,6])
+sensitivity = CpGAvg$TP/(CpGAvg$TP + CpGAvg$FN)
 
 # get the range for the x and y axis
-xrange <- range(CpGAvg[,1])
+xrange <- range(CpGAvg$var)
 yrange <- range(sensitivity)
 
 yy  <- ifelse(is.na(yrange[2]) , 0, yrange[2])
@@ -247,7 +247,7 @@ yy  <- ifelse(is.na(yrange[1]) , 0, yrange[1])
 yrange[1] <- yy
 
 
-ntrees <- length(unique(CpGAvg[,2]))
+ntrees <- length(unique(CpGAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -262,8 +262,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(CpGAvg[,2]==j)
-    lines(CpGAvg[sel, 1],
+    sel <- which(CpGAvg$threshold == j)
+    lines(CpGAvg$var[sel],
     sensitivity[sel],
     col = colors[i])
 }
@@ -275,7 +275,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(CpGAvg[,2])
+txt <- unique(CpGAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -292,16 +292,16 @@ dev.off()
 print("plot precision vs #CpG sites")
 pdf(paste(dir,"precisionVCpG.pdf",sep=""))
 
-precision = rep(0, length(CpGAvg[,1]));
+precision = rep(0, length(CpGAvg$var));
 
-sel <- which(CpGAvg[,5] + CpGAvg[,7] != 0)
-precision[sel] = CpGAvg[sel,5]/(CpGAvg[sel,5] + CpGAvg[sel,7])
+sel <- which(CpGAvg$TP + CpGAvg$FP != 0)
+precision[sel] = CpGAvg$TP[sel]/(CpGAvg$TP[sel] + CpGAvg$FP[sel])
 
 
 # get the range for the x and y axis
-xrange <- range(CpGAvg[,1])
+xrange <- range(CpGAvg$var)
 yrange <- range(precision)
-ntrees <- length(unique(CpGAvg[,2]))
+ntrees <- length(unique(CpGAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -316,8 +316,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(CpGAvg[,2]==j)
-    lines(CpGAvg[sel, 1],
+    sel <- which(CpGAvg$threshold == j)
+    lines(CpGAvg$var[sel],
     precision[sel],
     col = colors[i])
 }
@@ -329,7 +329,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(CpGAvg[,2])
+txt <- unique(CpGAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -345,12 +345,12 @@ dev.off()
 print("plot false discovery rate vs #CpG sites")
 pdf(paste(dir,"FDRVCpG.pdf",sep=""))
 
-FDR = CpGAvg[,7]/(CpGAvg[,5] + CpGAvg[,7])
+FDR = CpGAvg$FP/(CpGAvg$TP + CpGAvg$FP)
 
 # get the range for the x and y axis
-xrange <- range(CpGAvg[,1])
+xrange <- range(CpGAvg$var)
 yrange <- range(FDR)
-ntrees <- length(unique(CpGAvg[,2]))
+ntrees <- length(unique(CpGAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -365,8 +365,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(CpGAvg[,2]==j)
-    lines(CpGAvg[sel, 1],
+    sel <- which(CpGAvg$threshold == j)
+    lines(CpGAvg$var[sel],
     FDR[sel],
     col = colors[i])
 }
@@ -378,7 +378,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(CpGAvg[,2])
+txt <- unique(CpGAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -395,7 +395,7 @@ dev.off()
 print("plot min cost flow error vs #CpG sites")
 pdf(paste(dir, "mcfCpG.pdf",sep=""))
 
-agg = aggregate(mcfCpG[,2], list(numberofCpG = mcfCpG[,1]), FUN =  mean)
+agg = aggregate(mcfCpG$minCostFlow, list(numberofCpG = mcfCpG$var), FUN =  mean)
 
 plot(agg)
 

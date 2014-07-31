@@ -92,9 +92,9 @@ print("plot abundance Error vs coverage rate")
 pdf(paste(dir,"abdVcoverage.pdf",sep=""))
 
 # get the range for the x and y axis
-xrange <- range(coverageAvg[,1])
-yrange <- range(coverageAvg[,3])
-ntrees <- length(unique(coverageAvg[,2]))
+xrange <- range(coverageAvg$var)
+yrange <- range(coverageAvg$abdncError)
+ntrees <- length(unique(coverageAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -109,9 +109,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(coverageAvg[,2]==j)
-    lines(coverageAvg[sel, 1],
-    coverageAvg[sel, 3],
+    sel <- which(coverageAvg$threshold == j)
+    lines(coverageAvg$var[sel],
+    coverageAvg$abdncError[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -122,7 +122,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(coverageAvg[,2])
+txt <- unique(coverageAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -139,9 +139,9 @@ pdf(paste(dir, "methylVcoverage.pdf",sep=""))
 
 
 # get the range for the x and y axis
-xrange <- range(coverageAvg[,1])
-yrange <- range(coverageAvg[,4])
-ntrees <- length(unique(coverageAvg[,2]))
+xrange <- range(coverageAvg$var)
+yrange <- range(coverageAvg$methylCallError)
+ntrees <- length(unique(coverageAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -156,9 +156,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(coverageAvg[,2]==j)
-    lines(coverageAvg[sel, 1],
-    coverageAvg[sel, 4],
+    sel <- which(coverageAvg$threshold == j)
+    lines(coverageAvg$var[sel],
+    coverageAvg$methylCallError[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -169,7 +169,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(coverageAvg[,2])
+txt <- unique(coverageAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -185,9 +185,9 @@ pdf(paste(dir, "TPVcoverage.pdf",sep=""))
 
 
 # get the range for the x and y axis
-xrange <- range(coverageAvg[,1])
-yrange <- range(coverageAvg[,5])
-ntrees <- length(unique(coverageAvg[,2]))
+xrange <- range(coverageAvg$var)
+yrange <- range(coverageAvg$TP)
+ntrees <- length(unique(coverageAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -202,9 +202,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(coverageAvg[,2]==j)
-    lines(coverageAvg[sel, 1],
-    coverageAvg[sel, 5],
+    sel <- which(coverageAvg$threshold == j)
+    lines(coverageAvg$var[sel],
+    coverageAvg$TP[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -215,7 +215,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(coverageAvg[,2])
+txt <- unique(coverageAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -234,10 +234,10 @@ dev.off()
 print("plot sensitivity vs coverage")
 pdf(paste(dir,"sensitivityVcoverage.pdf",sep=""))
 
-sensitivity = coverageAvg[,5]/(coverageAvg[,5] + coverageAvg[,6])
+sensitivity = coverageAvg$TP/(coverageAvg$TP + coverageAvg$FN)
 
 # get the range for the x and y axis
-xrange <- range(coverageAvg[,1])
+xrange <- range(coverageAvg$var)
 yrange <- range(sensitivity)
 
 yy  <- ifelse(is.na(yrange[2]) , 0, yrange[2])
@@ -246,7 +246,7 @@ yrange[2] <- yy
 yy  <- ifelse(is.na(yrange[1]) , 0, yrange[1])
 yrange[1] <- yy
 
-ntrees <- length(unique(coverageAvg[,2]))
+ntrees <- length(unique(coverageAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -261,8 +261,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(coverageAvg[,2]==j)
-    lines(coverageAvg[sel, 1],
+    sel <- which(coverageAvg$threshold == j)
+    lines(coverageAvg$var[sel],
     sensitivity[sel],
     col = colors[i])
 }
@@ -274,7 +274,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(coverageAvg[,2])
+txt <- unique(coverageAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -292,12 +292,14 @@ dev.off()
 print("plot precision vs coverage")
 pdf(paste(dir,"precisionVcoverage.pdf",sep=""))
 
-precision = coverageAvg[,5]/(coverageAvg[,5] + coverageAvg[,7])
+sel <- which(coverageAvg$TP + coverageAvg$FP != 0)
+precision[sel] = coverageAvg$TP[sel]/(coverageAvg$TP[sel] + coverageAvg$FP[sel])
+
 
 # get the range for the x and y axis
-xrange <- range(coverageAvg[,1])
+xrange <- range(coverageAvg$var)
 yrange <- range(precision)
-ntrees <- length(unique(coverageAvg[,2]))
+ntrees <- length(unique(coverageAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -312,8 +314,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(coverageAvg[,2]==j)
-    lines(coverageAvg[sel, 1],
+    sel <- which(coverageAvg$threshold == j)
+    lines(coverageAvg$var[sel],
     precision[sel],
     col = colors[i])
 }
@@ -325,7 +327,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(coverageAvg[,2])
+txt <- unique(coverageAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -341,12 +343,12 @@ dev.off()
 print("plot false discovery rate vs coverage ")
 pdf(paste(dir,"FDRVCoverage.pdf",sep=""))
 
-FDR = coverageAvg[,7]/(coverageAvg[,5] + coverageAvg[,7])
+FDR = coverageAvg$FP/(coverageAvg$TP + coverageAvg$FP)
 
 # get the range for the x and y axis
-xrange <- range(coverageAvg[,1])
+xrange <- range(coverageAvg$var)
 yrange <- range(FDR)
-ntrees <- length(unique(coverageAvg[,2]))
+ntrees <- length(unique(coverageAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -361,8 +363,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(coverageAvg[,2]==j)
-    lines(coverageAvg[sel, 1],
+    sel <- which(coverageAvg$threshold == j)
+    lines(coverageAvg$var[sel],
     FDR[sel],
     col = colors[i])
 }
@@ -374,7 +376,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(coverageAvg[,2])
+txt <- unique(coverageAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -390,7 +392,7 @@ dev.off()
 print("plot min cost flow error vs Coverage")
 pdf(paste(dir,"mcfCoverage.pdf",sep=""))
 
-agg = aggregate(mcfCoverage[,2], list(coverage = mcfCoverage[,1]), FUN =  mean)
+agg = aggregate(mcfCoverage$minCostFlow, list(coverage = mcfCoverage$var), FUN =  mean)
 
 plot(agg)
 

@@ -96,9 +96,9 @@ print("plot abundance Error vs read Length")
 pdf(paste(dir,"abdVreadLength.pdf",sep=""))
 
 # get the range for the x and y axis
-xrange <- range(readLengthAvg[,1])
-yrange <- range(readLengthAvg[,3])
-ntrees <- length(unique(readLengthAvg[,2]))
+xrange <- range(readLengthAvg$var)
+yrange <- range(readLengthAvg$abdncError)
+ntrees <- length(unique(readLengthAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -113,9 +113,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(readLengthAvg[,2]==j)
-    lines(readLengthAvg[sel, 1],
-    readLengthAvg[sel, 3],
+    sel <- which(readLengthAvg$threshold == j)
+    lines(readLengthAvg$var[sel],
+    readLengthAvg$abdncError[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -126,7 +126,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(readLengthAvg[,2])
+txt <- unique(readLengthAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -143,9 +143,9 @@ pdf(paste(dir,"methylVreadLength.pdf",sep=""))
 
 
 # get the range for the x and y axis
-xrange <- range(readLengthAvg[,1])
-yrange <- range(readLengthAvg[,4])
-ntrees <- length(unique(readLengthAvg[,2]))
+xrange <- range(readLengthAvg$var)
+yrange <- range(readLengthAvg$methylCallError)
+ntrees <- length(unique(readLengthAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -160,9 +160,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(readLengthAvg[,2]==j)
-    lines(readLengthAvg[sel, 1],
-    readLengthAvg[sel, 4],
+    sel <- which(readLengthAvg$threshold == j)
+    lines(readLengthAvg$var[sel],
+    readLengthAvg$methylCallError[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -173,7 +173,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(readLengthAvg[,2])
+txt <- unique(readLengthAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -189,9 +189,9 @@ pdf(paste(dir,"TPVreadLength.pdf",sep=""))
 
 
 # get the range for the x and y axis
-xrange <- range(readLengthAvg[,1])
-yrange <- range(readLengthAvg[,5])
-ntrees <- length(unique(readLengthAvg[,2]))
+xrange <- range(readLengthAvg$var)
+yrange <- range(readLengthAvg$TP)
+ntrees <- length(unique(readLengthAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -206,9 +206,9 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(readLengthAvg[,2]==j)
-    lines(readLengthAvg[sel, 1],
-    readLengthAvg[sel, 5],
+    sel <- which(readLengthAvg$threshold == j)
+    lines(readLengthAvg$var[sel],
+    readLengthAvg$TP[sel],
     col = colors[i])
 }
 # cex scale the size
@@ -219,7 +219,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(readLengthAvg[,2])
+txt <- unique(readLengthAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -238,10 +238,10 @@ dev.off()
 print("plot sensitivity vs readLength")
 pdf(paste(dir,"sensitivityVreadLength.pdf",sep=""))
 
-sensitivity = readLengthAvg[,5]/(readLengthAvg[,5] + readLengthAvg[,6])
+sensitivity = readLengthAvg$TP/(readLengthAvg$TP + readLengthAvg$FN)
 
 # get the range for the x and y axis
-xrange <- range(readLengthAvg[,1])
+xrange <- range(readLengthAvg$var)
 yrange <- range(sensitivity)
 
 yy  <- ifelse(is.na(yrange[2]) , 0, yrange[2])
@@ -253,7 +253,7 @@ yrange[1] <- yy
 print(yrange[1])
 print(yrange[2])
 
-ntrees <- length(unique(readLengthAvg[,2]))
+ntrees <- length(unique(readLengthAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -268,8 +268,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(readLengthAvg[,2]==j)
-    lines(readLengthAvg[sel, 1],
+    sel <- which(readLengthAvg$threshold == j)
+    lines(readLengthAvg$var[sel],
     sensitivity[sel],
     col = colors[i])
 }
@@ -281,7 +281,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(readLengthAvg[,2])
+txt <- unique(readLengthAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -299,12 +299,16 @@ dev.off()
 print("plot precision vs readLength")
 pdf(paste(dir,"precisionVreadLength.pdf",sep=""))
 
-precision = readLengthAvg[,5]/(readLengthAvg[,5] + readLengthAvg[,7])
+precision = rep(0, length(readLengthAvg$var));
+
+sel <- which(readLengthAvg$TP + readLengthAvg$FP != 0)
+precision[sel] = readLengthAvg$TP[sel]/(readLengthAvg$TP[sel] + readLengthAvg$FP[sel])
+
 
 # get the range for the x and y axis
-xrange <- range(readLengthAvg[,1])
+xrange <- range(readLengthAvg$var)
 yrange <- range(precision)
-ntrees <- length(unique(readLengthAvg[,2]))
+ntrees <- length(unique(readLengthAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -319,8 +323,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(readLengthAvg[,2]==j)
-    lines(readLengthAvg[sel, 1],
+    sel <- which(readLengthAvg$threshold == j)
+    lines(readLengthAvg$var[sel],
     precision[sel],
     col = colors[i])
 }
@@ -332,7 +336,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(readLengthAvg[,2])
+txt <- unique(readLengthAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -348,12 +352,12 @@ dev.off()
 print("plot false discovery rate vs readLength ")
 pdf(paste(dir,"FDRVreadLength.pdf",sep=""))
 
-FDR = readLengthAvg[,7]/(readLengthAvg[,5] + readLengthAvg[,7])
+FDR = readLengthAvg$FP/(readLengthAvg$TP + readLengthAvg$FP)
 
 # get the range for the x and y axis
-xrange <- range(readLengthAvg[,1])
+xrange <- range(readLengthAvg$var)
 yrange <- range(FDR)
-ntrees <- length(unique(readLengthAvg[,2]))
+ntrees <- length(unique(readLengthAvg$threshold))
 # set up the plot
 plot(0, 0,
 pch = "",
@@ -368,8 +372,8 @@ for (i in 1:ntrees) {
     j = 0.02 * i + 0.02
     print(j)
     
-    sel <- which(readLengthAvg[,2]==j)
-    lines(readLengthAvg[sel, 1],
+    sel <- which(readLengthAvg$threshold == j)
+    lines(readLengthAvg$var[sel],
     FDR[sel],
     col = colors[i])
 }
@@ -381,7 +385,7 @@ points(lx, ly,
 col = colors[1:28],
 pch = 16, cex=0.5)
 
-txt <- unique(readLengthAvg[,2])
+txt <- unique(readLengthAvg$threshold)
 sel1 <- c(1, (1:7)*4)
 
 text(xrange[1], yrange[2]+.1, "Legend", cex=0.5, pos=4)
@@ -397,7 +401,7 @@ dev.off()
 print("plot min cost flow error vs ReadLength")
 pdf(paste(dir,"mcfReadLength.pdf",sep=""))
 
-agg = aggregate(mcfReadLength[,2], list(readLength = mcfReadLength[,1]), FUN =  mean)
+agg = aggregate(mcfReadLength$minCostFlow, list(readLength = mcfReadLength$var), FUN =  mean)
 
 plot(agg)
 
