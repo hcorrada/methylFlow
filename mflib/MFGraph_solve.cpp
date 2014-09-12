@@ -226,13 +226,13 @@ namespace methylFlow {
         int flownum = 0;
         
         // iterate while residual flow
-        while (total_flow > 0.005) {
+        while (total_flow > 0) {
             
             flownum++;
             // compute residual flow for each arc
-            ListDigraph::ArcMap<int> residual_flow(mfGraph);
+            ListDigraph::ArcMap<float> residual_flow(mfGraph);
             for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
-                residual_flow[arc] = (total_flow - flow_map[arc])*1000.0;
+                residual_flow[arc] = (total_flow - flow_map[arc]);
                 if(flow_map[arc] != 0){
 #ifndef NDEBUG
                     std::cout << "source: " << mfGraph.id(mfGraph.source(arc))<< ", target: " << mfGraph.id(mfGraph.target(arc)) << ", flow: " << flow_map[arc] <<std::endl;
@@ -244,9 +244,9 @@ namespace methylFlow {
             std::cout << "run the min-max dijkstra algorithm " << std::endl;
 #endif
             // run the min-max dijkstra algorithm
-            ListDigraph::NodeMap<int> dist(mfGraph);
+            ListDigraph::NodeMap<float> dist(mfGraph);
             Dijkstra<ListDigraph>
-            ::SetOperationTraits<DijkstraMinMaxOperationTraits<int> >
+            ::SetOperationTraits<DijkstraMinMaxOperationTraits<float> >
             ::Create dijkstra(mfGraph, residual_flow);
             dijkstra.distMap(dist);
             dijkstra.run(source, sink);
@@ -255,7 +255,7 @@ namespace methylFlow {
 #endif
             // get the resulting path and it's flow
             Path<ListDigraph> shortestPath = dijkstra.path(sink);
-            float path_flow = total_flow - dijkstra.dist(sink)/1000.0;
+            float path_flow = total_flow - dijkstra.dist(sink);
             
             
             // construct a meth fragment from path here
