@@ -41,7 +41,7 @@ void simulator::readData(std::ifstream &inputFile){
         
         bool* A = new bool[dnaLength];
         for (int i=0; i<dnaLength; i++)
-            A[i] = false;
+        A[i] = false;
         
         for(int i =0; i < dataFlag; i++){
             int p = rand() % dnaLength;
@@ -49,7 +49,7 @@ void simulator::readData(std::ifstream &inputFile){
         }
         for (int i=0; i< dnaLength; i++) {
             if (A[i])
-                pos.push_back(i + startDNA);
+            pos.push_back(i + startDNA);
         }
         
         
@@ -105,7 +105,7 @@ void simulator::readData(std::ifstream &inputFile){
         cerr << "posSize " << pos.size()<< endl;
         cerr << "tempposSize " << tempPos.size()<< endl;
         
-
+        
         
         
         cerr << dnaLength << endl;
@@ -140,32 +140,35 @@ int simulator::computeMethylProbability(int corrDist, int dist){
         return 0;
     }
     else if(rand() % 100 < 50)
-        return 0;
+    return 0;
     else
-        return 1;
+    return 1;
     
 }
 
 
 void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vector<int> freq, vector<MethylHap>& methylHapVec, int dataFlag, std::ofstream &patternFile){
 	
-/*    stringstream ss;
-    ss << var;
-    string str = ss.str();
-    
-    //ofstream patternFile("/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern" + std::to_string(var) + ".txt");
-
-    std::string fileName;
-    fileName = "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern";
-    fileName += str;
-    fileName += ".txt";
-    patternFile.open(fileName.c_str());
- */
-   // patternFile.open("/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt");
+    /*    stringstream ss;
+     ss << var;
+     string str = ss.str();
+     
+     //ofstream patternFile("/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern" + std::to_string(var) + ".txt");
+     
+     std::string fileName;
+     fileName = "/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern";
+     fileName += str;
+     fileName += ".txt";
+     patternFile.open(fileName.c_str());
+     */
+    // patternFile.open("/cbcb/project-scratch/fdorri/Code/methylFlow/testing/simPattern.txt");
     
     char type;
     vector<MethylInfo> hapInfo;
-    for(int i=0; i<HapNum; i++){
+    int i=0;
+    int run = 0;
+    while (i < HapNum  ) {
+        run++;
         hapInfo.clear();
         if(rand() % 100 < 50){
             type = 'M';
@@ -175,10 +178,13 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
         }
         hapInfo.push_back(MethylInfo(pos[0], type));
         cerr << "posSize 1 " << pos.size() << endl;
+        if (run > 100) {
+            corrDist -= corrDist/3;
+        }
         for( unsigned int j=1; j < pos.size() ; j++){
             int dist = pos[j] - pos[j-1];
             if (computeMethylProbability(corrDist, dist) == 0)
-                hapInfo.push_back(MethylInfo(pos[j], type));
+            hapInfo.push_back(MethylInfo(pos[j], type));
             else{
                 if (type == 'M'){
                     hapInfo.push_back(MethylInfo(pos[j], 'U'));
@@ -194,24 +200,45 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
         MethylHap methylHap;
         methylHap.length = dnaLength;
         methylHap.methyl = hapInfo;
-        methylHapVec.push_back(methylHap);
-        //patternFile << methylHapVec[i].length << "\t";
-        patternFile << chr << "\t" << startDNA << "\t" << dnaLength << "\t" <<"1"  << "\t" << i << "\t" << freq[i] << "\t";
-        if( i < HapNum -1){
-        //cout << "dnaLength" << dnaLength << endl;
-        for(unsigned int j=0; j < methylHapVec[i].methyl.size(); j++){
-            patternFile << (methylHapVec[i].methyl[j].pos - startDNA) << ":" << methylHapVec[i].methyl[j].type << ",";
-        }
-        patternFile << endl ;
-        }
-        if(i == HapNum -1 ){
-            for(unsigned int j=0; j < methylHapVec[i].methyl.size(); j++){
-                patternFile << (methylHapVec[i].methyl[j].pos - startDNA) << ":" << methylHapVec[i].methyl[j].type << ",";
+        if(isNew(methylHap, methylHapVec)){
+            methylHapVec.push_back(methylHap);
+            //patternFile << methylHapVec[i].length << "\t";
+            patternFile << chr << "\t" << startDNA << "\t" << dnaLength << "\t" <<"1"  << "\t" << i << "\t" << freq[i] << "\t";
+            if( i < HapNum -1){
+                //cout << "dnaLength" << dnaLength << endl;
+                for(unsigned int j=0; j < methylHapVec[i].methyl.size(); j++){
+                    patternFile << (methylHapVec[i].methyl[j].pos - startDNA) << ":" << methylHapVec[i].methyl[j].type << ",";
+                }
+                patternFile << endl ;
             }
+            if(i == HapNum -1 ){
+                for(unsigned int j=0; j < methylHapVec[i].methyl.size(); j++){
+                    patternFile << (methylHapVec[i].methyl[j].pos - startDNA) << ":" << methylHapVec[i].methyl[j].type << ",";
+                }
+            }
+            i++;
+            run = 0;
         }
+        
         
     }
     patternFile.close();
+}
+
+bool simulator::isNew(MethylHap methylHap, vector<MethylHap>& methylHapVec){
+    for (unsigned int i=0; i < methylHapVec.size(); i++) {
+        bool mismatch = false;
+        for (unsigned int j =0 ; j < methylHap.methyl.size(); j++) {
+            if (methylHap.methyl[j].pos == methylHapVec[i].methyl[j].pos && methylHap.methyl[j].type != methylHapVec[i].methyl[j].type) {
+                mismatch = true;
+                break;
+            }
+        }
+        if (!mismatch) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void simulator::selectHP(int readLength, int dnaLength, vector<int> freq, int& hap, int& pos){
@@ -225,7 +252,7 @@ void simulator::selectHP(int readLength, int dnaLength, vector<int> freq, int& h
     int randHap = rand() % freqSum;
     //cout << randHap << endl;
     //cout << "freqSum" << freqSum << endl;
-    pos = rand() % (dnaLength - readLength - 1) + startDNA;
+    pos = rand() % (dnaLength - readLength + 1) + startDNA;
     int sum = 0;
     for(unsigned int i=0; i < freq.size(); i ++){
         if( randHap < freq[i] + sum){
@@ -259,7 +286,7 @@ void simulator::buildRead(int hap, int pos,int readLength, int error, vector<Met
 			}
         }
         if(methylHapVec[hap].methyl[i].pos > pos + readLength)
-            break;
+        break;
         
     }
 }
@@ -268,8 +295,8 @@ void simulator::writeMethylRead(MethylRead read, int k, std::ofstream &readFile)
 	
     readFile << "read" << k <<  "\t" << read.start  << "\t" << read.length << "\t" << "W" << "\t";
     if(read.methyl.size() == 0)
-        readFile << "*";
-
+    readFile << "*";
+    
     if(read.methyl.size() > 0){
         //cout << "read" << k <<  "\t" << read.start + 1 << "\t" << read.length << "\t" << "W" << "\t";
         for(unsigned int i=0; i< read.methyl.size()-1; i++){
@@ -279,7 +306,7 @@ void simulator::writeMethylRead(MethylRead read, int k, std::ofstream &readFile)
         //cout << "\t" << "MismatchData" << endl;
     }
     readFile << "\t" << "MismatchData" << endl;
-
+    
 }
 
 

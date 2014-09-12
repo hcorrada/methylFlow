@@ -159,6 +159,8 @@ namespace methylFlow {
     
     void MethylRead::write() {
         std::cout << "write Methyl" << std::endl;
+        std::cout << "start = " <<  this->start() << std::endl;
+
         for (unsigned int i=0; i<this->cpgOffset.size(); i++) {
             if (!this->methyl[i]) {
                 std::cout << this->cpgOffset.at(i) << ":" << "U, ";

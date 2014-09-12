@@ -162,6 +162,8 @@ namespace methylFlow {
                 
             }
         }
+        int lastChr = 0;
+
         while (!check_count || count < READ_LIMIT) {
             
             if(count >0 || !flag_SAM)
@@ -170,7 +172,6 @@ namespace methylFlow {
             if( !instream ) break; // checks end of file
             MethylRead * m;
             
-            int lastChr = 0;
             
             if(!flag_SAM){
                 // parse tab-separated line
@@ -206,7 +207,8 @@ namespace methylFlow {
                 chr = atoi(chromosome.c_str());
                 
                 std::cout << "chr " << chr << std::endl;
-                
+                std::cout << "str " << XM << std::endl;
+                std::cout << "pos " << POS << std::endl;
                 rPos = POS;
                 rLen = SEQ.length();
                 //rLen = findLength(QNAME);
@@ -216,6 +218,9 @@ namespace methylFlow {
                 if (methStr != "*"){
                     m->parseXMtag(XM);
                     mVector.push_back(m);
+                    std::cout << "start = " << m->start() << std::endl;
+                    std::cout << "end = " << m->end() << std::endl;
+
                 }
                 
 #ifndef NDEBUG
@@ -235,7 +240,8 @@ namespace methylFlow {
             // does this read start after the rightMost end position?
             if (m->start() > rightMostPos || chr != lastChr) {
                 std::cout << "chr " << chr << std::endl;
-   
+                std::cout << "[methylFlow] last chr = " << lastChr << ", chr = " << chr << std::endl;
+
                 lastChr = chr;
                 // clear active reads if necessary
                 if (!activeSet.empty()){
@@ -247,8 +253,14 @@ namespace methylFlow {
                     componentCount++;
                     if (verbose) {
                         std::cout << "[methylFlow] Processing component " << componentCount << std::endl;
+                        std::cout << "[methylFlow] Read number " << count << std::endl;
+                        std::cout << "[methylFlow] start read " << m->start() << std::endl;
+                        std::cout << "[methylFlow] rightMostPos " << rightMostPos << std::endl;
+                        
+
                     }
                     
+                   // count = 0;
                     run_component( componentCount,
                                   comp_stream,
                                   patt_stream,
@@ -283,6 +295,7 @@ namespace methylFlow {
         if (verbose)
         {
             std::cout << "[methylFlow] Processing last component " << componentCount << std::endl;
+            std::cout << "[methylFlow] Read number " << count << std::endl;
         }
         run_component( componentCount,
                       comp_stream,

@@ -52,9 +52,9 @@ int chr;
 float var;
 float minCostFlowErr;
 
-std::ifstream truePatternFile, estimatedPatternFile, mFile;
-std::ofstream weightFile, matchFile;
-std::vector<MethylRead*> trueMethylData,estimatedMethylData;
+std::ifstream truePatternFile, estimatedPatternFile, mFile, shortReadFile;
+std::ofstream weightFile, matchFile, matchAppFile, mEstimatedPercentageFile, mTruePercentageFile, mReadPercentageFile;
+std::vector<MethylRead*> trueMethylData,estimatedMethylData, readMethylData;
 std::vector<float> trueAbundanceData, estimatedAbundanceData;
 
 
@@ -81,6 +81,9 @@ std::map<float, vector<int> > FN_avg_map;
 std::map<float, vector<int> > FP_avg_map;
 
 
+vector<int> cpgPos;
+std::map<int, float> true_U_map, true_M_map, estimated_U_map, estimated_M_map, read_U_map, read_M_map;
+
 
 Graph::Node addNode_Read(MethylRead *read, float abndnc)
 {
@@ -91,13 +94,15 @@ Graph::Node addNode_Read(MethylRead *read, float abndnc)
 }
 void readTruePattern(int start, int end){
 	// "s" is for start position, "e" is for end position
-	int  s, e, cid, pid;
-    float abundance;
+	
 	string chr, methylString;
     string dummyLine;
     getline(truePatternFile, dummyLine);
 	int i = 0;
 	while(!truePatternFile.eof()) {
+        int  s = -100, e = -100, cid, pid;
+        float abundance = 0 ;
+
 		i++;
 		truePatternFile >> chr >> s >> e >> cid >> pid >> abundance >> methylString;
         //cout << "Ture read : "<< chr << " " << s << " " << e <<endl;
@@ -123,14 +128,14 @@ void readTruePattern(int start, int end){
 
 void readEstimatedPattern(int start, int end){
 	// "s" is for start position, "e" is for end position
-    float abundance;
 	string  chr, methylString;
     string dummyLine;
     getline(estimatedPatternFile, dummyLine);
 	int i = 0;
 	while(!estimatedPatternFile.eof()) {
-        int  s = -1, e = -1, cid, pid;
-        
+        int  s = -100, e = -100, cid, pid;
+        float abundance = 0 ;
+
 		i++;
 		estimatedPatternFile >> chr >> s >> e >> cid >> pid >> abundance >> methylString;
         
@@ -159,6 +164,27 @@ void readEstimatedPattern(int start, int end){
     
 }
 
+void readShortRead(int start, int end){
+    int  s, l;
+	string readId, methylString, strand, etc;
+    //string dummyLine;
+    //getline(truePatternFile, dummyLine);
+	int i = 0;
+	while(!shortReadFile.eof()) {
+		i++;
+		shortReadFile >> readId >> s >> l >> strand >> methylString >> etc;
+        //cout << "Ture read : "<< chr << " " << s << " " << e <<endl;
+		if( s >= start - 1 && s + l -1  <= end){
+            MethylRead* m = new MethylRead(s, s + l -1);
+            m->parseMethyl(methylString);
+            
+            //m->write();
+            
+            readMethylData.push_back(m);
+		}
+	}
+}
+
 float cost(Graph::Node u, Graph::Node v) {
     
     
@@ -167,10 +193,10 @@ float cost(Graph::Node u, Graph::Node v) {
     
     
     int common = 0 ;
-    cout << "Distance start" << endl;
+    //cout << "Distance start" << endl;
     int match =  readU->distance(readV, common);
     //readU->write();
-    
+    //readV->write();
     //cout <<  "node " << g.id(u) << ", " << g.id(v) << endl;
     //cout << "match " << match <<  endl;
     
@@ -184,7 +210,7 @@ float cost(Graph::Node u, Graph::Node v) {
     //cout << "totalCpG " << totalCpG <<  endl;
     
     
-    cout << "cost " << (float(mismatch) / totalCpG) <<  endl;
+    //cout << "cost " << (float(mismatch) / totalCpG) <<  endl;
     
     //return (float(mismatch) / common) ;
     
@@ -193,15 +219,15 @@ float cost(Graph::Node u, Graph::Node v) {
 
 void buildGraph() {
     
-    cout << "trueMethylSize = " << trueMethylData.size() << endl;
-    cout << "estimatedMethylSize = " << estimatedMethylData.size() << endl;
+    //cout << "trueMethylSize = " << trueMethylData.size() << endl;
+    //cout << "estimatedMethylSize = " << estimatedMethylData.size() << endl;
     for (int i=0; i < trueMethylData.size(); i++) {
-        //cout << "Add true node " << i << endl;
+       // cout << "Add true node " << i << endl;
         addNode_Read(trueMethylData.at(i), trueAbundanceData.at(i));
     }
     
     for (int i=0; i < estimatedMethylData.size(); i++) {
-        //cout << "Add estimated node " << i << endl;
+       // cout << "Add estimated node " << i << endl;
         addNode_Read(estimatedMethylData.at(i), estimatedAbundanceData.at(i));
     }
     
@@ -275,10 +301,13 @@ void writeMatchMatrix() {
             }
             
             matchFile << var << "\t" << g.id(u) << "\t" << argmin  << "\t" << min << endl;
+            matchAppFile << var << "\t" << g.id(u) << "\t" << argmin  << "\t" << min << endl;
+
         }
     }
     matchFile.close();
     weightFile.close();
+    matchAppFile.close();
     
 }
 
@@ -344,16 +373,17 @@ void computeErrorMatrix(double threshold) {
     int FN = truePatternNum - match;
     int FP = estimatedPatternNum - matchSet.size();
     
-    cout << "match = " << match << endl;
-    cout << "FP = " << FP << endl;
-    cout << "estimatedPatternNum = " << estimatedPatternNum << endl;
-    cout << "truePatternNum = " << truePatternNum << endl;
+    //cout << "match = " << match << endl;
+    //cout << "FP = " << FP << endl;
+    //cout << "estimatedPatternNum = " << estimatedPatternNum << endl;
+    //cout << "truePatternNum = " << truePatternNum << endl;
 
     methylCallError = methylCallError/match;
+    abndncError = sqrt(abndncError/TP);
     if( !TP == 0 ){
-        evalFile << threshold << "\t" << sqrt(abndncError/TP) << "\t" << methylCallError << "\t" << TP << "\t" << FN  << "\t"  << FP << std::endl;
+        evalFile << threshold << "\t" << abndncError << "\t" << methylCallError << "\t" << TP << "\t" << FN  << "\t"  << FP << std::endl;
         thr.push_back(threshold);
-        abdncErr_avg_map[threshold].push_back(sqrt(abndncError/TP));
+        abdncErr_avg_map[threshold].push_back(abndncError);
         methylErr_avg_map[threshold].push_back(methylCallError);
         TP_avg_map[threshold].push_back(TP);
         FN_avg_map[threshold].push_back(FN);
@@ -404,14 +434,13 @@ float computeMinCostFlowError(){
         f[e] = lp.addCol();
         obj += f[e]* length[e];
         lp.colLowerBound(f[e], 0.0);
-        cerr << "length " <<  g.id(g.source(e)) <<
-        "\t" << g.id(g.target(e)) << "\t" << length[e] << endl;
+        //cerr << "length " <<  g.id(g.source(e)) <<"\t" << g.id(g.target(e)) << "\t" << length[e] << endl;
         
         
     }
     
     for (NodeIt u(g); u != INVALID; ++u) {
-        cerr <<  g.id(u) << "\t" << abundance_map[u] << endl;
+        //cerr <<  g.id(u) << "\t" << abundance_map[u] << endl;
         lemon::Lp::Expr c;
         if (g.id(u) < trueMethylData.size()) {
             for (lemon::ListDigraph::OutArcIt arcIt(g, u); arcIt != INVALID; ++arcIt) {
@@ -441,11 +470,11 @@ float computeMinCostFlowError(){
     lp.solve();
     
     float v = lp.primal();
-    cout << "mincostflow error = " << v << endl;
+    //cout << "mincostflow error = " << v << endl;
     for (EdgeIt e(g); e != INVALID; ++e) {
         lemon::Lp::Col col = f[e];
         float val = lp.primal(col);
-        cerr << "primal " << g.id(g.source(e)) << "\t " << g.id(g.target(e)) << "\t" << val << endl;
+        //cerr << "primal " << g.id(g.source(e)) << "\t " << g.id(g.target(e)) << "\t" << val << endl;
     }
     
     return v;
@@ -453,6 +482,94 @@ float computeMinCostFlowError(){
     
     
 }
+
+void computeMethylPercentage(){
+    for (unsigned int i=0; i < trueMethylData.size(); i++) {
+        for (unsigned int j=0; j < trueMethylData.at(i)->cpgOffset.size(); j++) {
+            int position = trueMethylData.at(i)->cpgOffset.at(j) + trueMethylData.at(i)->start();
+            bool meth = trueMethylData.at(i)->methyl.at(j);
+            if (find (cpgPos.begin(), cpgPos.end(), position) == cpgPos.end()) {
+                cpgPos.push_back(position);
+            }
+            if (meth) {
+                true_M_map[position] += trueAbundanceData.at(i);
+                //cerr << trueAbundanceData.at(i) << "\t" << "true_M_map[position]= " << true_M_map[position] << endl;
+
+            }
+            else{
+                true_U_map[position] += trueAbundanceData.at(i);
+               // cerr << trueAbundanceData.at(i) << "\t" << "true_U_map[position]= " << true_U_map[position] << endl;
+
+            }
+        }
+    }
+    for (unsigned int i=0; i < estimatedMethylData.size(); i++) {
+        //cerr << "estimated " << endl;
+        for (unsigned int j=0; j < estimatedMethylData.at(i)->cpgOffset.size(); j++) {
+            int position = estimatedMethylData.at(i)->cpgOffset.at(j) + estimatedMethylData.at(i)->start();
+            bool meth = estimatedMethylData.at(i)->methyl.at(j);
+            if (find (cpgPos.begin(), cpgPos.end(), position) == cpgPos.end()) {
+                cpgPos.push_back(position);
+            }
+            if (meth) {
+                estimated_M_map[position] += estimatedAbundanceData.at(i);
+                //cerr << estimatedAbundanceData.at(i) << "\t" << "estimated_M_map[position]= " << estimated_M_map[position] << endl;
+            }
+            else{
+                estimated_U_map[position] += estimatedAbundanceData.at(i);
+                //cerr << estimatedAbundanceData.at(i) << "\t" <<  "estimated_U_map[position]= " << estimated_U_map[position] << endl;
+
+            }
+        }
+    }
+    
+    for (unsigned int i=0; i < readMethylData.size(); i++) {
+        //cerr << "short read " << endl;
+        for (unsigned int j=0; j < readMethylData.at(i)->cpgOffset.size(); j++) {
+            int position = readMethylData.at(i)->cpgOffset.at(j) + readMethylData.at(i)->start();
+            bool meth = readMethylData.at(i)->methyl.at(j);
+            if (find (cpgPos.begin(), cpgPos.end(), position) == cpgPos.end()) {
+                cpgPos.push_back(position);
+            }
+            if (meth) {
+                read_M_map[position] += 1;
+                //cerr << "1" << "\t" << "read_M_map[position]= " << read_M_map[position] << endl;
+            }
+            else{
+                read_U_map[position] += 1;
+                //cerr << "1" << "\t" <<  "read_U_map[position]= " << read_U_map[position] << endl;
+                
+            }
+        }
+    }
+
+    
+}
+
+void writeMethylPercentageMatrix(){
+    mTruePercentageFile << "pos" << "\t" << "unmethyl" << "\t" << " methyl" << endl;
+    for (unsigned int i = 0; i < cpgPos.size(); i++) {
+        mTruePercentageFile << cpgPos.at(i) << "\t"  << true_U_map[cpgPos.at(i)] << "\t"  << true_M_map[cpgPos.at(i)] << endl;
+    }
+    
+    
+    
+    mEstimatedPercentageFile << "pos" << "\t" << "unmethyl" << "\t" << " methyl" << endl;
+
+    for (unsigned int i = 0; i < cpgPos.size(); i++) {
+        mEstimatedPercentageFile << cpgPos.at(i) << "\t"  << estimated_U_map[cpgPos.at(i)] << "\t"  << estimated_M_map[cpgPos.at(i)] << endl;
+    }
+    
+    
+    mReadPercentageFile << "pos" << "\t" << "unmethyl" << "\t" << " methyl" << endl;
+
+    for (unsigned int i = 0; i < cpgPos.size(); i++) {
+        mReadPercentageFile << cpgPos.at(i) << "\t"  << read_U_map[cpgPos.at(i)] << "\t"  << read_M_map[cpgPos.at(i)] << endl;
+    }
+    
+}
+
+
 
 
 int main (int argc, char* argv[]) {
@@ -486,6 +603,11 @@ int main (int argc, char* argv[]) {
     estimatedPatternFile.open( buffer.str().c_str() );
     
     
+    buffer.str("");
+    buffer << indirname << "/shortRead.txt";
+    shortReadFile.open( buffer.str().c_str() );
+    
+    
     std::string outdirname = argv[2];
     
     buffer.str("");
@@ -502,6 +624,10 @@ int main (int argc, char* argv[]) {
     buffer << outdirname << "/match.txt";
     matchFile.open( buffer.str().c_str());
     
+    buffer.str("");
+    buffer << outdirname << "/matchApp.txt";
+    matchAppFile.open( buffer.str().c_str(), std::ios_base::app);
+    
     
     buffer.str("");
     buffer << outdirname << "/weight.txt";
@@ -512,6 +638,22 @@ int main (int argc, char* argv[]) {
     buffer << indirname << "/match.txt";
     mFile.open( buffer.str().c_str() );
     
+    
+    
+    buffer.str("");
+    buffer << outdirname << "/methylPercentageTrue.txt";
+    mTruePercentageFile.open( buffer.str().c_str() );
+    
+    buffer.str("");
+    buffer << outdirname << "/methylPercentageEstimated.txt";
+    mEstimatedPercentageFile.open( buffer.str().c_str() );
+    
+    
+    buffer.str("");
+    buffer << outdirname << "/methylPercentageRead.txt";
+    mReadPercentageFile.open( buffer.str().c_str() );
+    
+    
 	//truePatternFile.open(argv[1]);
     //estimatedPatternFile.open(argv[2]);
     //evalFile.open(argv[3],std::ios_base::app);
@@ -519,9 +661,16 @@ int main (int argc, char* argv[]) {
     
 	
 	//################     read the input .tsv data to the "line" number
-	cout << "reading data " << start << endl;
+	cout << "reading patterns " << start << endl;
 	readTruePattern(start , end);
     readEstimatedPattern(start , end);
+    cout << "reading short read " <<  endl;
+    readShortRead(start, end);
+    cout << "compute methyl Percentage  " << endl;
+
+    computeMethylPercentage();
+    cout << "write methyl Percentage  " << endl;
+    writeMethylPercentageMatrix();
     
 	cout << "build Graph " << start << endl;
     buildGraph();
@@ -545,7 +694,7 @@ int main (int argc, char* argv[]) {
     
     
     //// computing Error Metric ////////
-    for (double thresh=0.04; thresh<0.6; thresh +=0.02)
+    for (double thresh=0.1; thresh<0.4; thresh +=0.05)
         computeErrorMatrix(thresh);
     
     

@@ -43,6 +43,7 @@ public:
     int computeMethylProbability(int corrDist, int dist);
 	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<int> freq,  vector<MethylHap>& methylHapVec, int dataFlag, std::ofstream &patternFile);
 //    void buildMethylHap(int length, vector<int> pos, int HapNum);
+    bool isNew(MethylHap methylHap, vector<MethylHap>& methylHapVec);
 
 	void selectHP(int readLength, int dnaLength, vector<int> freq, int& hap, int& pos);
 	void buildRead(int hap, int pos,int readLength, int error, vector<MethylHap> methylHapVec, MethylRead& read);

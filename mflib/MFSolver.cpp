@@ -51,7 +51,11 @@ namespace methylFlow {
         float current_lambda, zero_lambda;
         float factor;
         
-        best_lambda = -1;
+        best_lambda = 0;
+        zero_lambda = 0;
+        solve_for_lambda(zero_lambda);
+        zero_deviance = get_deviance(zero_lambda);
+        
         for (double curpow = -powlimit; curpow <= powlimit; curpow+=.5) {
             current_lambda = pow(2., curpow);
             res = solve_for_lambda(current_lambda);
@@ -60,28 +64,22 @@ namespace methylFlow {
             current_deviance = get_deviance(current_lambda);
             if (verbose) {
                 std::cout << "lam=2^" << curpow << " dev=" << current_deviance;
-                std::cout << " , opt = " <<  lp->primal() ;
+                std::cout << " , opt = " <<  lp->primal()  << std::endl;
             }
             
-            if (best_lambda < 0) {
-                zero_lambda = 0;
-                zero_deviance = get_deviance(zero_lambda);
-                std::cout << std::endl;
-                continue;
-            }
-            
-            factor = zero_deviance / current_deviance;
-            std::cout << " fact=" << factor << std::endl;
-            if (factor >= 1.0 - epsilon ) {
+
+          //  factor = zero_deviance / current_deviance;
+            if (current_deviance < 0.00001 || (factor = zero_deviance / current_deviance >= 1.0 - epsilon) ) {
                 best_deviance = current_deviance;
                 best_lambda = current_lambda;
+
             }
         }
         
         if (verbose) {
             std::cout << "[methylFlow] best lamda found " << best_lambda << " deviance=" << best_deviance << std::endl;
         }
-        return solve_for_lambda(best_lambda);
+        return solve_for_lambda(std::max(0.0, best_lambda-0.00001));
     }
     
     int MFSolver::make_lp(const float length_mult)
@@ -92,7 +90,8 @@ namespace methylFlow {
         
         // scale the lengths
         for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
-            scaled_length[arc] = mf->effective_length(arc) / length_mult;
+            // divid int by int is not a float.
+            scaled_length[arc] = float(mf->effective_length(arc)) / length_mult;
         }
         
         Lp::Expr obj;
@@ -107,6 +106,8 @@ namespace methylFlow {
 #endif
             
             if (mf->fake[v]) continue;
+            
+            
             
             // add node's alpha variable and bounds
             alpha[v] = lp->addCol();
@@ -151,7 +152,7 @@ namespace methylFlow {
 #ifndef NDEBUG
         std::cout << "sink constraints added" << std::endl;
 #endif
-        
+       
         // add remaining constraints (if not childless)
         for (IterableBoolMap<ListDigraph, ListDigraph::Node>::FalseIt v(mf->fake); v != INVALID; ++v) {
             if (mf->childless[v]) continue;
@@ -190,7 +191,8 @@ namespace methylFlow {
         for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
             ListDigraph::Node v = mf->mfGraph.source(arc);
             Lp::Row row = rows[arc];
-            lp->row(row, -lambda * beta[v] - (-lambda * alpha[v]) - nu[v] <= 0);
+//            lp->row(row, -lambda * beta[v] - (-lambda * alpha[v]) - nu[v] <= 0);
+            lp->row(row, lambda * beta[v] - (lambda * alpha[v]) - nu[v] <= 0);
         }
 #ifndef NDEBUG
         std::cout << "lambda constraints updated" << std::endl;
@@ -199,8 +201,23 @@ namespace methylFlow {
         
         
         lp->solve();
+#ifndef NDEBUG
+        std::cout << "obj = " << lp->primal() << std::endl;
+        std::cout << "get last deviance = " << get_deviance(lambda) << std::endl;
+#endif
+        for (ListDigraph::NodeIt v(mf->get_graph()); v != INVALID; ++v) {
+            
+            if (mf->fake[v]) continue;
+ //           std::cout << "alpha " << mf->nodeName_map[v] << " = " << lp->primal(alpha[v]) << std::endl;
+ //           std::cout << "beta " << mf->nodeName_map[v] << " = " << lp->primal(beta[v]) << std::endl;
+ //           std::cout << "nu " << mf->nodeName_map[v] << " = " << lp->primal(nu[v]) << std::endl;
+
+        }
+
+
         
 #ifndef NDEBUG
+        std::cout << "obj = " << lp->primal() << std::endl;
         std::cout << "Called solver" << std::endl;
 #endif
         

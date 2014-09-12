@@ -36,13 +36,13 @@ namespace methylFlow {
         const std::size_t ncpgs() const;
         
         std::vector<int> cpgOffset;
+        std::vector<bool> methyl;
 
         
     protected:
         // TODO: we need to distinguish region coordinates for modeling and read coordinates for genome coverage
         int rPos, rLen;
         //std::vector<int> cpgOffset;
-        std::vector<bool> methyl;
         int coverage;
         lemon::ListDigraph::Node node;
     };

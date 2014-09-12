@@ -190,6 +190,15 @@ namespace methylFlow {
         }
         regularize();
         
+        for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
+#ifndef NDEBUG
+            std::cout << "Extracting flow of arc: " << std::endl;
+            std::cout << nodeName_map[ mfGraph.source(arc)];
+            std::cout << " -> ";
+            std::cout << nodeName_map[ mfGraph.target(arc)] << "\t";
+            std::cout << effectiveLength_map[arc] << std::endl;
+#endif
+        }
         MFSolver solver(this);
         if (verbose) {
             std::cout << "[methylFlow] Solving optimization problem" << std::endl;
