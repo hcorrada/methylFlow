@@ -68,6 +68,8 @@ public:
 	   std::ostream & comp_stream,
 	   std::ostream & patt_stream,
 	   std::ostream & region_stream,
+       int chr,
+       const bool flag_SAM,
 	   const float lambda,
 	   const float scale_mult,
 	   const float epsilon,
@@ -81,7 +83,7 @@ public:
 
   void print_regions( std::ostream & region_stream,
 		      const float scale_mult, 
-		      const int componentId );
+		      const int componentId, int chr );
   
   // clear graph, delete pointers to read/region objects
   void clear_graph();
@@ -110,6 +112,8 @@ private:
 			   std::ostream & comp_stream,
 			   std::ostream & patt_stream,
 			   std::ostream & region_stream,
+               int chr,
+               const bool flag_SAM,
 			   const float lambda,
 			   const float scale_mult,
 			   const float epsilon,
@@ -136,7 +140,7 @@ private:
 
   // run decomposition algorithm
   // componentID: used for printing
-  int decompose(const int componentID, std::ostream & patt_stream);
+  int decompose(const int componentID, std::ostream & patt_stream, int chr);
 };
 
 inline const ListDigraph &MFGraph::get_graph() const

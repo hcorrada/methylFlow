@@ -28,26 +28,28 @@ struct MethylRead{
 
 class simulator {
 public:
-    
+    int chr, var;
     vector<int> freq;
     vector<int> pos;
-    int dnaLength, readLength, HapNum, coverage, error, flag, corrDist;
+    int dnaLength, startDNA, readLength, HapNum, freqFlag, coverage, error, dataFlag, corrDist;
 	vector<MethylHap> methylHapVec;
 	
 	simulator(){};
     
     ~simulator(){};
 
-    void readData();
-    int computeMethylProbability(int corrDist, int dist, int HapNum);
-	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<MethylHap>& methylHapVec, int flag);
+    void readData(std::ifstream &inputFile);
+    double sigmoid(double x, int corrDist);
+    int computeMethylProbability(int corrDist, int dist);
+	void buildMethylHap(int length, vector<int> pos, int HapNum, vector<int> freq,  vector<MethylHap>& methylHapVec, int dataFlag, std::ofstream &patternFile);
 //    void buildMethylHap(int length, vector<int> pos, int HapNum);
+    bool isNew(MethylHap methylHap, vector<MethylHap>& methylHapVec);
 
 	void selectHP(int readLength, int dnaLength, vector<int> freq, int& hap, int& pos);
 	void buildRead(int hap, int pos,int readLength, int error, vector<MethylHap> methylHapVec, MethylRead& read);
     
-    void writeMethylRead(MethylRead read, int k);
-    void simulate();
+    void writeMethylRead(MethylRead read, int k, std::ofstream &readFile);
+    void simulate(std::ifstream &inputFile, std::ofstream &patternFile, std::ofstream &readFile);
 	
 	
 };

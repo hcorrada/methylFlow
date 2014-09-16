@@ -26,13 +26,20 @@ namespace methylFlow {
     std::size_t curStringOffset = 0; 
     int curPos = 0;
     bool curMeth = false;
+      if (methString.length() == 0) {
+          std::cout << "Error parsing methylation string, There is no read" << std::endl;
+          return -1;
 
-    methString.append(1, ',');
+      }
+      char  lastChar = methString.at( methString.length() - 1 );
+      if (lastChar != ',') {
+          methString.append(1, ',');
+      }
     while (curStringOffset < methString.length()) {
       found = methString.find(":", curStringOffset);
 
       if (found == std::string::npos) {
-	std::cout << "Error parsing methylation string" << std::endl;
+          std::cout << "Error parsing methylation string, : is not found" << std::endl;
 	return -1;
       }
 
@@ -42,7 +49,7 @@ namespace methylFlow {
       found = methString.find(",", curStringOffset);
 
       if (found == std::string::npos) {
-	std::cout << "Error parsing methylation string" << std::endl;
+	std::cout << "Error parsing methylation string, , is not found" << std::endl;
 	return -1;
       }
       curMeth = (methString.substr(curStringOffset, found - curStringOffset) == "M"); 
@@ -52,6 +59,34 @@ namespace methylFlow {
     }
     return 0;
   }
+    
+    
+  int MethylRead::parseXMtag(std::string XM){
+      std::size_t foundU, foundM, found;
+      std::size_t curStringOffset = XM.find("XM:Z:", 0) + 5;
+      
+      int curPos = 0;
+      bool curMeth = false;
+      
+      while (curStringOffset < XM.length()) {
+          foundM = XM.find("Z", curStringOffset);
+          foundU = XM.find("z", curStringOffset);
+          
+          found = std::min(foundM, foundU);
+          
+          if (found == std::string::npos) {
+              break;
+          }
+          curPos = found - 5;
+          curMeth = (XM[found] == 'Z');
+          cpgOffset.push_back(curPos);
+          methyl.push_back(curMeth);
+          curStringOffset = found + 1;
+      }
+      return 0;
+      
+  }
+
 
   const std::string MethylRead::getMethString() const
   {
@@ -87,6 +122,55 @@ namespace methylFlow {
     return out.str();
   }
 
+    float MethylRead::distance(MethylRead* other, int &common) {
+        int offset = other->start() - this->start();
+        std::size_t j = 0;
+        float match = 0;
+        for (std::size_t i=0; i < this->cpgOffset.size(); ++i) {
+            // advance pointer of other as long as needed
+            while( j < other->cpgOffset.size() && (this->cpgOffset[i] - offset) > other->cpgOffset[j] )
+                j++;
+            
+         //   std::cout << i << " " << j << std::endl;
+         //   std::cout << this->cpgOffset.size() << " " << other->cpgOffset.size() << std::endl;
+            // no more cpgs on other, so return true
+            if (j == this->cpgOffset.size()) break;
+            
+            // check if pointers at same position
+            if ( this->cpgOffset[i] - offset == other->cpgOffset[j] ) {
+                // we are, check if consistent
+                common++;
+                if ( this->methyl[i] == other->methyl[j] ) match++;
+            }
+            
+            // no more cpgs on other, so return true
+            if (j == this->cpgOffset.size()) break;
+        }
+        
+        //std::cout << "match 1 = " << match << std::endl;
+        //std::cout << "match 2 = " << this->cpgOffset.size() << std::endl;
+        
+        if (this->cpgOffset.size() > 0)
+            return match;
+        else
+            return 0;
+        
+    }
+    
+    void MethylRead::write() {
+        std::cout << "write Methyl" << std::endl;
+        std::cout << "start = " <<  this->start() << std::endl;
+
+        for (unsigned int i=0; i<this->cpgOffset.size(); i++) {
+            if (!this->methyl[i]) {
+                std::cout << this->cpgOffset.at(i) << ":" << "U, ";
+            } else{
+                std::cout << this->cpgOffset.at(i) << ":" << "M, ";
+            }
+        }
+        std::cout << std::endl;
+    }
+    
   bool MethylRead::isMethConsistent(MethylRead *other)
   {
     // always assume comparing left read to right read

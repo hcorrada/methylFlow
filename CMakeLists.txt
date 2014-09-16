@@ -106,11 +106,14 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "
 ENDIF()
 
 ENABLE_TESTING()
-
+ADD_SUBDIRECTORY(avgEval)
+ADD_SUBDIRECTORY(evaluation)
+ADD_SUBDIRECTORY(samEvaluation)
 ADD_SUBDIRECTORY(mflib)
 ADD_SUBDIRECTORY(methylFlow)
 ADD_SUBDIRECTORY(simulator)
 ADD_SUBDIRECTORY(testing)
+
 
 ## Sometimes MSVC overwhelms you with compiler warnings which are impossible to
 ## avoid. Then comment out these sections. Normally you won't need it as the
