@@ -2,7 +2,14 @@ Package: methylFlowr
 Title: cell-specific methylation pattern reconstruction
 Description: Analysis of methylFlow output
 Version: 0.99.1
-Authors@R: c(person("Hector", "Corrada Bravo", role=c("aut","cre"),email="hcorrada@gmail.com"), person("Faezeh", "Dorri", role=c("aut"), email="faezeh.dorri@gmail.com"))
+Authors@R: c(person("Hector", "Corrada Bravo", role=c("aut","cre"), email="hcorrada@gmail.com"),
+	   person("Faezeh", "Dorri", role=c("aut")))
 Depends: R (>= 3.0.2), GenomicRanges
 License: Artistic-2.0
 LazyData: true
+biocViews: DNAMethylation
+Collate: AllClasses.r
+	 read.data.r
+	 MFDataSet-utils.R
+
+
