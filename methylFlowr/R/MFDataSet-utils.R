@@ -74,8 +74,31 @@ componentEntropy <- function(obj) {
   .ent <- function(x) {
     p <- x/sum(x)
     -sum(p*log(p))
+   # sum(p*p)
   }
-  tapply(pats$abundance,pats$cid,.ent)
+  tapply(pats$abundance,pats$cid,  .ent)
+ 
+}
+
+
+componentEpipolymorphism <- function(obj) {
+ pats <- patterns(obj)
+  .norm <- function(x) {
+     zoo(x/sum(x))
+    #   -sum(p*log(p))
+    #sum(p*p)
+  }
+  z <- tapply(pats$abundance,pats$cid, .norm)
+  lapply(z , function(x) {1 - rollapply(x, width=4, function(i) sum(i*i))})
+  
+#}
+
+positionCoverage <- function(obj){
+  regionGR <- regions(obj)
+  keep <- regionGR[regionsGR$exp_coverage >0]
+  x <- IRanges(keep@ranges@start, keep@ranges@width)
+  coverage(x)
+  
 }
 
 componentAvgMeth <- function(obj) {
