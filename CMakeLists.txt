@@ -9,11 +9,12 @@ SET(PROJECT_NAME "methylFlow")
 ## the cmake-gui when you make a release.
 ## The last parameter is a help string displayed by CMAKE.
 
-SET(PROJECT_VERSION "0.9.99"
-    CACHE STRING "${PROJECT_NAME} version string")
+#SET(PROJECT_VERSION "0.9.99"
+ #   CACHE STRING "${PROJECT_NAME} version string")
 
 ## Do not edit this.
-PROJECT(${PROJECT_NAME})
+CMAKE_POLICY(SET CMP0048 NEW)
+PROJECT(${PROJECT_NAME} VERSION 0.9.99)
 
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -106,9 +107,6 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "
 ENDIF()
 
 ENABLE_TESTING()
-ADD_SUBDIRECTORY(avgEval)
-ADD_SUBDIRECTORY(evaluation)
-ADD_SUBDIRECTORY(samEvaluation)
 ADD_SUBDIRECTORY(mflib)
 ADD_SUBDIRECTORY(methylFlow)
 ADD_SUBDIRECTORY(simulator)

@@ -245,7 +245,7 @@ namespace methylFlow {
 #endif
             // run the min-max dijkstra algorithm
             ListDigraph::NodeMap<float> dist(mfGraph);
-            Dijkstra<ListDigraph>
+            Dijkstra<ListDigraph, ListDigraph::ArcMap<float> >
             ::SetOperationTraits<DijkstraMinMaxOperationTraits<float> >
             ::Create dijkstra(mfGraph, residual_flow);
             dijkstra.distMap(dist);
