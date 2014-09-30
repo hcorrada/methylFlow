@@ -80,7 +80,7 @@ componentEntropy <- function(obj) {
  
 }
 
-
+#(this doesn't work)
 componentEpipolymorphism <- function(obj) {
  pats <- patterns(obj)
   .norm <- function(x) {
@@ -100,6 +100,28 @@ positionCoverage <- function(obj){
   coverage(x)
   
 }
+
+positionWeightedCoverage <- function(obj){
+  regionGR <- regions(obj)
+  keep <- regionGR[regionGR$exp_coverage >0]
+  x <- IRanges(start = keep@ranges@start, width= keep@ranges@width)
+  coverage(x, weight= keep$exp_coverage )
+  }
+
+
+#(this dosn't work)
+posistionEntropy <- function(obj){
+  regionGR <- regions(obj)
+  keep <- regionGR[regionGR$exp_coverage >0]
+  pwc <- positionWeightedCoverage(obj)
+  makerle <- function(gr){
+    x<- IRanges(start= gr@ranges@start, width = gr@ranges@width)
+    p <- coverage(x, weight= gr@exp_coverage)/pwc
+    -p*log(p)
+    }
+ lapply(keep, makerle)
+}
+
 
 componentAvgMeth <- function(obj) {
   regionGR <- regions(obj)
