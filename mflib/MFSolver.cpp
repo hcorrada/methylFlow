@@ -5,6 +5,8 @@
 
 #include "MFSolver.hpp"
 
+#define CONSISTENCY_FACTOR 0.0001
+
 using namespace lemon;
 
 namespace methylFlow {
@@ -137,7 +139,7 @@ namespace methylFlow {
         // bound nu variable for source targets
         for (ListDigraph::OutArcIt arc(mfGraph, mf->get_source()); arc != INVALID; ++arc) {
             ListDigraph::Node v = mfGraph.target(arc);
-            rows[arc] = lp->addRow(nu[v] <= 0);
+            rows[arc] = lp->addRow(nu[v] <= -CONSISTENCY_FACTOR);
         }
 #ifndef NDEBUG
         std::cout << "nu bounds added" << std::endl;
@@ -147,7 +149,7 @@ namespace methylFlow {
         for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
             ListDigraph::Node v = mfGraph.source(arc);
             rows[arc] = lp->addRow(scaled_length[arc] * beta[v] -
-                                   scaled_length[arc] * alpha[v] - nu[v] <= 0);
+                                   scaled_length[arc] * alpha[v] - nu[v] <= -CONSISTENCY_FACTOR);
         }
 #ifndef NDEBUG
         std::cout << "sink constraints added" << std::endl;
@@ -164,7 +166,7 @@ namespace methylFlow {
                     return -1;
                 }
                 rows[arc] = lp->addRow(scaled_length[arc] * beta[v] -
-                                       scaled_length[arc] * alpha[v] - nu[v] + nu[u] <= 0);
+                                       scaled_length[arc] * alpha[v] - nu[v] + nu[u] <= -CONSISTENCY_FACTOR);
             }
 #ifndef NDEBUG
             std::cout << "constraints added" << std::endl;
@@ -191,8 +193,8 @@ namespace methylFlow {
         for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
             ListDigraph::Node v = mf->mfGraph.source(arc);
             Lp::Row row = rows[arc];
-//            lp->row(row, -lambda * beta[v] - (-lambda * alpha[v]) - nu[v] <= 0);
-            lp->row(row, lambda * beta[v] - (lambda * alpha[v]) - nu[v] <= 0);
+            lp->row(row, -lambda * beta[v] - (-lambda * alpha[v]) - nu[v] <= -CONSISTENCY_FACTOR);
+	    //            lp->row(row, lambda * beta[v] - (lambda * alpha[v]) - nu[v] <= 0);
         }
 #ifndef NDEBUG
         std::cout << "lambda constraints updated" << std::endl;
