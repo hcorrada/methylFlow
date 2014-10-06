@@ -123,7 +123,7 @@ posistionEntropy <- function(obj){
 
 
 componentAvgMeth <- function(obj) {
-  obj = objs2[[2]]
+  #obj = objs2[[2]]
   regionGR <- regions(obj)
   cind <- split(seq(len=length(regionGR)), regionGR$cid)
   sapply(cind, function(ii) {
@@ -169,10 +169,12 @@ regionMethPrecentage <- function(obj) {
 }
 
 patternMethPrecentage <- function(obj) {
-
+  #obj = objs2[[2]]
   patternGR <- patterns(obj)
   cind <- split(seq(len=length(patternGR)), patternGR$cid)
   sapply(cind, function(ii) {
+    ii = cind[[100]]
+    ii
     if (sum(patternGR$ncpgs[ii]>0) == 0)
       return(NA)
     
@@ -189,4 +191,26 @@ patternMethPrecentage <- function(obj) {
     mtab[,2] <- (mtab[,2] / covtab[,2])
     mtab
   })
+}
+
+methPercentages2gr <- function(obj){
+  #obj= objs[[2]]
+  chr = levels(seqnames(obj@regions))
+  obj2 <- processMethylpats(obj)
+  rmp <- regionMethPrecentage(obj2)
+  pmp <- patternMethPrecentage(obj2)
+  keep <- width(components(obj)) > 100
+  tabR <- Reduce(rbind, rmp[keep])
+  tabP <- Reduce(rbind, pmp[keep])
+  tabCombined = na.omit(merge(tabP,tabR,by='Group.1'))
+  gr <- GRanges(seqnames=rep(chr , nrow(tabCombined)),
+                ranges=IRanges(start=tabCombined[,1], width=1),
+                readPercentage = tabCombined[,3],
+                patternPercentage = tabCombined[,2])
+  
+  #gr <- GRanges(seqnames=rep(chr, length(tabR$x[!is.na(tabR$x)])),
+   #             ranges=IRanges(start=tabR$Group.1[!is.na(tabR$Group.1)], width=1),
+    #            readPercentage = tabR$x[!is.na(tabR$x)],
+     #           patternPercentage = tabP$x[!is.na(tabR$x)])
+  gr
 }
