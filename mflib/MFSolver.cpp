@@ -64,10 +64,10 @@ namespace methylFlow {
             if (res) return res;
             
             current_deviance = get_deviance(current_lambda);
-            if (verbose) {
+            #ifndef NDEBUG
                 std::cout << "lam=2^" << curpow << " dev=" << current_deviance;
                 std::cout << " , opt = " <<  lp->primal()  << std::endl;
-            }
+            #endif
             
 
           //  factor = zero_deviance / current_deviance;

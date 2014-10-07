@@ -27,5 +27,6 @@ read.methylflow.dir <- function(dir, sampleName, verbose = TRUE, has.header=TRUE
   patternsGR <- tab2gr(patternsTab)
   regionsGR <- tab2gr(regionsTab)
 
-  new("MFDataSet", components=componentsGR, patterns=patternsGR, regions=regionsGR)
+  seqinfo <- seqinfo(componentsGR)
+  new("MFDataSet", components=componentsGR, patterns=patternsGR, regions=regionsGR, seqinfo=seqinfo)
 }

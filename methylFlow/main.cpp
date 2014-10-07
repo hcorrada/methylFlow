@@ -194,7 +194,7 @@ int main(int argc, const char **argv)
     
     if (opt.isSet("-h")) {
         Usage(opt);
-        return 1;
+        return 0;
     }
     
     
@@ -260,7 +260,7 @@ int main(int argc, const char **argv)
     
     if (status == -1) {
         std::cerr << "[methylFlow] Error opening file." << std::endl;
-        return -1;
+        return 1;
     }
     
     bool flag_SAM = false;

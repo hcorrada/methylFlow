@@ -26,5 +26,3 @@ counts <- function(obj, level=c("region","component"), kind=c("raw","normalized"
              normalized=components(obj)$coverage)
     }
   }
-
-

@@ -2,6 +2,42 @@ regions <- function(obj) obj@regions
 patterns <- function(obj) obj@patterns
 components <- function(obj) obj@components
 
+setMethod("show", "MFDataSet", function(object) {
+    cat("MFDataSet object:\n")
+    cat("  ", length(components(object)), " components\n")
+    cat("  ", length(patterns(object)), " patterns\n")
+    cat("  ", length(regions(object)), " regions\n")
+    show(seqinfo(object))
+})
+
+setMethod("seqinfo", "MFDataSet", function(x) x@seqinfo)
+setMethod("seqinfo<-", "MFDataSet", function(x, new2old = NULL, force=FALSE, value) {
+    x@seqinfo <- value
+    x@regions <- callGeneric(regions(x), new2old, force, value)
+    x@patterns <- callGeneric(patterns(x), new2old, force, value)
+    x@components <- callGeneric(components(x), new2old, force, value)
+    x
+})
+
+mfFilterBy <- function(obj, minComponentCoverage=NULL, minComponentWidth=NULL) {
+    keep <- rep(TRUE, length(components(obj)))
+    if (!is.null(minComponentCoverage)) {
+        keep <- keep & (counts(obj, level="component") >= minComponentCoverage)
+    }
+    if (!is.null(minComponentWidth)) {
+        keep <- keep & (width(components(obj)) >= minComponentWidth)
+    }
+    componentIdsToKeep <- components(obj)$cid[keep]
+    obj@components <- components(obj)[keep,]
+
+    regionsToKeep <- regions(obj)$cid %in% componentIdsToKeep
+    obj@regions <- regions(obj)[regionsToKeep,]
+
+    patternsToKeep <- patterns(obj)$cid %in% componentIdsToKeep
+    obj@patterns <- patterns(obj)[patternsToKeep,]
+    obj
+}
+
 nregions <- function(obj, by.component=TRUE) {
   if (by.component)
     return(table(regions(obj)$cid))
@@ -89,9 +125,8 @@ componentEpipolymorphism <- function(obj) {
     #sum(p*p)
   }
   z <- tapply(pats$abundance,pats$cid, .norm)
-  lapply(z , function(x) {1 - rollapply(x, width=4, function(i) sum(i*i))})
-  
-#}
+  lapply(z , function(x) {1 - rollapply(x, width=4, function(i) sum(i*i))})  
+}
 
 positionCoverage <- function(obj){
   regionGR <- regions(obj)
