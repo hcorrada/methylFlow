@@ -151,7 +151,7 @@ componentEntropy <- function(obj) {
  
 }
 
-
+#(this doesn't work)
 componentEpipolymorphism <- function(obj) {
  pats <- patterns(obj)
   .norm <- function(x) {
@@ -171,13 +171,37 @@ positionCoverage <- function(obj){
   
 }
 
+positionWeightedCoverage <- function(obj){
+  regionGR <- regions(obj)
+  keep <- regionGR[regionGR$exp_coverage >0]
+  x <- IRanges(start = keep@ranges@start, width= keep@ranges@width)
+  coverage(x, weight= keep$exp_coverage )
+  }
+
+
+#(this dosn't work)
+posistionEntropy <- function(obj){
+  regionGR <- regions(obj)
+  keep <- regionGR[regionGR$exp_coverage >0]
+  pwc <- positionWeightedCoverage(obj)
+  makerle <- function(gr){
+    x<- IRanges(start= gr@ranges@start, width = gr@ranges@width)
+    p <- coverage(x, weight= gr@exp_coverage)/pwc
+    -p*log(p)
+    }
+ lapply(keep, makerle)
+}
+
+
 componentAvgMeth <- function(obj) {
+  #obj = objs2[[2]]
   regionGR <- regions(obj)
   cind <- split(seq(len=length(regionGR)), regionGR$cid)
   sapply(cind, function(ii) {
     if (sum(regionGR$ncpgs[ii]>0) == 0)
       return(NA)
-    
+    ii = cind[[100]]
+    ii
     tab <- lapply(ii[regionGR$ncpgs[ii]>0], function(j) cbind(start(regionGR)[j]+regionGR$locs[[j]]-1, 1*(regionGR$meth[[j]]=="M"),regionGR$raw_coverage[j]))
     tab <- Reduce(rbind, tab)
     tab <- aggregate(tab[,3], list(tab[,1],tab[,2]),sum)
@@ -190,4 +214,74 @@ componentAvgMeth <- function(obj) {
 
     mean(mtab[,2] / covtab[,2])
   })
+}
+
+regionMethPrecentage <- function(obj) {
+  regionGR <- regions(obj)
+  cind <- split(seq(len=length(regionGR)), regionGR$cid)
+  sapply(cind, function(ii) {
+    if (sum(regionGR$ncpgs[ii]>0) == 0)
+      return(NA)
+  
+    tab <- lapply(ii[regionGR$ncpgs[ii]>0], function(j) cbind(start(regionGR)[j]+regionGR$locs[[j]]-1, 1*(regionGR$meth[[j]]=="M"),regionGR$raw_coverage[j]))
+    tab <- Reduce(rbind, tab)
+    tab <- aggregate(tab[,3], list(tab[,1],tab[,2]),sum)
+    
+    mtab <- cbind(tab[,1],tab[,2]*tab[,3])
+    mtab <- aggregate(mtab[,2],list(mtab[,1]),sum)
+    
+    covtab <- cbind(tab[,1],tab[,3])
+    covtab <- aggregate(covtab[,2],list(covtab[,1]),sum)
+    
+    mtab[,2] <- (mtab[,2] / covtab[,2])
+    mtab
+  })
+  
+}
+
+patternMethPrecentage <- function(obj) {
+  #obj = objs2[[2]]
+  patternGR <- patterns(obj)
+  cind <- split(seq(len=length(patternGR)), patternGR$cid)
+  sapply(cind, function(ii) {
+    ii = cind[[100]]
+    ii
+    if (sum(patternGR$ncpgs[ii]>0) == 0)
+      return(NA)
+    
+    tab <- lapply(ii[patternGR$ncpgs[ii]>0], function(j) cbind(start(patternGR)[j]+patternGR$locs[[j]]-1, 1*(patternGR$meth[[j]]=="M"),patternGR$abundance[j]))
+    tab <- Reduce(rbind, tab)
+    tab <- aggregate(tab[,3], list(tab[,1],tab[,2]),sum)
+    
+    mtab <- cbind(tab[,1],tab[,2]*tab[,3])
+    mtab <- aggregate(mtab[,2],list(mtab[,1]),sum)
+    
+    covtab <- cbind(tab[,1],tab[,3])
+    covtab <- aggregate(covtab[,2],list(covtab[,1]),sum)
+    
+    mtab[,2] <- (mtab[,2] / covtab[,2])
+    mtab
+  })
+}
+
+methPercentages2gr <- function(obj){
+  #obj= objs[[2]]
+  chr = levels(seqnames(obj@regions))
+  obj2 <- processMethylpats(obj)
+  rmp <- regionMethPrecentage(obj2)
+  pmp <- patternMethPrecentage(obj2)
+  keep <- width(components(obj)) > 100
+  tabR <- Reduce(rbind, rmp[keep])
+  tabP <- Reduce(rbind, pmp[keep])
+  tabCombined = na.omit(merge(tabP,tabR,by='Group.1'))
+  gr <- GRanges(seqnames=rep(chr , nrow(tabCombined)),
+                ranges=IRanges(start=tabCombined[,1], width=1),
+                readPercentage = tabCombined[,3],
+                patternPercentage = tabCombined[,2])
+  
+  #gr <- GRanges(seqnames=rep(chr, length(tabR$x[!is.na(tabR$x)])),
+   #             ranges=IRanges(start=tabR$Group.1[!is.na(tabR$Group.1)], width=1),
+    #            readPercentage = tabR$x[!is.na(tabR$x)],
+     #           patternPercentage = tabP$x[!is.na(tabR$x)])
+  gr
 }
