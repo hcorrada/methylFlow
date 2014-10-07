@@ -99,10 +99,31 @@ processMethylpats <- function(obj) {
   obj
 }
 
-ncpgs <- function(obj, level=c("region","pattern")) {
+ncpgs <- function(obj, level=c("region","pattern"), summary=c("none", "median", "min", "max")) {
   level <- match.arg(level)
+  summary <- match.arg(summary)
+  
   if (level == "region") {
+      if (!is.null(regions(obj)$ncpgs)) {
+          res <- regions(obj)$ncpgs
+          cids <- regions(obj)$cid
+      } else {
+          return(NULL)
+      }
+  } else if (level == "pattern") {
+      if (!is.null(patterns(obj)$ncpgs)) {
+          res <- patterns(obj)$ncpgs
+          cids <- patterns(obj)$cid
+      } else {
+          return(NULL)
+      }
   }
+
+  if (summary != "none") {
+      fn <- get(summary)
+      res <- tapply(res, cids, fn)
+  }
+  res
 }
 
 componentEntropy <- function(obj) {
