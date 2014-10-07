@@ -140,29 +140,39 @@ ncpgs <- function(obj, level=c("region","pattern"), summary=c("none", "median", 
   res
 }
 
-componentEntropy <- function(obj) {
-  pats <- patterns(obj)
-  .ent <- function(x) {
-    p <- x/sum(x)
-    -sum(p*log(p))
-   # sum(p*p)
-  }
-  tapply(pats$abundance,pats$cid,  .ent)
- 
-}
+makeCpgGR <- function(obj, kind=c("raw", "estimated")) {
+    kind <- match.arg(kind)
+    if (kind == "raw") {
+        gr <- regions(obj)
+    } else {
+        gr <- patterns(obj)
+    }
 
-#(this doesn't work)
-componentEpipolymorphism <- function(obj) {
- pats <- patterns(obj)
-  .norm <- function(x) {
-     zoo(x/sum(x))
-    #   -sum(p*log(p))
-    #sum(p*p)
-  }
-  z <- tapply(pats$abundance,pats$cid, .norm)
-  lapply(z , function(x) {1 - rollapply(x, width=4, function(i) sum(i*i))})  
-}
+    keep <- gr$ncpgs > 0
+    gr <- gr[keep,]
+    locs <- rep(start(gr), gr$ncpgs) + unlist(gr$locs)
 
+    if (kind == "raw") {
+        cov <- gr$raw_coverage
+    } else {
+        cov <- gr$abundance
+    }
+
+    Cov <- rep(cov, gr$ncpgs)
+    Meth <- 1*(unlist(gr$meth) == "M") * Cov
+
+    Cov <- tapply(Cov, locs, sum)
+    Meth <- tapply(Meth, locs, sum)
+    Loc <- tapply(locs,locs, function(x) x[1])
+    chr <- tapply(rep(as.character(seqnames(gr)), gr$ncpgs), locs, function(x) x[1])
+    newGR <- GRanges(chr, IRanges(start=Loc, width=1),
+                       Cov=Cov, Meth=Meth)
+    newGR$Beta <- Meth / Cov
+    names(newGR) <- NULL
+    seqinfo(newGR) <- seqinfo(gr)
+    newGR
+}
+                                          
 positionCoverage <- function(obj){
   regionGR <- regions(obj)
   keep <- regionGR[regionsGR$exp_coverage >0]
@@ -177,21 +187,6 @@ positionWeightedCoverage <- function(obj){
   x <- IRanges(start = keep@ranges@start, width= keep@ranges@width)
   coverage(x, weight= keep$exp_coverage )
   }
-
-
-#(this dosn't work)
-posistionEntropy <- function(obj){
-  regionGR <- regions(obj)
-  keep <- regionGR[regionGR$exp_coverage >0]
-  pwc <- positionWeightedCoverage(obj)
-  makerle <- function(gr){
-    x<- IRanges(start= gr@ranges@start, width = gr@ranges@width)
-    p <- coverage(x, weight= gr@exp_coverage)/pwc
-    -p*log(p)
-    }
- lapply(keep, makerle)
-}
-
 
 componentAvgMeth <- function(obj) {
   #obj = objs2[[2]]
@@ -285,3 +280,42 @@ methPercentages2gr <- function(obj){
      #           patternPercentage = tabP$x[!is.na(tabR$x)])
   gr
 }
+
+componentEntropy <- function(obj) {
+  pats <- patterns(obj)
+  .ent <- function(x) {
+    p <- x/sum(x)
+    -sum(p*log(p))
+   # sum(p*p)
+  }
+  tapply(pats$abundance,pats$cid,  .ent)
+ 
+}
+
+#(this doesn't work)
+componentEpipolymorphism <- function(obj) {
+ pats <- patterns(obj)
+  .norm <- function(x) {
+     zoo(x/sum(x))
+    #   -sum(p*log(p))
+    #sum(p*p)
+  }
+  z <- tapply(pats$abundance,pats$cid, .norm)
+  lapply(z , function(x) {1 - rollapply(x, width=4, function(i) sum(i*i))})  
+}
+
+
+#(this dosn't work)
+posistionEntropy <- function(obj){
+  regionGR <- regions(obj)
+  keep <- regionGR[regionGR$exp_coverage >0]
+  pwc <- positionWeightedCoverage(obj)
+  makerle <- function(gr){
+    x<- IRanges(start= gr@ranges@start, width = gr@ranges@width)
+    p <- coverage(x, weight= gr@exp_coverage)/pwc
+    -p*log(p)
+    }
+ lapply(keep, makerle)
+}
+
+
