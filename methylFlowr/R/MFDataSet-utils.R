@@ -19,13 +19,21 @@ setMethod("seqinfo<-", "MFDataSet", function(x, new2old = NULL, force=FALSE, val
     x
 })
 
-mfFilterBy <- function(obj, minComponentCoverage=NULL, minComponentWidth=NULL) {
+mfFilterBy <- function(obj,
+                       minComponentCoverage=NULL,
+                       minComponentWidth=NULL,
+                       minNumberOfPatterns=NULL) {
     keep <- rep(TRUE, length(components(obj)))
     if (!is.null(minComponentCoverage)) {
         keep <- keep & (counts(obj, level="component") >= minComponentCoverage)
     }
     if (!is.null(minComponentWidth)) {
         keep <- keep & (width(components(obj)) >= minComponentWidth)
+    }
+    if (!is.null(minNumberOfPatterns)) {
+        npatterns <- npatterns(obj, by.component=TRUE)
+        cids <- names(npatterns)[npatterns >= minNumberOfPatterns]
+        keep <- keep & (components(obj)$cid %in% cids)
     }
     componentIdsToKeep <- components(obj)$cid[keep]
     obj@components <- components(obj)[keep,]
@@ -39,15 +47,21 @@ mfFilterBy <- function(obj, minComponentCoverage=NULL, minComponentWidth=NULL) {
 }
 
 nregions <- function(obj, by.component=TRUE) {
-  if (by.component)
-    return(table(regions(obj)$cid))
-  nrow(regions(obj))
+    if (isTRUE(by.component)) {
+        tab <- table(regions(obj)$cid)
+        m <- match(names(tab), components(obj)$cid)
+        return(as.integer(tab[m]))
+    }
+    length(regions(obj))
 }
 
 npatterns <- function(obj, by.component=TRUE) {
-  if (by.component)
-    return(table(patterns(obj)$cid))
-  nrow(patterns(obj))
+  if (isTRUE(by.component)) {
+      tab <- table(patterns(obj)$cid)
+      m <- match(names(tab), components(obj)$cid)
+    return(as.integer(tab[m]))
+  }
+  length(patterns(obj))
 }
 
 counts <- function(obj, level=c("region","component"), kind=c("raw","normalized"))
