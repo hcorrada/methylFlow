@@ -80,27 +80,27 @@ counts <- function(obj, level=c("region","component"), kind=c("raw","normalized"
   }
 
 
-processMethylpats <- function(obj) {
-  .parseMethylpats <- function(x) {
+.parseMethylpats <- function(x) {
     tmp <- strsplit(x, ",")
     ncpgs <- ifelse(x=="*", 0, sapply(tmp,length))
     tmp2 <- lapply(seq(along=x), function(i) {
-      if (ncpgs[i] == 0) return(NULL)
-      strsplit(tmp[[i]], ":")
+        if (ncpgs[i] == 0) return(NULL)
+        strsplit(tmp[[i]], ":")
     })
-
+    
     locs <- lapply(tmp2, function(y) {
       if (is.null(y)) return(0)
       as.integer(sapply(y,"[",1))
     })
 
     meth <- lapply(tmp2, function(y) {
-      if (is.null(y)) return("")
-      sapply(y,"[",2)
+        if (is.null(y)) return("")
+        sapply(y,"[",2)
     })
     list(ncpgs=ncpgs,locs=locs,meth=meth)
-  }
+}
 
+processMethylpats <- function(obj) {
   patternMethylPats <- .parseMethylpats(patterns(obj)$methylpat)
   obj@patterns$ncpgs <- patternMethylPats$ncpgs
   obj@patterns$locs <- patternMethylPats$locs
