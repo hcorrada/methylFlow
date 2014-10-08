@@ -9,7 +9,7 @@ namespace methylFlow {
     MFRegionPrinter::MFRegionPrinter( MFGraph * g,
                                      std::ostream * ostream,
                                      const int cid,
-                                     const float scale, int chr ) : mfGraph(g),
+				      const float scale, std::string chr ) : mfGraph(g),
     outstream(ostream),
     componentID(cid),
     scale_mult(scale),

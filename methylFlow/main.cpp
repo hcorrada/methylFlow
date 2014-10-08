@@ -94,7 +94,7 @@ int main(int argc, const char **argv)
             0, // Required (for now, will switch to stdin if missing in future)
             1, // number of args expected
             0, // delimiter, not needed
-            "chr number for tsv files, not required for sam input file", // Help description
+            "chr name for tsv files, not required for sam input file", // Help description
             "-chr", //flag token
             "-Chr" // flag token
             );
@@ -242,9 +242,9 @@ int main(int argc, const char **argv)
         instream = &std::cin;
     }
     
-    int chr;
+    std::string chr;
     if (opt.isSet("-chr")) {
-        opt.get("-chr")->getInt(chr);
+        opt.get("-chr")->getString(chr);
     }
     
     

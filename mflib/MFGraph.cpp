@@ -104,7 +104,7 @@ namespace methylFlow {
     }
     
     void MFGraph::print_regions( std::ostream & region_stream,
-                                const float scale_mult, const int componentId, int chr )
+				 const float scale_mult, const int componentId, std::string chr )
     {
         MFRegionPrinter regionPrinter(this, &region_stream, componentId, scale_mult, chr);
         BfsVisit<ListDigraph, MFRegionPrinter, BfsVisitDefaultTraits<ListDigraph> > bfs(mfGraph, regionPrinter);
@@ -117,7 +117,7 @@ namespace methylFlow {
                      std::ostream & comp_stream,
                      std::ostream & patt_stream,
                      std::ostream & region_stream,
-                     int chr,
+		      std::string chr,
                      const bool flag_SAM,
                      const float lambda,
                      const float scale_mult,
@@ -163,7 +163,7 @@ namespace methylFlow {
                 
             }
         }
-        int lastChr = 0;
+	std::string lastChr = "";
 
         while (!check_count || count < READ_LIMIT) {
             
@@ -205,7 +205,8 @@ namespace methylFlow {
                 //parse chr name
                 std::string::size_type sz;
                 std::string chromosome =  RNAME.substr(3);
-                chr = atoi(chromosome.c_str());
+		//                chr = atoi(chromosome.c_str());
+		chr = chromosome;
                 
                 std::cout << "chr " << chr << std::endl;
                 std::cout << "str " << XM << std::endl;
@@ -240,8 +241,10 @@ namespace methylFlow {
             
             // does this read start after the rightMost end position?
             if (m->start() > rightMostPos || chr != lastChr) {
+	      if (verbose) {
                 std::cout << "chr " << chr << std::endl;
                 std::cout << "[methylFlow] last chr = " << lastChr << ", chr = " << chr << std::endl;
+	      }
 
                 lastChr = chr;
                 // clear active reads if necessary
@@ -615,7 +618,7 @@ namespace methylFlow {
                                      std::ostream & comp_stream,
                                      std::ostream & patt_stream,
                                      std::ostream & region_stream,
-                                     int chr,
+				      std::string chr,
                                      const bool flag_SAM,
                                      const float lambda,
                                      const float scale_mult,

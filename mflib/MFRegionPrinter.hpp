@@ -13,7 +13,7 @@ namespace methylFlow {
         friend class MFGraph;
         
     public:
-        MFRegionPrinter(MFGraph * g, std::ostream * ostream, const int cid, const float scale_mult, int chr);
+      MFRegionPrinter(MFGraph * g, std::ostream * ostream, const int cid, const float scale_mult, std::string chr);
         ~MFRegionPrinter();
         std::ostream & getstream();
         void reach (ListDigraphBase::Node const &node);
@@ -22,7 +22,7 @@ namespace methylFlow {
         std::ostream * outstream;
         int componentID;
         float scale_mult;
-        int chromosome;
+      std::string chromosome;
     };
     
 } // namespace methylFlow

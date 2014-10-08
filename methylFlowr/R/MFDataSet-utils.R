@@ -31,9 +31,7 @@ mfFilterBy <- function(obj,
         keep <- keep & (width(components(obj)) >= minComponentWidth)
     }
     if (!is.null(minNumberOfPatterns)) {
-        npatterns <- npatterns(obj, by.component=TRUE)
-        cids <- names(npatterns)[npatterns >= minNumberOfPatterns]
-        keep <- keep & (components(obj)$cid %in% cids)
+        keep <- keep & (npatterns(obj, by.component=TRUE) >= minNumberOfPatterns)
     }
     componentIdsToKeep <- components(obj)$cid[keep]
     obj@components <- components(obj)[keep,]
@@ -57,9 +55,7 @@ nregions <- function(obj, by.component=TRUE) {
 
 npatterns <- function(obj, by.component=TRUE) {
   if (isTRUE(by.component)) {
-      tab <- table(patterns(obj)$cid)
-      m <- match(names(tab), components(obj)$cid)
-    return(as.integer(tab[m]))
+      return(components(obj)$npatterns)
   }
   length(patterns(obj))
 }
@@ -140,9 +136,9 @@ ncpgs <- function(obj, level=c("region","pattern"), summary=c("none", "median", 
   res
 }
 
-makeCpgGR <- function(obj, kind=c("raw", "estimated")) {
+makeCpgGR <- function(obj, kind=c("raw", "normalized", "estimated")) {
     kind <- match.arg(kind)
-    if (kind == "raw") {
+    if (kind %in% c("raw","normalized")) {
         gr <- regions(obj)
     } else {
         gr <- patterns(obj)
@@ -153,7 +149,9 @@ makeCpgGR <- function(obj, kind=c("raw", "estimated")) {
     locs <- rep(start(gr), gr$ncpgs) + unlist(gr$locs)
 
     if (kind == "raw") {
-        cov <- gr$raw_coverage
+        cov <- gr$raw_coverage / width(gr) * 10
+    } else if (kind == "normalized") {
+        cov <- gr$norm_coverage / width(gr) * 10
     } else {
         cov <- gr$abundance
     }

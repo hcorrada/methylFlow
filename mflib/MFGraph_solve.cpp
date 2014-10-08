@@ -215,7 +215,7 @@ namespace methylFlow {
     }
     
     
-    int MFGraph::decompose(const int componentID, std::ostream & patt_stream, int chr)
+  int MFGraph::decompose(const int componentID, std::ostream & patt_stream, std::string chr)
     {
         // compute total flow
         float total_flow = this->total_flow();
