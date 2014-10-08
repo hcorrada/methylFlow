@@ -13,7 +13,7 @@ namespace methylFlow {
   {
   }
 
-  template<class T> void MFCpgEstimator::computeMap(CpgMap<T> cpg_map, CoverageFunc<T> cov_function) 
+  template<class T> void MFCpgEstimator::computeMap(CpgMap<T> &cpg_map, CoverageFunc<T> cov_function) 
   {
     MFGraph *graph = solver->mf;
     const ListDigraph &mfGraph = solver->get_graph();
@@ -28,6 +28,27 @@ namespace methylFlow {
       #ifndef NDEBUG
       std::cout << "computing raw: cov: " << cov << " " << m->getString() << std::endl;
       #endif
+
+      for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin(); it != m->cpgs.end(); ++it) {
+	MethylRead::CpgEntry entry = *it;
+	
+        #ifndef NDEBUG
+	std::cout << "Offset " << entry.offset << ":" << (entry.methyl ? 'M' : 'U') << std::endl;
+	#endif
+
+	if (cpg_map.count(rPos + entry.offset - 1) == 0) {
+	  cpg_map[rPos + entry.offset - 1] = MFCpgEstimator::CpgEntry<T>(cov, entry.methyl ? cov : 0);
+	} else {
+	  MFCpgEstimator::CpgEntry<T> estimatorEntry = cpg_map[rPos + entry.offset - 1];
+	  estimatorEntry.Cov += cov;
+	  estimatorEntry.Meth += (entry.methyl ? cov : 0);
+	  cpg_map[rPos + entry.offset - 1] = estimatorEntry;
+	}
+      }
+    }
+
+    for (typename CpgMap<T>::iterator it = cpg_map.begin(); it != cpg_map.end(); ++it) {
+      it->second.Beta = (float) it->second.Meth / (float) it->second.Cov;
     }
   }
   
@@ -39,30 +60,7 @@ namespace methylFlow {
 
     MFGraph *graph = solver->mf;
     computeMap(raw_map, &MFGraph::coverage);
-    /*
-    
-    
-      
-      for (std::pair<std::vector<int>::iterator, std::vector<bool>::iterator> it(m->cpgOffset.begin(), m->methyl.begin()); 
-	   it.first != m->cpgOffset.end(); ++it.first, ++it.second) {
 
-	int offset = *(it.first);
-	bool meth = *(it.second);
-
-	#ifndef NDEBUG
-	std::cout << "Offset " << offset << ":" << (meth ? 'M' : 'U') << std::endl;
-	#endif
-
-	if (raw_coverage_map.count(rPos + offset - 1) == 0) {
-	  raw_coverage_map[rPos + offset - 1] = cov;
-	  raw_methylation_map[rPos + offset - 1] = (meth ? cov : 0);
-	} else {
-	  raw_coverage_map[rPos + offset - 1] += cov;
-	  raw_methylation_map[rPos + offset - 1] += (meth ? cov : 0);
-	}
-      }
-    }
-    */
     #ifndef NDEBUG
     printRaw();
     #endif
@@ -78,7 +76,7 @@ namespace methylFlow {
     std::cout << "pos\tCov\tMeth\tBeta" << std::endl;
     for (typename CpgMap<T>::iterator it = map.begin(); it != map.end(); ++it) {
       CpgEntry<T> entry = it->second;
-      std::cout << it->first << "\t" << entry.Cov << "\t" << entry.Meth << entry.Beta << std::endl;
+      std::cout << it->first << "\t" << entry.Cov << "\t" << entry.Meth << "\t" << entry.Beta << std::endl;
     }
   }
   

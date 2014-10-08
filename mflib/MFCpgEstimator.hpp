@@ -22,6 +22,9 @@ namespace methylFlow {
     template<class T>
     class CpgEntry {
       friend class MFCpgEstimator;
+    public:
+      CpgEntry(T cov, T meth) : Cov(cov), Meth(meth), Beta(0) {};
+      CpgEntry() : Cov(0), Meth(0), Beta(0) {};
     protected:
       T Cov;
       T Meth;
@@ -36,7 +39,7 @@ namespace methylFlow {
     template<class T> void printMap(CpgMap<T>);
 
     template<class T> using CoverageFunc = T &(MFGraph::*)(const ListDigraph::Node &);
-    template<class T> void computeMap(CpgMap<T>, CoverageFunc<T>);
+    template<class T> void computeMap(CpgMap<T> &, CoverageFunc<T>);
   };
 
 } // namespace methylFlow
