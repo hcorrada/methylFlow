@@ -9,7 +9,7 @@ namespace methylFlow {
   class MFCpgSolver;
 
   class MFCpgEstimator {
-    friend MFCpgSolver;
+    friend class MFCpgSolver;
 
   public:
     MFCpgEstimator(MFCpgSolver *obj, const float scale_mult);

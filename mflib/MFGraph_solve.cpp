@@ -5,7 +5,7 @@
 #include <lemon/dijkstra.h>
 
 #include "MFGraph.hpp"
-#include "MFSolver.hpp"
+#include "MFRegionSolver.hpp"
 #include "MFCpgSolver.hpp"
 
 namespace methylFlow {
@@ -200,18 +200,24 @@ namespace methylFlow {
             std::cout << effectiveLength_map[arc] << std::endl;
 #endif
         }
-        MFSolver solver(this);
+        MFSolver *solver;
+	if (pctselect) {
+	  solver = new MFCpgSolver(this);
+	} else {
+	    solver =new MFRegionSolver(this);
+	}
+
         if (verbose) {
             std::cout << "[methylFlow] Solving optimization problem" << std::endl;
         }
-        res = solver.solve(lambda, length_mult, epsilon, verbose);
+        res = solver->solve(lambda, length_mult, epsilon, verbose);
         
         if (res) {
             std::cerr << "[methylFlow] Error solving for scale =" << length_mult << std::endl;
             return res;
         }
         
-        solver.extract_flows();
+        solver->extract_flows();
         return 0;
     }
     

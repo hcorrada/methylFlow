@@ -1,16 +1,18 @@
 #include "MFSolver.hpp"
 
-#ifndef MFCPGSOLVER_H
-#define MFCPGSOLVER_H
+#ifndef MFREGIONSOLVER_H
+#define MFREIGONSOLVER_H
 
 namespace methylFlow {
+  class MFRegionSolver : public MFSolver {
 
-  class MFCpgSolver : public MFSolver {
-    friend class MFCpgEstimator;
-    
   public:
-    MFCpgSolver(MFGraph *mfobj);
-    ~MFCpgSolver();
+    MFRegionSolver(MFGraph *mfobj);
+    ~MFRegionSolver();
+
+  private:
+    ListDigraph::NodeMap<Lp::Col> alpha;
+    ListDigraph::NodeMap<Lp::Col> beta;
 
   protected:
     float score(const float lambda);
@@ -20,4 +22,4 @@ namespace methylFlow {
     int modify_lambda_constraints(const float lambda);
   };
 } // namespace methylFlow
-#endif // MFCPGSOLVER_H
+#endif // MFREGIONSOLVER_H

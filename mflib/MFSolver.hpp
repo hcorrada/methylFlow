@@ -6,6 +6,8 @@ using namespace lemon;
 #ifndef MFSOLVER_H
 #define MFSOLVER_H
 
+#define CONSISTENCY_FACTOR 0.0001
+
 namespace methylFlow {
 
   class MFSolver {
@@ -24,31 +26,29 @@ namespace methylFlow {
 
   protected:
     MFGraph *mf;
-
-  private:
     Lp *lp;
-    ListDigraph::NodeMap<Lp::Col> alpha;
-    ListDigraph::NodeMap<Lp::Col> beta;
     ListDigraph::NodeMap<Lp::Col> nu;
-
-    
     ListDigraph::ArcMap<Lp::Row> rows;
     ListDigraph::ArcMap<float> scaled_length;
 
     // make the LP object
+    // virtual LP creator
     int make_lp(const float length_mult);
+
+    virtual int add_cols() =0;
+    virtual int make_lp_objective(Lp::Expr &obj) =0;
+    virtual int add_constraints() =0;
+    virtual int modify_lambda_constraints(const float lambda) =0;
 
     // solve the optimization problem
     // lambda: penalty parameter
     int solve_for_lambda(const float lambda);
 
     // find the best lambda
-    using ScoreFunction = float (MFSolver::*)(const float);
-    int search_lambda_wrapper(const float epislon, float &best_lambda, const float scale_mult, const bool verbose, ScoreFunction score_func);
     int search_lambda(const float epislon, float &best_lambda, const float scale_mult, const bool verbose);
-
-    // get deviance for current solution
-    float get_deviance(const float lambda);
+    
+    // virtual score function
+    virtual float score(const float lambda) =0;
   };
 
   inline ListDigraph &MFSolver::get_graph()
