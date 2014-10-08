@@ -6,9 +6,13 @@ using namespace lemon;
 #define MFCPGESTIMATOR_H
 
 namespace methylFlow {
+  class MFCpgSolver;
+
   class MFCpgEstimator {
+    friend MFCpgSolver;
+
   public:
-    MFCpgEstimator(MFSolver *obj, const float scale_mult);
+    MFCpgEstimator(MFCpgSolver *obj, const float scale_mult);
     ~MFCpgEstimator();
 
     void computeRaw();
@@ -19,7 +23,7 @@ namespace methylFlow {
     void printEstimated();
 
   protected:
-    MFSolver *solver;
+    MFCpgSolver *solver;
 
   private:    
     template<class T>

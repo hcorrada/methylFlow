@@ -1,12 +1,13 @@
 #include "MFCpgEstimator.hpp"
-#include "MFSolver.hpp"
+#include "MFCpgSolver.hpp"
+
 #include <cmath>
 
 using namespace lemon;
 
 namespace methylFlow {
 
-  MFCpgEstimator::MFCpgEstimator(MFSolver *obj, const float scale) : solver(obj), scale_mult(scale)
+  MFCpgEstimator::MFCpgEstimator(MFCpgSolver *obj, const float scale) : solver(obj), scale_mult(scale)
   {
   }
 

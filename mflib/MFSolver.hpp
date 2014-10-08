@@ -9,13 +9,12 @@ using namespace lemon;
 namespace methylFlow {
 
   class MFSolver {
-    friend class MFCpgEstimator;
   public:
     MFSolver(MFGraph *mfobj);
     ~MFSolver();
     
     // does everything
-    int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool pctselect);
+    int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose);
 
     // extract flows from LP solution
     int extract_flows();
@@ -44,13 +43,12 @@ namespace methylFlow {
     int solve_for_lambda(const float lambda);
 
     // find the best lambda
-    int search_lambda(const float epislon, float &best_lambda, const float scale_mult, const bool verbose, const bool pctselect);
+    using ScoreFunction = float (MFSolver::*)(const float);
+    int search_lambda_wrapper(const float epislon, float &best_lambda, const float scale_mult, const bool verbose, ScoreFunction score_func);
+    int search_lambda(const float epislon, float &best_lambda, const float scale_mult, const bool verbose);
 
     // get deviance for current solution
     float get_deviance(const float lambda);
-
-    // get pct error for current solution
-    float get_pcterror();
   };
 
   inline ListDigraph &MFSolver::get_graph()

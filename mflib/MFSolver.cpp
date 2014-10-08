@@ -4,7 +4,6 @@
 #include <lemon/lp.h>
 
 #include "MFSolver.hpp"
-#include "MFCpgEstimator.hpp"
 
 #define CONSISTENCY_FACTOR 0.0001
 
@@ -24,7 +23,7 @@ namespace methylFlow {
     {
     }
     
-  int MFSolver::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool pctselect)
+  int MFSolver::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose)
     {
         int res;
         res = make_lp(length_mult);
@@ -38,13 +37,17 @@ namespace methylFlow {
             std::cout << "[methylFlow] Searching for best lambda" << std::endl;
         }
         
-        res = search_lambda(epsilon, best_lambda, length_mult, verbose, pctselect);
+        res = search_lambda(epsilon, best_lambda, length_mult, verbose);
         if (res) return res;
         
         return solve_for_lambda(best_lambda);
     }
     
-  int MFSolver::search_lambda(const float epsilon, float &best_lambda, const float length_mult, const bool verbose, const bool pctselect)
+  int MFSolver::search_lambda(const float epsilon, float &best_lambda, const float length_mult, const bool verbose) {
+    return search_lambda_wrapper(epsilon, best_lambda, length_mult, verbose, &MFSolver::get_deviance);
+  };
+
+  int MFSolver::search_lambda_wrapper(const float epsilon, float &best_lambda, const float length_mult, const bool verbose, ScoreFunction score_func)
     {
         const double powlimit = 6.0;
         
@@ -54,22 +57,17 @@ namespace methylFlow {
         float current_lambda, zero_lambda;
         float factor;
      
-	MFCpgEstimator cpgEstimator(this, length_mult);
-	if (pctselect) {
-	  cpgEstimator.computeRaw();
-	}
-
         best_lambda = 0;
         zero_lambda = 0;
         solve_for_lambda(zero_lambda);
-        zero_deviance = pctselect ? cpgEstimator.getPctError() : get_deviance(zero_lambda);
+        zero_deviance = (this->*score_func)(zero_lambda);
         
         for (double curpow = -powlimit; curpow <= powlimit; curpow+=.5) {
             current_lambda = pow(2., curpow);
             res = solve_for_lambda(current_lambda);
             if (res) return res;
             
-            current_deviance = pctselect ? cpgEstimator.getPctError() : get_deviance(current_lambda);
+            current_deviance = (this->*score_func)(current_lambda);
             #ifndef NDEBUG
                 std::cout << "lam=2^" << curpow << " dev=" << current_deviance;
                 std::cout << " , opt = " <<  lp->primal()  << std::endl;
@@ -85,7 +83,7 @@ namespace methylFlow {
         }
         
         if (verbose) {
-            std::cout << "[methylFlow] best lamda found " << best_lambda << " deviance=" << best_deviance << std::endl;
+            std::cout << "[methylFlow] best lambda found " << best_lambda << " deviance=" << best_deviance << std::endl;
         }
 	best_lambda = std::max(0.0, best_lambda-0.00001);
         return solve_for_lambda(best_lambda);
@@ -194,11 +192,6 @@ namespace methylFlow {
         return obj;
     }
     
-  float MFSolver::get_pcterror()
-  {
-    return 0.1;
-  }
-
     int MFSolver::solve_for_lambda(const float lambda)
     {
         // modify lambda constraints

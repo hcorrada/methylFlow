@@ -6,6 +6,7 @@
 
 #include "MFGraph.hpp"
 #include "MFSolver.hpp"
+#include "MFCpgSolver.hpp"
 
 namespace methylFlow {
     void MFGraph::add_terminals()
@@ -203,7 +204,7 @@ namespace methylFlow {
         if (verbose) {
             std::cout << "[methylFlow] Solving optimization problem" << std::endl;
         }
-        res = solver.solve(lambda, length_mult, epsilon, verbose, pctselect);
+        res = solver.solve(lambda, length_mult, epsilon, verbose);
         
         if (res) {
             std::cerr << "[methylFlow] Error solving for scale =" << length_mult << std::endl;
