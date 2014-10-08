@@ -10,5 +10,6 @@ ADD_LIBRARY(mflib
   MFSolver.cpp
   MethylRead.cpp
   MFRegionPrinter.cpp
+  MFCpgEstimator.cpp
 )
 

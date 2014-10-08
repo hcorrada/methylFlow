@@ -190,6 +190,21 @@ int main(int argc, const char **argv)
             "--verbose"
             );
     
+    // select lambda by minimizing
+    // marginal methpct error
+    const bool DEFAULT_PCTSELECT = false;
+    opt.add(
+            "", // default (don't do it)
+            0, // not required uses default
+            0, // no args, it's a flag
+            0, // no delimiter
+            "Lambda selection by pct error option.", // help description
+            "-p", // flag tokens
+            "-P",
+            "-pctselect",
+            "--pctselect"
+            );
+
     opt.parse(argc, argv);
     
     if (opt.isSet("-h")) {
@@ -295,6 +310,13 @@ int main(int argc, const char **argv)
     } else {
         verbose = DEFAULT_VERBOSE;
     }
+
+    bool pctselect;
+    if (opt.isSet("-p")) {
+      pctselect = true;
+    } else {
+      pctselect = DEFAULT_PCTSELECT;
+    }
     
     MFGraph g;
     status = g.run( *instream,
@@ -306,7 +328,8 @@ int main(int argc, const char **argv)
                    lambda,
                    scale_mult,
                    epsilon,
-                   verbose );
+                   verbose,
+                   pctselect );
     
     // streams are closed when object
     // is destroyed

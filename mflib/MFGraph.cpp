@@ -122,7 +122,8 @@ namespace methylFlow {
                      const float lambda,
                      const float scale_mult,
                      const float epsilon,
-                     const bool verbose )
+		     const bool verbose,
+		     const bool pctselect)
     {
         std::vector<MethylRead*> mVector;
         std::string readid, rStrand, methStr, substStr;
@@ -270,7 +271,8 @@ namespace methylFlow {
                                   lambda,
                                   scale_mult,
                                   epsilon,
-                                  verbose );
+				  verbose,
+				  pctselect );
                     clear_graph();
                 }
             }
@@ -306,7 +308,8 @@ namespace methylFlow {
                       lambda,
                       scale_mult,
                       epsilon,
-                      verbose );
+		      verbose,
+		      pctselect );
         clear_graph();
         return 0;
     }
@@ -617,7 +620,8 @@ namespace methylFlow {
                                      const float lambda,
                                      const float scale_mult,
                                      const float epsilon,
-                                     const bool verbose )
+				     const bool verbose,
+				     const bool pctselect )
     {
 #ifndef NDEBUG
         std::cout << "starting run_component" << std::endl;
@@ -646,7 +650,7 @@ namespace methylFlow {
             std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
         }
         // solve
-        int res = solve( lambda, scale_mult, epsilon, verbose );
+        int res = solve( lambda, scale_mult, epsilon, verbose, pctselect );
         if (res) {
             std::cerr << "[methylFlow] Error solving" << std::endl;
             return res;

@@ -68,12 +68,13 @@ public:
 	   std::ostream & comp_stream,
 	   std::ostream & patt_stream,
 	   std::ostream & region_stream,
-       int chr,
-       const bool flag_SAM,
+	   int chr,
+	   const bool flag_SAM,
 	   const float lambda,
 	   const float scale_mult,
 	   const float epsilon,
-	   const bool verbose );
+	   const bool verbose,
+	   const bool pctselect );
 
   // tsv file with readid, pos, length, strand (ignored), methylString, subString
   bool processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet);
@@ -112,12 +113,13 @@ private:
 			   std::ostream & comp_stream,
 			   std::ostream & patt_stream,
 			   std::ostream & region_stream,
-               int chr,
-               const bool flag_SAM,
+			   int chr,
+			   const bool flag_SAM,
 			   const float lambda,
 			   const float scale_mult,
 			   const float epsilon,
-			   const bool verbose );
+			   const bool verbose,
+			   const bool pctselect );
 
   // merge chains in read overlap graph
   void merge_chains();
@@ -136,7 +138,7 @@ private:
   void regularize();
 
   // solve wrapper
-  int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose);
+  int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool pctselect);
 
   // run decomposition algorithm
   // componentID: used for printing

@@ -181,7 +181,7 @@ namespace methylFlow {
         }
     }
     
-    int MFGraph::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose)
+  int MFGraph::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool pctselect )
     {
         int res;
         
@@ -203,7 +203,7 @@ namespace methylFlow {
         if (verbose) {
             std::cout << "[methylFlow] Solving optimization problem" << std::endl;
         }
-        res = solver.solve(lambda, length_mult, epsilon, verbose);
+        res = solver.solve(lambda, length_mult, epsilon, verbose, pctselect);
         
         if (res) {
             std::cerr << "[methylFlow] Error solving for scale =" << length_mult << std::endl;
