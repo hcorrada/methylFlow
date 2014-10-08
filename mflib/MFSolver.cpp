@@ -38,13 +38,13 @@ namespace methylFlow {
             std::cout << "[methylFlow] Searching for best lambda" << std::endl;
         }
         
-        res = search_lambda(epsilon, best_lambda, verbose, pctselect);
+        res = search_lambda(epsilon, best_lambda, length_mult, verbose, pctselect);
         if (res) return res;
         
         return solve_for_lambda(best_lambda);
     }
     
-  int MFSolver::search_lambda(const float epsilon, float &best_lambda, const bool verbose, const bool pctselect)
+  int MFSolver::search_lambda(const float epsilon, float &best_lambda, const float length_mult, const bool verbose, const bool pctselect)
     {
         const double powlimit = 6.0;
         
@@ -54,7 +54,7 @@ namespace methylFlow {
         float current_lambda, zero_lambda;
         float factor;
      
-	MFCpgEstimator cpgEstimator(this);
+	MFCpgEstimator cpgEstimator(this, length_mult);
 	if (pctselect) {
 	  cpgEstimator.computeRaw();
 	}
@@ -248,13 +248,17 @@ namespace methylFlow {
         // TODO: check Lp is there and solved
         for (ListDigraph::ArcIt arc(mf->get_graph()); arc != INVALID; ++arc) {
 #ifndef NDEBUG
-            std::cout << "Extracting flow of arc: " << std::endl;
+            std::cout << "Extracting flow of arc: " << " ";
             std::cout << mf->nodeName_map[mf->get_graph().source(arc)];
             std::cout << " -> ";
-            std::cout << mf->nodeName_map[mf->get_graph().target(arc)] << std::endl;
+            std::cout << mf->nodeName_map[mf->get_graph().target(arc)];
 #endif
             Lp::Row row = rows[arc];
             mf->flow_map[arc] = lp->dual(row);
+
+	    #ifndef NDEBUG
+	    std::cout << " flow: " << mf->flow_map[arc] << std::endl;
+	    #endif
         }
         return 0;
     }

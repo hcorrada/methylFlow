@@ -8,12 +8,15 @@ using namespace lemon;
 namespace methylFlow {
   class MFCpgEstimator {
   public:
-    MFCpgEstimator(MFSolver *obj);
+    MFCpgEstimator(MFSolver *obj, const float scale_mult);
     ~MFCpgEstimator();
 
     void computeRaw();
+    void computeEstimated();
+
     float getPctError();
     void printRaw();
+    void printEstimated();
 
   protected:
     MFSolver *solver;
@@ -31,6 +34,8 @@ namespace methylFlow {
       float Beta;
     };
 
+    const float scale_mult;
+
     template<class T> using CpgMap = std::map<int, CpgEntry<T> >;
     
     CpgMap<int> raw_map;
@@ -38,8 +43,12 @@ namespace methylFlow {
 
     template<class T> void printMap(CpgMap<T>);
 
-    template<class T> using CoverageFunc = T &(MFGraph::*)(const ListDigraph::Node &);
+    template<class T> using CoverageFunc = T (MFCpgEstimator::*)(MFGraph *mf, const ListDigraph::Node &);
     template<class T> void computeMap(CpgMap<T> &, CoverageFunc<T>);
+
+    int coverage(MFGraph *mf, const ListDigraph::Node &);
+    float expected_coverage(MFGraph *mf, const ListDigraph::Node &);
+    float calculateError();
   };
 
 } // namespace methylFlow

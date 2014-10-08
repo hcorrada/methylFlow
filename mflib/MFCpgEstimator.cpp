@@ -1,11 +1,12 @@
 #include "MFCpgEstimator.hpp"
 #include "MFSolver.hpp"
+#include <cmath>
 
 using namespace lemon;
 
 namespace methylFlow {
 
-  MFCpgEstimator::MFCpgEstimator(MFSolver *obj) : solver(obj)
+  MFCpgEstimator::MFCpgEstimator(MFSolver *obj, const float scale) : solver(obj), scale_mult(scale)
   {
   }
 
@@ -23,10 +24,10 @@ namespace methylFlow {
       if (!m) continue;
 
       int rPos = m->start();
-      T cov = (graph->*cov_function)(node);
+      T cov = (this->*cov_function)(graph, node);
       
       #ifndef NDEBUG
-      std::cout << "computing raw: cov: " << cov << " " << m->getString() << std::endl;
+      std::cout << "computing cpg: cov: " << (float) cov << " " << m->getString() << std::endl;
       #endif
 
       for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin(); it != m->cpgs.end(); ++it) {
@@ -52,6 +53,16 @@ namespace methylFlow {
     }
   }
   
+  int MFCpgEstimator::coverage(MFGraph *mf, const ListDigraph::Node &node) 
+  {
+    return mf->coverage(node);
+  }
+  
+  float MFCpgEstimator::expected_coverage(MFGraph *mf, const ListDigraph::Node &node) 
+  {
+    return mf->expected_coverage(node, scale_mult);
+  }
+
   void MFCpgEstimator::computeRaw()
   {
     #ifndef NDEBUG
@@ -59,16 +70,47 @@ namespace methylFlow {
     #endif 
 
     MFGraph *graph = solver->mf;
-    computeMap(raw_map, &MFGraph::coverage);
+    computeMap(raw_map, &MFCpgEstimator::coverage);
 
     #ifndef NDEBUG
     printRaw();
     #endif
   }
 
+  void MFCpgEstimator::computeEstimated()
+  {
+    #ifndef NDEBUG
+    std::cout << "computing estimated" << std::endl;
+    #endif 
+
+    MFGraph *graph = solver->mf;
+    estimated_map.clear();
+    computeMap(estimated_map, &MFCpgEstimator::expected_coverage);
+
+    #ifndef NDEBUG
+    printEstimated();
+    #endif
+  }
+
+  float MFCpgEstimator::calculateError()
+  {
+    float res = 0.0;
+    for (CpgMap<float>::iterator it = estimated_map.begin(); it != estimated_map.end(); ++it) {
+      int loc = it->first;
+      CpgEntry<float> estimatedEntry = it->second;
+      
+      if (raw_map.count(loc) == 0) continue;
+      CpgEntry<int> rawEntry = raw_map[loc];
+      res += std::abs(rawEntry.Beta - estimatedEntry.Beta);
+    }
+    return res;
+  }
+
   float MFCpgEstimator::getPctError()
   {
-    return 0.1;
+    solver->extract_flows();
+    computeEstimated();
+    return calculateError();
   }
 
   template<class T> void MFCpgEstimator::printMap(CpgMap<T> map)
@@ -83,5 +125,10 @@ namespace methylFlow {
   void MFCpgEstimator::printRaw() 
   {
     printMap(raw_map);
+  }
+
+  void MFCpgEstimator::printEstimated() 
+  {
+    printMap(estimated_map);
   }
 } // namespace methylFlow
