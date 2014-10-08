@@ -11,6 +11,9 @@ namespace methylFlow {
     enum ReadComparison { IDENTICAL, SUBREAD, SUPERREAD, METHOVERLAP, OVERLAP, NONE };
     
     class MethylRead {
+    private:
+      typedef struct {int offset; bool methyl; } CpgEntry;
+
     public:
         friend class MFGraph;
         
@@ -35,10 +38,8 @@ namespace methylFlow {
         const int end() const;
         const std::size_t ncpgs() const;
         
-        std::vector<int> cpgOffset;
-        std::vector<bool> methyl;
-
-        
+        std::vector<CpgEntry> cpgs;
+      
     protected:
         // TODO: we need to distinguish region coordinates for modeling and read coordinates for genome coverage
         int rPos, rLen;
@@ -65,7 +66,7 @@ namespace methylFlow {
     
     inline const std::size_t MethylRead::ncpgs() const
     {
-        return this->cpgOffset.size();
+        return this->cpgs.size();
     }
     
     struct CompareReadStarts : public std::binary_function<MethylRead *, MethylRead *, bool>

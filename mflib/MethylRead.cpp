@@ -6,14 +6,13 @@
 #include "MethylRead.hpp"
 
 namespace methylFlow {
-  MethylRead::MethylRead(int pos, int len) : rPos(pos), rLen(len), cpgOffset(), methyl(), coverage(0)
+  MethylRead::MethylRead(int pos, int len) : rPos(pos), rLen(len), cpgs(), coverage(0)
   {
   }
 
   MethylRead::MethylRead(const MethylRead &read) : rPos(read.start()), rLen(read.length()), coverage(read.coverage)
   {
-    this->cpgOffset = std::vector<int>(read.cpgOffset);
-    this->methyl = std::vector<bool>(read.methyl);
+    this->cpgs = std::vector<CpgEntry>(read.cpgs);
   }
 
   MethylRead::~MethylRead()
@@ -52,9 +51,9 @@ namespace methylFlow {
 	std::cout << "Error parsing methylation string, , is not found" << std::endl;
 	return -1;
       }
-      curMeth = (methString.substr(curStringOffset, found - curStringOffset) == "M"); 
-      cpgOffset.push_back(curPos);
-      methyl.push_back(curMeth);
+      curMeth = (methString.substr(curStringOffset, found - curStringOffset) == "M");
+      CpgEntry entry = { curPos, curMeth };
+      cpgs.push_back(entry);
       curStringOffset = found + 1;
     }
     return 0;
@@ -79,8 +78,9 @@ namespace methylFlow {
           }
           curPos = found - 5;
           curMeth = (XM[found] == 'Z');
-          cpgOffset.push_back(curPos);
-          methyl.push_back(curMeth);
+
+	  CpgEntry entry = { curPos, curMeth };
+          cpgs.push_back(entry);
           curStringOffset = found + 1;
       }
       return 0;
@@ -95,11 +95,12 @@ namespace methylFlow {
     }
 
     std::stringstream out;
-    for (std::size_t i = 0; i != cpgOffset.size(); ++i) {
-      if (i != 0) {
+    for (std::vector<CpgEntry>::const_iterator it = this->cpgs.begin(); it != this->cpgs.end(); ++it) {
+      if (it != this->cpgs.begin()) {
 	out << ",";
       }
-      out << cpgOffset[i] << ":" << (methyl[i] ? "M" : "U");
+      CpgEntry entry = *it;
+      out << entry.offset << ":" << (entry.methyl ? "M" : "U");
     }
     return out.str();
   }
@@ -124,33 +125,34 @@ namespace methylFlow {
 
     float MethylRead::distance(MethylRead* other, int &common) {
         int offset = other->start() - this->start();
-        std::size_t j = 0;
+	std::size_t j = 0;
         float match = 0;
-        for (std::size_t i=0; i < this->cpgOffset.size(); ++i) {
+
+	for (std::size_t i = 0; i < this->cpgs.size(); ++i) {
+	  CpgEntry thisEntry = this->cpgs[i];
+
             // advance pointer of other as long as needed
-            while( j < other->cpgOffset.size() && (this->cpgOffset[i] - offset) > other->cpgOffset[j] )
-                j++;
+	  while( j < other->cpgs.size() && (thisEntry.offset - offset) > other->cpgs[j].offset )
+                ++j;
             
          //   std::cout << i << " " << j << std::endl;
          //   std::cout << this->cpgOffset.size() << " " << other->cpgOffset.size() << std::endl;
             // no more cpgs on other, so return true
-            if (j == this->cpgOffset.size()) break;
+            if (j == this->cpgs.size()) break;
             
             // check if pointers at same position
-            if ( this->cpgOffset[i] - offset == other->cpgOffset[j] ) {
+	    CpgEntry otherEntry = other->cpgs[j];
+            if ( thisEntry.offset - offset == otherEntry.offset ) {
                 // we are, check if consistent
                 common++;
-                if ( this->methyl[i] == other->methyl[j] ) match++;
-            }
-            
-            // no more cpgs on other, so return true
-            if (j == this->cpgOffset.size()) break;
+                if ( thisEntry.methyl == otherEntry.methyl ) match++;
+            }            
         }
         
         //std::cout << "match 1 = " << match << std::endl;
         //std::cout << "match 2 = " << this->cpgOffset.size() << std::endl;
         
-        if (this->cpgOffset.size() > 0)
+        if (cpgs.size() > 0)
             return match;
         else
             return 0;
@@ -161,12 +163,9 @@ namespace methylFlow {
         std::cout << "write Methyl" << std::endl;
         std::cout << "start = " <<  this->start() << std::endl;
 
-        for (unsigned int i=0; i<this->cpgOffset.size(); i++) {
-            if (!this->methyl[i]) {
-                std::cout << this->cpgOffset.at(i) << ":" << "U, ";
-            } else{
-                std::cout << this->cpgOffset.at(i) << ":" << "M, ";
-            }
+	for (std::vector<CpgEntry>::iterator it = cpgs.begin(); it != cpgs.end(); ++it) {
+	  CpgEntry entry = *it;
+	  std::cout << entry.offset << ":" << (entry.methyl ? "M," : "U,");
         }
         std::cout << std::endl;
     }
@@ -182,18 +181,22 @@ namespace methylFlow {
 
     int offset = other->start() - this->start();
     std::size_t j = 0;
-    for (std::size_t i=0; i < this->cpgOffset.size(); ++i) {
+
+    for (std::size_t i=0; i < this->cpgs.size(); ++i) {
+      CpgEntry thisEntry = this->cpgs[i];
+
       // advance pointer of other as long as needed
-      while( j < other->cpgOffset.size() && (this->cpgOffset[i] - offset) > other->cpgOffset[j] )
+      while( j < other->cpgs.size() && (thisEntry.offset - offset) > other->cpgs[j].offset )
 	j++;
 
       // no more cpgs on other, so return true
-      if (j == this->cpgOffset.size()) return true;
+      if (j == this->cpgs.size()) return true;
 
       // check if pointers at same position
-      if ( this->cpgOffset[i] - offset == other->cpgOffset[j] ) {
+      CpgEntry otherEntry = other->cpgs[j];
+      if ( thisEntry.offset - offset == otherEntry.offset ) {
 	// we are, check if consistent
-	if ( this->methyl[i] != other->methyl[j] ) return false;
+	if ( thisEntry.methyl != otherEntry.methyl ) return false;
       }
     }
     return true;
@@ -225,15 +228,16 @@ namespace methylFlow {
     int offset = other->start() - this->start();
 
     std::size_t j = 0;
-    for (std::vector<int>::iterator i = this->cpgOffset.begin(); i != this->cpgOffset.end() && j < other->cpgOffset.size(); ++i) {
-      if (*i == (other->cpgOffset[j] + offset) ) {
+    for (std::vector<CpgEntry>::iterator i = this->cpgs.begin(); i != this->cpgs.end() && j < other->cpgs.size(); ++i) {
+      if (i->offset == (other->cpgs[j].offset + offset) ) {
 	++j;
       }
     }
 
-    for (; j < other->cpgOffset.size(); ++j) {
-      this->cpgOffset.push_back( other->cpgOffset[j] + offset );
-      this->methyl.push_back( other->methyl[j] );
+    for (; j < other->cpgs.size(); ++j) {
+      CpgEntry newEntry = other->cpgs[j];
+      newEntry.offset += offset;
+      this->cpgs.push_back( newEntry );
     }
     this->rLen = offset + other->rLen;
     return 0;
