@@ -12,4 +12,8 @@ configure_file(sim2.tsv sim2.tsv COPYONLY)
 add_test(testMethyl testMethyl)
 add_test(sim1 ${CMAKE_BINARY_DIR}/methylFlow/methylFlow -i sim1.tsv -o .)
 add_test(sim2 ${CMAKE_BINARY_DIR}/methylFlow/methylFlow -i sim2.tsv -o .)
+add_test(sim3 ${CMAKE_BINARY_DIR}/methylFlow/methylFlow -i sim1.tsv -o
+. --pctselect)
+add_test(sim4 ${CMAKE_BINARY_DIR}/methylFlow/methylFlow -i sim2.tsv -o
+. --pctselect)
 

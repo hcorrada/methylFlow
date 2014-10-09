@@ -1,5 +1,4 @@
 #include "MFGraph.hpp"
-#include "MFCpgEstimator.hpp"
 
 using namespace lemon;
 

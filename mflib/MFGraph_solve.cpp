@@ -202,9 +202,9 @@ namespace methylFlow {
         }
         MFSolver *solver;
 	if (pctselect) {
-	  solver = new MFCpgSolver(this);
+	  solver = new MFCpgSolver(this, length_mult);
 	} else {
-	    solver =new MFRegionSolver(this);
+	  solver =new MFRegionSolver(this);
 	}
 
         if (verbose) {

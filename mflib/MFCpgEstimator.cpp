@@ -64,6 +64,11 @@ namespace methylFlow {
     return mf->expected_coverage(node, scale_mult);
   }
 
+  float MFCpgEstimator::normalized_coverage(MFGraph *mf, const ListDigraph::Node &node)
+  {
+    return mf->normalized_coverage(node);
+  }
+
   void MFCpgEstimator::computeRaw()
   {
     #ifndef NDEBUG
@@ -91,6 +96,12 @@ namespace methylFlow {
     #ifndef NDEBUG
     printEstimated();
     #endif
+  }
+
+  void MFCpgEstimator::computeNormalized()
+  {
+    MFGraph *graph = solver->mf;
+    computeMap(normalized_map, &MFCpgEstimator::normalized_coverage);
   }
 
   float MFCpgEstimator::calculateError()

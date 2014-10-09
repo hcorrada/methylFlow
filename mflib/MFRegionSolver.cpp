@@ -70,7 +70,7 @@ namespace methylFlow {
       for (ListDigraph::OutArcIt arc(mfGraph, v); arc != INVALID; ++arc) {
 	ListDigraph::Node u = mfGraph.target(arc);
 	if (u == INVALID) {
-	  std::cout << "error getting target from arc" << std::endl;
+	  std::cerr << "error getting target from arc" << std::endl;
 	  return -1;
 	}
 	rows[arc] = lp->addRow(scaled_length[arc] * beta[v] -

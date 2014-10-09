@@ -13,6 +13,7 @@ namespace methylFlow {
     class MethylRead {
     private:
       friend class MFCpgEstimator;
+      friend class MFCpgSolver;
       typedef struct {int offset; bool methyl; } CpgEntry;
 
     public:

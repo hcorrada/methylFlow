@@ -1,4 +1,5 @@
 #include "MFSolver.hpp"
+#include "MFCpgEstimator.hpp"
 
 #ifndef MFCPGSOLVER_H
 #define MFCPGSOLVER_H
@@ -9,8 +10,16 @@ namespace methylFlow {
     friend class MFCpgEstimator;
     
   public:
-    MFCpgSolver(MFGraph *mfobj);
+    MFCpgSolver(MFGraph *mfobj, const float length_mult);
     ~MFCpgSolver();
+
+  private:
+    MFCpgEstimator estimator;
+    std::map<int, Lp::Col> alpha_y;
+    std::map<int, Lp::Col> beta_y;
+    std::map<int, Lp::Col> alpha_m;
+    std::map<int, Lp::Col> beta_m;
+    
 
   protected:
     float score(const float lambda);
