@@ -61,12 +61,16 @@ namespace methylFlow {
   
   float MFCpgEstimator::expected_coverage(MFGraph *mf, const ListDigraph::Node &node) 
   {
-    return mf->expected_coverage(node, scale_mult);
+    MethylRead *m = mf->read(node);
+    float len = (float) m->length();
+    return mf->expected_coverage(node, scale_mult) / len;
   }
 
   float MFCpgEstimator::normalized_coverage(MFGraph *mf, const ListDigraph::Node &node)
   {
-    return mf->normalized_coverage(node);
+    MethylRead *m = mf->read(node);
+    float len = (float) m->length();
+    return mf->normalized_coverage(node) / len * scale_mult; 
   }
 
   void MFCpgEstimator::computeRaw()

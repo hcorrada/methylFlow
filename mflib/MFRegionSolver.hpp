@@ -20,6 +20,7 @@ namespace methylFlow {
     int make_lp_objective(Lp::Expr &obj);
     int add_constraints();
     int modify_lambda_constraints(const float lambda);
+    void print_primal();
   };
 } // namespace methylFlow
 #endif // MFREGIONSOLVER_H

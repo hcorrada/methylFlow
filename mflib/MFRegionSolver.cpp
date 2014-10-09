@@ -100,4 +100,16 @@ namespace methylFlow {
     }
     return obj;
   }
+
+  void MFRegionSolver::print_primal()
+  {
+    for(ListDigraph::NodeIt node(mf->mfGraph); node != INVALID; ++node) {
+      if (mf->fake[node]) continue;
+
+      std::cout << mf->nodeName_map[node] << ": a=" << lp->primal(alpha[node]);
+      std::cout << " b=" << lp->primal(beta[node]);
+      std::cout << " y=" << mf->normalized_coverage(node) << std::endl;
+    }
+    print_nus();
+  }
 }

@@ -5,7 +5,7 @@ using namespace lemon;
 #ifndef MFSOLVER_H
 #define MFSOLVER_H
 
-#define CONSISTENCY_FACTOR 0.0001
+#define CONSISTENCY_FACTOR 0
 
 namespace methylFlow {
 
@@ -38,6 +38,8 @@ namespace methylFlow {
     virtual int make_lp_objective(Lp::Expr &obj) =0;
     virtual int add_constraints() =0;
     virtual int modify_lambda_constraints(const float lambda) =0;
+    virtual void print_primal() =0;
+    void print_nus();
 
     // solve the optimization problem
     // lambda: penalty parameter

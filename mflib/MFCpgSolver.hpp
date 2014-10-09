@@ -19,7 +19,8 @@ namespace methylFlow {
     std::map<int, Lp::Col> beta_y;
     std::map<int, Lp::Col> alpha_m;
     std::map<int, Lp::Col> beta_m;
-    
+    ListDigraph::NodeMap<Lp::Col> alpha_lambda;
+    ListDigraph::NodeMap<Lp::Col> beta_lambda;
 
   protected:
     float score(const float lambda);
@@ -27,6 +28,7 @@ namespace methylFlow {
     int make_lp_objective(Lp::Expr &obj);
     int add_constraints();
     int modify_lambda_constraints(const float lambda);
+    void print_primal();
   };
 } // namespace methylFlow
 #endif // MFCPGSOLVER_H

@@ -175,7 +175,20 @@ namespace methylFlow {
       std::cout << " flow: " << mf->flow_map[arc] << std::endl;
 	    #endif
     }
+    
+    #ifndef NDEBUG
+    print_primal();
+    #endif
+
     return 0;
   }
-  
+
+  void MFSolver::print_nus()
+  {
+    for (ListDigraph::NodeIt node(mf->get_graph()); node != INVALID; ++node) {
+      if (mf->fake[node]) continue;
+
+      std::cout << mf->nodeName_map[node] << ": nu=" << lp->primal(nu[node]) << std::endl;
+    }
+  }
 } // namespace methylFlow

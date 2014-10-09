@@ -4,7 +4,10 @@
 
 namespace methylFlow {
 
-  MFCpgSolver::MFCpgSolver(MFGraph* mfobj, const float length_mult) : MFSolver(mfobj), estimator(this, length_mult)
+  MFCpgSolver::MFCpgSolver(MFGraph* mfobj, const float length_mult) : MFSolver(mfobj), 
+								      estimator(this, length_mult),
+								      alpha_lambda(mfobj->get_graph()),
+								      beta_lambda(mfobj->get_graph())
   {
     estimator.computeRaw();
     estimator.computeNormalized();
@@ -16,7 +19,11 @@ namespace methylFlow {
 
   float MFCpgSolver::score(const float lambda) 
   {
-    return 0.1;
+    float obj = lp->primal();
+    for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
+      obj -= lambda * lp->dual(rows[arc]);
+    }
+    return obj;
   }
 
   int MFCpgSolver::add_cols()
@@ -39,6 +46,20 @@ namespace methylFlow {
       beta_m[pos] = lp->addCol();
       lp->colLowerBound(beta_m[pos], 0.);
       lp->colUpperBound(beta_m[pos], 1.);
+
+    }
+
+    // now add alpha and beta for lambda nodes
+    for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
+      ListDigraph::Node v = mf->mfGraph.source(arc);
+
+      alpha_lambda[v] = lp->addCol();
+      lp->colLowerBound(alpha_lambda[v], 0.);
+      lp->colUpperBound(alpha_lambda[v], 1.);
+
+      beta_lambda[v] = lp->addCol();
+      lp->colLowerBound(beta_lambda[v], 0.);
+      lp->colUpperBound(beta_lambda[v], 1.);
     }
     return 0;
   }
@@ -64,23 +85,8 @@ namespace methylFlow {
     for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
       ListDigraph::Node v = mfGraph.source(arc);
 
-      MethylRead *m = mf->read(v);
-      if (!m) continue;
-
-      int rPos = m->start();
-      Lp::Expr expr;
-
-      for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
-	   it != m->cpgs.end(); ++it) {
-	MethylRead::CpgEntry entry = *it;
-	int loc = rPos + entry.offset - 1;
-	expr += scaled_length[arc] * beta_y[loc] - scaled_length[arc] * alpha_y[loc];
-	if (entry.methyl) {
-	  expr += scaled_length[arc] * beta_m[loc] - scaled_length[arc] * alpha_m[loc];
-	}
-      }
-      expr -= nu[v];
-      rows[arc] = lp->addRow(expr <= -CONSISTENCY_FACTOR);
+      rows[arc] = lp->addRow(scaled_length[arc] * beta_lambda[v] -
+			     scaled_length[arc] * alpha_lambda[v] - nu[v] <= -CONSISTENCY_FACTOR);
     }
 
     //add remaining constraints (if not childless)
@@ -105,9 +111,9 @@ namespace methylFlow {
 	     it != m->cpgs.end(); ++it) {
 	  MethylRead::CpgEntry entry = *it;
 	  int loc = rPos + entry.offset - 1;
-	  expr += scaled_length[arc] * beta_y[loc] - scaled_length[arc] * alpha_y[loc];
+	  expr += beta_y[loc] - alpha_y[loc];
 	  if (entry.methyl) {
-	    expr += scaled_length[arc] * beta_m[loc] - scaled_length[arc] * alpha_m[loc];
+	   expr += beta_m[loc] - alpha_m[loc];
 	  }
 	}
 	expr += nu[u] - nu[v];
@@ -123,27 +129,25 @@ namespace methylFlow {
     
     for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
       ListDigraph::Node v = mfGraph.source(arc);
-
-      MethylRead *m = mf->read(v);
-      if (!m) continue;
-
-      int rPos = m->start();
-      Lp::Expr expr;
-
-      for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
-	   it != m->cpgs.end(); ++it) {
-	MethylRead::CpgEntry entry = *it;
-	int loc = rPos + entry.offset - 1;
-	expr += -lambda * beta_y[loc] - (-lambda) * alpha_y[loc];
-	if (entry.methyl) {
-	  expr += -lambda * beta_m[loc] - (-lambda) * alpha_m[loc];
-	}
-      }
-      expr -= nu[v];
       Lp::Row row = rows[arc];
-      lp->row(row, expr <= -CONSISTENCY_FACTOR);
+      lp->row(row, -lambda * beta_lambda[v] - (-lambda * alpha_lambda[v]) - nu[v] <= -CONSISTENCY_FACTOR);
     }
     return 0;
   }
 
+  void MFCpgSolver::print_primal()
+  {
+    for (MFCpgEstimator::CpgMap<float>::iterator it = estimator.normalized_map.begin();
+	 it != estimator.normalized_map.end(); ++it) {
+      int pos = it->first;
+      std::cout << pos << ": ay=" << lp->primal(alpha_y[pos]);
+      std::cout << " by=" << lp->primal(beta_y[pos]);
+      std::cout << " am=" << lp->primal(alpha_m[pos]);
+      std::cout << " bm=" << lp->primal(beta_m[pos]);
+
+      MFCpgEstimator::CpgEntry<float> entry = it->second;
+      std::cout << " y=" << entry.Cov << " my=" << entry.Meth << std::endl;
+    }
+    print_nus();
+  }
 } // namespace methylFlow

@@ -15,7 +15,7 @@ cpgMat["blue",] <- rep(c("black"), c(9))
 fragments <- c(2,4,6)
 nFragments <- sum(fragments)
 
-readsPerFragment <- 100P
+readsPerFragment <- 100
 rlen <- 20
 
 set.seed(1)
