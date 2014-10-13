@@ -17,7 +17,8 @@ namespace methylFlow {
   protected:
     float score(const float lambda);
     int add_cols();
-    int make_lp_objective(Lp::Expr &obj);
+    int make_deviance_objective(Lp::Expr &obj);
+    int make_lambda_objective(const float lambda, Lp::Expr &obj);
     int add_constraints();
     int modify_lambda_constraints(const float lambda);
     void print_primal();

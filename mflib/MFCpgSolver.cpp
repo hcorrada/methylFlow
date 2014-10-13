@@ -64,7 +64,7 @@ namespace methylFlow {
     return 0;
   }
 
-  int MFCpgSolver::make_lp_objective(Lp::Expr &obj)
+  int MFCpgSolver::make_deviance_objective(Lp::Expr &obj)
   {
     for (MFCpgEstimator::CpgMap<float>::iterator it = estimator.normalized_map.begin();
 	 it != estimator.normalized_map.end(); ++it) {
@@ -73,6 +73,18 @@ namespace methylFlow {
 
       obj += entry.Cov * ( beta_y[pos] - alpha_y[pos]);
       obj += entry.Meth * ( beta_m[pos] - alpha_m[pos]);
+    }
+    return 0;
+  }
+
+  int MFCpgSolver::make_lambda_objective(const float lambda, Lp::Expr &obj)
+  {
+    const ListDigraph &mfGraph = mf->get_graph();
+
+    // add terms to objective for lambda nodes
+    for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+      ListDigraph::Node v = mfGraph.source(arc);
+      obj += lambda * (beta_lambda[v] - alpha_lambda[v]);
     }
     return 0;
   }

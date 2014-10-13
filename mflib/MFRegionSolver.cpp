@@ -32,10 +32,13 @@ namespace methylFlow {
     return 0;
   }
 
-  int MFRegionSolver::make_lp_objective(Lp::Expr &obj)
+  int MFRegionSolver::make_deviance_objective(Lp::Expr &obj)
   {
+    // add terms to objective for inner nodes (not lambda)
     const ListDigraph &mfGraph = mf->get_graph();
     for (ListDigraph::NodeIt v(mfGraph); v != INVALID; ++v) {
+      if (mf->childless[v]) continue;
+
       #ifndef NDEBUG
       std::cout << "Processing node " << mf->nodeName_map[v] << std::endl;
       #endif
@@ -49,11 +52,23 @@ namespace methylFlow {
     return 0;
   }
 
+  int MFRegionSolver::make_lambda_objective(const float lambda, Lp::Expr &obj)
+  {
+    const ListDigraph &mfGraph = mf->get_graph();
+
+    // add terms to objective for lambda nodes
+    for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+      ListDigraph::Node v = mfGraph.source(arc);
+      obj += lambda * (beta[v] - alpha[v]);
+    }
+    return 0;
+  }
+
   int MFRegionSolver::add_constraints()
   {
     const ListDigraph &mfGraph = mf->get_graph();
 
-    // add sink constraints
+    // add sink (lambda) constraints
     for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
       ListDigraph::Node v = mfGraph.source(arc);
       rows[arc] = lp->addRow(scaled_length[arc] * beta[v] -

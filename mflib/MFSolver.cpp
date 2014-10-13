@@ -81,14 +81,14 @@ namespace methylFlow {
         return solve_for_lambda(best_lambda);
     }
     
-    int MFSolver::make_lp(const float length_mult)
-    {
-      int status;
-      const ListDigraph &mfGraph = mf->get_graph();
+  int MFSolver::make_lp(const float length_mult)
+  {
+    int status;
+    const ListDigraph &mfGraph = mf->get_graph();
+    
+    lp = new Lp();
         
-      lp = new Lp();
-        
-      // scale the lengths
+    // scale the lengths
       for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
 	// divid int by int is not a float.
 	scaled_length[arc] = float(mf->effective_length(arc)) / length_mult;
@@ -101,14 +101,13 @@ namespace methylFlow {
       
       status = add_cols();
       if (status) return status;
-
+      
       for (ListDigraph::NodeIt v(mfGraph); v != INVALID; ++v) {
 	if (mf->fake[v]) continue;                        
             // add node's nu variable
 	nu[v] = lp->addCol();            
       }
-      Lp::Expr obj;
-      status = make_lp_objective(obj);
+      status = make_deviance_objective(deviance_obj);
       if (status) return status;
 
       // bound nu variable for source targets
@@ -127,7 +126,7 @@ namespace methylFlow {
       std::cout << "constraints added" << std::endl;
 #endif
       
-      lp->obj(obj);
+      //      lp->obj(obj);
       lp->max();
       return 0;
     }
@@ -135,6 +134,11 @@ namespace methylFlow {
   int MFSolver::solve_for_lambda(const float lambda)
   {
     int status;
+
+    Lp::Expr obj; 
+    status = make_lambda_objective(lambda, obj);
+    obj += deviance_obj;
+    lp->obj(obj);
 
     status = modify_lambda_constraints(lambda);
     if (status) return status;

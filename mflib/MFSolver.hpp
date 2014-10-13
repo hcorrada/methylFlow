@@ -26,6 +26,8 @@ namespace methylFlow {
   protected:
     MFGraph *mf;
     Lp *lp;
+    Lp::Expr deviance_obj;
+
     ListDigraph::NodeMap<Lp::Col> nu;
     ListDigraph::ArcMap<Lp::Row> rows;
     ListDigraph::ArcMap<float> scaled_length;
@@ -35,7 +37,8 @@ namespace methylFlow {
     int make_lp(const float length_mult);
 
     virtual int add_cols() =0;
-    virtual int make_lp_objective(Lp::Expr &obj) =0;
+    virtual int make_deviance_objective(Lp::Expr &obj) =0;
+    virtual int make_lambda_objective(const float lambda, Lp::Expr &obj) =0;
     virtual int add_constraints() =0;
     virtual int modify_lambda_constraints(const float lambda) =0;
     virtual void print_primal() =0;
