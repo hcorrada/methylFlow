@@ -9,12 +9,12 @@ SET(PROJECT_NAME "methylFlow")
 ## the cmake-gui when you make a release.
 ## The last parameter is a help string displayed by CMAKE.
 
-#SET(PROJECT_VERSION "0.9.99"
- #   CACHE STRING "${PROJECT_NAME} version string")
+SET(PROJECT_VERSION "0.9.99"
+    CACHE STRING "${PROJECT_NAME} version string")
 
 ## Do not edit this.
-CMAKE_POLICY(SET CMP0048 NEW)
-PROJECT(${PROJECT_NAME} VERSION 0.9.99)
+#CMAKE_POLICY(SET CMP0048 NEW)
+#PROJECT(${PROJECT_NAME} VERSION 0.9.99)
 
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
