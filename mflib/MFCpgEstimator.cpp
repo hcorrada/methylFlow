@@ -79,7 +79,6 @@ namespace methylFlow {
     std::cout << "computing raw" << std::endl;
     #endif 
 
-    MFGraph *graph = solver->mf;
     computeMap(raw_map, &MFCpgEstimator::coverage);
 
     #ifndef NDEBUG
@@ -93,7 +92,6 @@ namespace methylFlow {
     std::cout << "computing estimated" << std::endl;
     #endif 
 
-    MFGraph *graph = solver->mf;
     estimated_map.clear();
     computeMap(estimated_map, &MFCpgEstimator::expected_coverage);
 
@@ -104,7 +102,6 @@ namespace methylFlow {
 
   void MFCpgEstimator::computeNormalized()
   {
-    MFGraph *graph = solver->mf;
     computeMap(normalized_map, &MFCpgEstimator::normalized_coverage);
   }
 

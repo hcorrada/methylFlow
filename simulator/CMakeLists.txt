@@ -9,6 +9,10 @@ add_executable(mfSimulate
   simulator.cpp
 )
 
+TARGET_LINK_LIBRARIES(mfSimulate
+mflib ${LEMON_LIBRARIES} glpk
+)
+
 INSTALL(
   TARGETS mfSimulate
   RUNTIME DESTINATION ${INSTALL_BIN_DIR}

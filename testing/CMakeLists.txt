@@ -3,7 +3,7 @@ ADD_EXECUTABLE(testMethyl
 )
 
 TARGET_LINK_LIBRARIES(testMethyl
-  mflib
+  mflib ${LEMON_LIBRARIES} glpk
 )
 
 configure_file(sim1.tsv sim1.tsv COPYONLY)
