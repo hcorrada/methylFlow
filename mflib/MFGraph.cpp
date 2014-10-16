@@ -158,6 +158,8 @@ namespace methylFlow {
         
         patt_stream << "chr\tstart\tend\tcid\tpid\tabundance\tmethylpat\n";
         region_stream << "chr\tstart\tend\tcid\trid\traw_coverage\tnorm_coverage\texp_coverage\tmethylpat\n";
+        cpg_stream << "chr\tpos\tCov\tMeth\n";
+        
         if(flag_SAM){
             while (std::getline(instream, input)){
                 std::cerr << "[methylFlow] 0 Discarding lines start with " << input << std::endl;

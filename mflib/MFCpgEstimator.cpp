@@ -131,11 +131,6 @@ namespace methylFlow {
 //    
     template<class T> void MFCpgEstimator::printMap(CpgMap<T> map, std::string chr, bool with_beta)
     {
-        if (with_beta) {
-            getstream() << "chr\tpos\tCov\tMeth\tBeta" << std::endl;
-        } else {
-            getstream() << "chr\tpos\tCov\tMeth" << std::endl;
-        }
         for (typename CpgMap<T>::iterator it = map.begin(); it != map.end(); ++it) {
             CpgEntry<T> entry = it->second;
             getstream() << chr << "\t" << it->first << "\t" << entry.Cov << "\t" << entry.Meth;
