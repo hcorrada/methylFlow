@@ -644,12 +644,10 @@ namespace methylFlow {
         print_graph();
 #endif
       
-        MFCpgEstimator *cpg_estimator = NULL;
-        if (pctselect) {
-            cpg_estimator = new MFCpgEstimator();
-            cpg_estimator->computeRaw();
-        }
-
+        MFCpgEstimator cpg_estimator(this, scale_mult);
+        cpg_estimator.computeRaw();
+        
+        
         merge_chains();
 #ifndef NDEBUG
         std::cout << "merge complete" << std::endl;
@@ -660,7 +658,7 @@ namespace methylFlow {
             std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
         }
         // solve
-        int res = solve( lambda, scale_mult, epsilon, verbose, pctselect, cpg_estimator );
+        int res = solve( lambda, scale_mult, epsilon, verbose, pctselect );
         if (res) {
             std::cerr << "[methylFlow] Error solving" << std::endl;
             return res;

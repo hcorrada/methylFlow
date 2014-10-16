@@ -5,11 +5,10 @@
 namespace methylFlow {
 
   MFCpgSolver::MFCpgSolver(MFGraph* mfobj, const float length_mult) : MFSolver(mfobj), 
-								      estimator(this, length_mult),
+								      estimator(mfobj, length_mult),
 								      alpha_lambda(mfobj->get_graph()),
 								      beta_lambda(mfobj->get_graph())
   {
-    estimator.computeRaw();
     estimator.computeNormalized();
   }
 

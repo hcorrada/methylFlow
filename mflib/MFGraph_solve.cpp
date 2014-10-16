@@ -182,7 +182,7 @@ namespace methylFlow {
         }
     }
     
-  int MFGraph::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool pctselect )
+    int MFGraph::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool pctselect )
     {
         int res;
         
@@ -201,12 +201,12 @@ namespace methylFlow {
 #endif
         }
         MFSolver *solver;
-	if (pctselect) {
-	  solver = new MFCpgSolver(this, length_mult);
-	} else {
-	  solver =new MFRegionSolver(this);
-	}
-
+        if (pctselect) {
+            solver = new MFCpgSolver(this, length_mult);
+        } else {
+            solver =new MFRegionSolver(this);
+        }
+        
         if (verbose) {
             std::cout << "[methylFlow] Solving optimization problem" << std::endl;
         }
@@ -222,7 +222,7 @@ namespace methylFlow {
     }
     
     
-  int MFGraph::decompose(const int componentID, std::ostream & patt_stream, std::string chr)
+    int MFGraph::decompose(const int componentID, std::ostream & patt_stream, std::string chr)
     {
         // compute total flow
         float total_flow = this->total_flow();
@@ -291,8 +291,8 @@ namespace methylFlow {
                 }
             }
             if(path_flow < 0.005)
-            break;
-//Note we add source one nucleotide before every read, so the patterns contain source
+                break;
+            //Note we add source one nucleotide before every read, so the patterns contain source
             patt_stream << chr << "\t" <<read_map[source]->start() << "\t" << read_map[sink]->end();
             patt_stream << "\t" << componentID << "\t" << flownum << "\t" << path_flow;
             patt_stream << "\t" << pattern.getMethString() << std::endl;
