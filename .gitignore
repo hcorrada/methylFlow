@@ -1,3 +1,4 @@
 build*
 debug
 *.tsv
+.Rproj.user
