@@ -156,7 +156,7 @@ namespace methylFlow {
         // print headers to output files
         comp_stream << "chr\tstart\tend\tcid\tnpatterns\ttotal_coverage\ttotal_flow\n";
         
-        patt_stream << "chr\tstart\tend\tcid\tpid\tabundance\tmethylpat\n";
+        patt_stream << "chr\tstart\tend\tcid\tpid\tabundance\tmethylpat\tregions\n";
         region_stream << "chr\tstart\tend\tcid\trid\traw_coverage\tnorm_coverage\texp_coverage\tmethylpat\n";
         cpg_stream << "chr\tpos\tCov\tMeth\n";
         
