@@ -7,12 +7,17 @@ using namespace lemon;
 
 namespace methylFlow {
     
-    MFCpgEstimator::MFCpgEstimator(MFGraph *obj, const float scale) : graph(obj), scale_mult(scale)
+    MFCpgEstimator::MFCpgEstimator(MFGraph *obj, std::ostream * ostream, const float scale) : graph(obj), outstream(ostream), scale_mult(scale)
     {
     }
     
     MFCpgEstimator::~MFCpgEstimator()
     {
+    }
+    
+    std::ostream & MFCpgEstimator::getstream()
+    {
+        return *outstream;
     }
     
     template<class T> void MFCpgEstimator::computeMap(CpgMap<T> &cpg_map, CoverageFunc<T> cov_function)
@@ -81,7 +86,7 @@ namespace methylFlow {
         computeMap(raw_map, &MFCpgEstimator::coverage);
         
 #ifndef NDEBUG
-        printRaw();
+//        printRaw("", true);
 #endif
     }
     
@@ -95,7 +100,7 @@ namespace methylFlow {
         computeMap(estimated_map, &MFCpgEstimator::expected_coverage);
         
 #ifndef NDEBUG
-        printEstimated();
+        printEstimated("", true);
 #endif
     }
     
@@ -124,22 +129,30 @@ namespace methylFlow {
 //        return calculateError();
 //    }
 //    
-    template<class T> void MFCpgEstimator::printMap(CpgMap<T> map)
+    template<class T> void MFCpgEstimator::printMap(CpgMap<T> map, std::string chr, bool with_beta)
     {
-        std::cout << "pos\tCov\tMeth\tBeta" << std::endl;
+        if (with_beta) {
+            getstream() << "chr\tpos\tCov\tMeth\tBeta" << std::endl;
+        } else {
+            getstream() << "chr\tpos\tCov\tMeth" << std::endl;
+        }
         for (typename CpgMap<T>::iterator it = map.begin(); it != map.end(); ++it) {
             CpgEntry<T> entry = it->second;
-            std::cout << it->first << "\t" << entry.Cov << "\t" << entry.Meth << "\t" << entry.Beta << std::endl;
+            getstream() << chr << "\t" << it->first << "\t" << entry.Cov << "\t" << entry.Meth;
+            if (with_beta) {
+                getstream() << "\t" << entry.Beta;
+            }
+            getstream() << std::endl;
         }
     }
     
-    void MFCpgEstimator::printRaw() 
+    void MFCpgEstimator::printRaw(std::string chr, bool with_beta)
     {
-        printMap(raw_map);
+        printMap(raw_map, chr, with_beta);
     }
     
-    void MFCpgEstimator::printEstimated() 
+    void MFCpgEstimator::printEstimated(std::string chr, bool with_beta)
     {
-        printMap(estimated_map);
+        printMap(estimated_map, chr, with_beta);
     }
 } // namespace methylFlow

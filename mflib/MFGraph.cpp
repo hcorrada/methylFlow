@@ -648,9 +648,9 @@ namespace methylFlow {
         print_graph();
 #endif
         
-        MFCpgEstimator cpg_estimator(this, scale_mult);
+        MFCpgEstimator cpg_estimator(this, &cpg_stream, scale_mult);
         cpg_estimator.computeRaw();
-        
+        cpg_estimator.printRaw(chr, false);
         
         merge_chains();
 #ifndef NDEBUG
