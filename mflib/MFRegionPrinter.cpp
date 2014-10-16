@@ -3,6 +3,9 @@
 #include "MFGraph.hpp"
 #include "MFRegionPrinter.hpp"
 #include "MethylRead.hpp"
+#include "lemon/maps.h"
+
+using namespace lemon;
 
 namespace methylFlow {
     
@@ -27,6 +30,8 @@ namespace methylFlow {
     }
     
     void MFRegionPrinter::reach(const ListDigraph::Node & node) {
+        IdMap<ListDigraph, ListDigraph::Node> idmap(mfGraph->get_graph());
+        
 #ifndef NDEBUG
         std::cout << "Region Printer: printing node " << mfGraph->node_name(node) << std::endl;
 #endif
@@ -35,7 +40,7 @@ namespace methylFlow {
         if (!read) return;
         
         getstream() << chromosome << "\t"<< read->start() << "\t" << read->end();
-        getstream() << "\t" << componentID << "\t" << mfGraph->node_name(node);
+        getstream() << "\t" << componentID << "\t" << idmap[node];
         getstream() << "\t" << mfGraph->coverage(node);
         getstream() << "\t" << (mfGraph->isNormalized() ? mfGraph->normalized_coverage(node) : 0.);
         getstream() << "\t" << mfGraph->expected_coverage(node, scale_mult);
