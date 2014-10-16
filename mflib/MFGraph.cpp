@@ -105,7 +105,7 @@ namespace methylFlow {
     }
     
     void MFGraph::print_regions( std::ostream & region_stream,
-				 const float scale_mult, const int componentId, std::string chr )
+                                const float scale_mult, const int componentId, std::string chr )
     {
         MFRegionPrinter regionPrinter(this, &region_stream, componentId, scale_mult, chr);
         BfsVisit<ListDigraph, MFRegionPrinter, BfsVisitDefaultTraits<ListDigraph> > bfs(mfGraph, regionPrinter);
@@ -118,13 +118,14 @@ namespace methylFlow {
                      std::ostream & comp_stream,
                      std::ostream & patt_stream,
                      std::ostream & region_stream,
-		      std::string chr,
+                     std::ostream & cpg_stream,
+                     std::string chr,
                      const bool flag_SAM,
                      const float lambda,
                      const float scale_mult,
                      const float epsilon,
-		     const bool verbose,
-		     const bool pctselect)
+                     const bool verbose,
+                     const bool pctselect)
     {
         std::vector<MethylRead*> mVector;
         std::string readid, rStrand, methStr, substStr;
@@ -164,8 +165,8 @@ namespace methylFlow {
                 
             }
         }
-	std::string lastChr = "";
-
+        std::string lastChr = "";
+        
         while (!check_count || count < READ_LIMIT) {
             
             if(count >0 || !flag_SAM)
@@ -206,8 +207,8 @@ namespace methylFlow {
                 //parse chr name
                 std::string::size_type sz;
                 std::string chromosome =  RNAME.substr(3);
-		//                chr = atoi(chromosome.c_str());
-		chr = chromosome;
+                //                chr = atoi(chromosome.c_str());
+                chr = chromosome;
                 
                 std::cout << "chr " << chr << std::endl;
                 std::cout << "str " << XM << std::endl;
@@ -223,7 +224,7 @@ namespace methylFlow {
                     mVector.push_back(m);
                     std::cout << "start = " << m->start() << std::endl;
                     std::cout << "end = " << m->end() << std::endl;
-
+                    
                 }
                 
 #ifndef NDEBUG
@@ -238,15 +239,15 @@ namespace methylFlow {
             //for(unsigned int i = 0; i < mVector.size(); i++){
             //MethylRead * m;
             //m = mVector.at(i);
-           // std::cout << "read: " << readid << " " << m->getString() << std::endl;
+            // std::cout << "read: " << readid << " " << m->getString() << std::endl;
             
             // does this read start after the rightMost end position?
             if (m->start() > rightMostPos || chr != lastChr) {
-	      if (verbose) {
-                std::cout << "chr " << chr << std::endl;
-                std::cout << "[methylFlow] last chr = " << lastChr << ", chr = " << chr << std::endl;
-	      }
-
+                if (verbose) {
+                    std::cout << "chr " << chr << std::endl;
+                    std::cout << "[methylFlow] last chr = " << lastChr << ", chr = " << chr << std::endl;
+                }
+                
                 lastChr = chr;
                 // clear active reads if necessary
                 if (!activeSet.empty()){
@@ -262,21 +263,22 @@ namespace methylFlow {
                         std::cout << "[methylFlow] start read " << m->start() << std::endl;
                         std::cout << "[methylFlow] rightMostPos " << rightMostPos << std::endl;
                         
-
+                        
                     }
                     
-                   // count = 0;
+                    // count = 0;
                     run_component( componentCount,
                                   comp_stream,
                                   patt_stream,
                                   region_stream,
+                                  cpg_stream,
                                   chr,
                                   flag_SAM,
                                   lambda,
                                   scale_mult,
                                   epsilon,
-				  verbose,
-				  pctselect );
+                                  verbose,
+                                  pctselect );
                     clear_graph();
                 }
             }
@@ -307,13 +309,14 @@ namespace methylFlow {
                       comp_stream,
                       patt_stream,
                       region_stream,
+                      cpg_stream,
                       chr,
                       flag_SAM,
                       lambda,
                       scale_mult,
                       epsilon,
-		      verbose,
-		      pctselect );
+                      verbose,
+                      pctselect );
         clear_graph();
         return 0;
     }
@@ -619,13 +622,14 @@ namespace methylFlow {
                                      std::ostream & comp_stream,
                                      std::ostream & patt_stream,
                                      std::ostream & region_stream,
-				      std::string chr,
+                                     std::ostream & cpg_stream,
+                                     std::string chr,
                                      const bool flag_SAM,
                                      const float lambda,
                                      const float scale_mult,
                                      const float epsilon,
-				     const bool verbose,
-				     const bool pctselect )
+                                     const bool verbose,
+                                     const bool pctselect )
     {
 #ifndef NDEBUG
         std::cout << "starting run_component" << std::endl;
@@ -643,7 +647,7 @@ namespace methylFlow {
         std::cout << "preprocess complete" << std::endl;
         print_graph();
 #endif
-      
+        
         MFCpgEstimator cpg_estimator(this, scale_mult);
         cpg_estimator.computeRaw();
         

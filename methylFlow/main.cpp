@@ -273,6 +273,12 @@ int main(int argc, const char **argv)
     region_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
     if (!region_stream) status = -1;
     
+    buffer.str("");
+    std::ofstream cpg_stream;
+    buffer << outdirname << "/cpgs.tsv";
+    cpg_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
+    if (!cpg_stream) status = -1;
+    
     if (status == -1) {
         std::cerr << "[methylFlow] Error opening file." << std::endl;
         return 1;
@@ -323,6 +329,7 @@ int main(int argc, const char **argv)
                    comp_stream,
                    pattern_stream,
                    region_stream,
+                   cpg_stream,
                    chr,
                    flag_SAM,
                    lambda,

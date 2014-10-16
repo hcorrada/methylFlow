@@ -9,7 +9,7 @@ namespace methylFlow {
     MFRegionPrinter::MFRegionPrinter( MFGraph * g,
                                      std::ostream * ostream,
                                      const int cid,
-				      const float scale, std::string chr ) : mfGraph(g),
+                                     const float scale, std::string chr ) : mfGraph(g),
     outstream(ostream),
     componentID(cid),
     scale_mult(scale),
@@ -27,6 +27,9 @@ namespace methylFlow {
     }
     
     void MFRegionPrinter::reach(const ListDigraph::Node & node) {
+#ifndef NDEBUG
+        std::cout << "Region Printer: printing node " << mfGraph->node_name(node) << std::endl;
+#endif
         if (node == mfGraph->get_source() || node == mfGraph->get_sink()) return;
         MethylRead * read = mfGraph->read(node);
         if (!read) return;
