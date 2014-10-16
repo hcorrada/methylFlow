@@ -7,6 +7,7 @@
 
 #include "MFGraph.hpp"
 #include "MFRegionPrinter.hpp"
+#include "MFCpgEstimator.hpp"
 
 namespace methylFlow {
     
@@ -642,7 +643,13 @@ namespace methylFlow {
         std::cout << "preprocess complete" << std::endl;
         print_graph();
 #endif
-        
+      
+        MFCpgEstimator *cpg_estimator = NULL;
+        if (pctselect) {
+            cpg_estimator = new MFCpgEstimator();
+            cpg_estimator->computeRaw();
+        }
+
         merge_chains();
 #ifndef NDEBUG
         std::cout << "merge complete" << std::endl;
@@ -653,7 +660,7 @@ namespace methylFlow {
             std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
         }
         // solve
-        int res = solve( lambda, scale_mult, epsilon, verbose, pctselect );
+        int res = solve( lambda, scale_mult, epsilon, verbose, pctselect, cpg_estimator );
         if (res) {
             std::cerr << "[methylFlow] Error solving" << std::endl;
             return res;

@@ -6,12 +6,19 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(mflib
   MFGraph.cpp
+  MFGraph.hpp
   MFGraph_solve.cpp
   MFSolver.cpp
+  MFSolver.hpp
   MFRegionSolver.cpp
+  MFRegionSolver.hpp
   MFCpgSolver.cpp
+  MFCpgSolver.hpp
   MethylRead.cpp
+  MethylRead.hpp
   MFRegionPrinter.cpp
+  MFRegionPrinter.hpp
   MFCpgEstimator.cpp
+  MFCpgEstimator.hpp
 )
 
