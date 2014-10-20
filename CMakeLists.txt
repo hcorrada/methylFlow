@@ -21,6 +21,10 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 IF(UNIX)
   SET(INSTALL_BIN_DIR "bin" CACHE STRING
     "Subdir for installing the binaries")
+  SET(INSTALL_LIB_DIR "lib" CACHE STRING
+    "Subdir for installing the libraries")
+  SET(INSTALL_INCLUDE_DIR "include" CACHE STRING
+    "Subdir for installing header files")
   SET(INSTALL_DOC_DIR "share/doc/${PROJECT_NAME}"
     CACHE STRING
     "Subdir for installing the doc")
@@ -33,6 +37,8 @@ IF(UNIX)
 ELSE(UNIX)
   SET(INSTALL_BIN_DIR "." CACHE STRING
                   "Subdir for installing the binaries")
+  SET(INSTALL_LIB_DIR "lib" CACHE STRING
+    "Subdir for installing the libraries")
   SET(INSTALL_DOC_DIR "doc" CACHE STRING
                   "Subdir for installing the doc")
   SET(INSTALL_DATA_DIR "data" CACHE STRING

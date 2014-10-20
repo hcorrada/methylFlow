@@ -22,3 +22,14 @@ ADD_LIBRARY(mflib
   MFCpgEstimator.hpp
 )
 
+INSTALL(
+  TARGETS mflib
+  ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+  COMPONENT library
+)		
+
+INSTALL(
+  FILES MethylRead.hpp
+  DESTINATION ${INSTALL_INCLUDE_DIR}
+)
+
