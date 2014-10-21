@@ -179,3 +179,9 @@ ADD_LIBRARY(glpk
   src/zlib/zutil.c
   src/zlib/zutil.h
 )
+
+INSTALL(
+  TARGETS glpk
+  ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+  COMPONENT library
+)
