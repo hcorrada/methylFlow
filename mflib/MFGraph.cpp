@@ -687,8 +687,8 @@ namespace methylFlow {
         if (verbose) {
             std::cout << "[methylFlow] Component " << componentID << " wrote " << npatterns << " patterns to file." << std::endl;
         }
-        
-        int start = read(source)->start() + 1;
+        // we compute all the offsets from source!
+        int start = read(source)->start();
         int end = read(sink)->end();
         
         comp_stream << chr << "\t" << start << "\t" << end;

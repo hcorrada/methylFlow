@@ -301,8 +301,9 @@ namespace methylFlow {
                 
                 if (s == source) {
                     MethylRead *first_read = read_map[t];
-                    if (first_read)
-                        start = read_map[t]->start();
+                    // We start pattern with source, we cant change start it mess up the offsets!
+                    //if (first_read)
+                      //  start = read_map[t]->start();
                 }
                 
                 if (childless[t]) {
