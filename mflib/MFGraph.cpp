@@ -120,6 +120,8 @@ namespace methylFlow {
                      std::ostream & region_stream,
                      std::ostream & cpg_stream,
                      std::string chr,
+                     const int start,
+                     const int end,
                      const bool flag_SAM,
                      const float lambda,
                      const float scale_mult,
@@ -127,6 +129,10 @@ namespace methylFlow {
                      const bool verbose,
                      const bool pctselect)
     {
+        
+        std::cout << "start = " << start << std::endl;
+        std::cout << "end = " << end << std::endl;
+
         std::vector<MethylRead*> mVector;
         std::string readid, rStrand, methStr, substStr;
         std::string QNAME, RNAME, CIGAR, RNEXT, SEQ, QUAL, NM, XX, XM, XR, XG;
@@ -186,7 +192,12 @@ namespace methylFlow {
                     std::cerr << "[methylFlow] Error parsing tsv input" << std::endl;
                     return -1;
                 }
-                
+                if (rPos < start) {
+                    continue;
+                }
+                if (rPos + rLen > end) {
+                    break;
+                }
                 // construct object with read info
                 m = new MethylRead(rPos, rLen);
                 if (methStr != "*"){
@@ -201,14 +212,21 @@ namespace methylFlow {
             else if(flag_SAM){
                 //parse SAM format
                 std::istringstream buffer(input);
-                buffer >> QNAME >> FLAG >> RNAME >> POS >> MAPQ >> CIGAR >> RNEXT >> PNEXT >> TLEN >> SEQ >> QUAL >> NM >> XX >> XM >> XR >> XG;
+                std::cout << "test hamid 1" << std::endl;
+                buffer >> QNAME >> FLAG >> RNAME >> POS >> MAPQ >> CIGAR >> RNEXT >> PNEXT >> TLEN >> SEQ >> QUAL >> NM  >> XX >> XM >> XR >> XG;
+                std::cout << XX << "\t" << XG << std::endl;
                 if ( !buffer || !buffer.eof() ) {
                     std::cerr << "[methylFlow] Error parsing SAM input" << std::endl;
                     return -1;
                 }
+                
                 //parse chr name
                 std::string::size_type sz;
-                std::string chromosome =  RNAME.substr(3);
+                std::string chromosome;
+                if (RNAME[0] == 'c' || RNAME[0] == 'C')
+                    chromosome =  RNAME.substr(3);
+                else
+                    chromosome = RNAME;
                 //                chr = atoi(chromosome.c_str());
                 chr = chromosome;
                 
@@ -217,6 +235,13 @@ namespace methylFlow {
                 std::cout << "pos " << POS << std::endl;
                 rPos = POS;
                 rLen = SEQ.length();
+                
+                if (rPos < start) {
+                    continue;
+                }
+                if (rPos + rLen > end) {
+                    break;
+                }
                 //rLen = findLength(QNAME);
                 std::cout << "rLen " << rLen << std::endl;
                 // construct object with read info
@@ -682,8 +707,10 @@ namespace methylFlow {
         // decompose
         float tflow = total_flow();
         int tcov = total_coverage();
+        std::cout << "befor decompose" << std::endl;
         int npatterns = decompose(componentID, patt_stream, chr);
-        
+        std::cout << "after decompose" << std::endl;
+
         if (verbose) {
             std::cout << "[methylFlow] Component " << componentID << " wrote " << npatterns << " patterns to file." << std::endl;
         }

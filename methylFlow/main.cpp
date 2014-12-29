@@ -98,7 +98,34 @@ int main(int argc, const char **argv)
             "-chr", //flag token
             "-Chr" // flag token
             );
-    
+    //start position
+    const float DEFAULT_START = 0;
+    buffer.str("");
+    buffer << DEFAULT_START;
+    opt.add(
+            buffer.str().c_str(), //Default
+            0, // not required
+            1, // no args expected
+            0, // no delimiter
+            "Display start instructions.", // help description
+            "-start",
+            "-Start",
+            "--start"// flag tokens
+            );
+
+    //end position
+    const float DEFAULT_END = LONG_MAX;
+    buffer.str("");
+    buffer << DEFAULT_END;
+    opt.add(
+            buffer.str().c_str(), //Default
+            0, // not required
+            1, // no args expected
+            0, // no delimiter
+            "Display end instructions.", // help description
+            "-end" // flag tokens
+            );
+
     
     // Sam file input
     opt.add(
@@ -144,7 +171,7 @@ int main(int argc, const char **argv)
             );
     
     // scale parameter
-    const float DEFAULT_SCALE = 10.0;
+    const float DEFAULT_SCALE = 1.0;
     buffer.str("");
     buffer << DEFAULT_SCALE;
     opt.add(
@@ -296,6 +323,27 @@ int main(int argc, const char **argv)
         lambda = DEFAULT_LAMBDA; // can get from opt?
     }
     
+    int start;
+    float start_f;
+    if (opt.isSet("-start")) {
+        opt.get("-start")->getFloat(start_f);
+        std::cout << "start_f = " << start_f << std::endl;
+        start = start_f;
+    } else {
+        start = DEFAULT_START; // can get from opt?
+    }
+    
+    
+    int end;
+    float end_f;
+    if (opt.isSet("-end")) {
+        opt.get("-end")->getFloat(end_f);
+        end = end_f;
+    } else {
+        end = DEFAULT_END; // can get from opt?
+    }
+    
+    
     float scale_mult;
     if (opt.isSet("-s")) {
         opt.get("-s")->getFloat(scale_mult);
@@ -331,6 +379,8 @@ int main(int argc, const char **argv)
                    region_stream,
                    cpg_stream,
                    chr,
+                   start,
+                   end,
                    flag_SAM,
                    lambda,
                    scale_mult,

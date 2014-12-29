@@ -72,6 +72,8 @@ namespace methylFlow {
                 std::ostream & region_stream,
                 std::ostream & cpg_stream,
                 std::string chr,
+                const int start,
+                const int end,
                 const bool flag_SAM,
                 const float lambda,
                 const float scale_mult,

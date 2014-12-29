@@ -235,7 +235,7 @@ namespace methylFlow {
         int flownum = 0;
         
         // iterate while residual flow
-        while (total_flow > 0.000001) {
+        while (total_flow > 0.00001) {
             
             flownum++;
             //std::cout << "flownum= " << flownum << "total_flow = "<< total_flow <<  std::endl;

@@ -10,7 +10,7 @@ tab2gr <- function(tab, onlypos=FALSE) {
   gr
 }
 
-read.methylflow.dir <- function(dir, sampleName, verbose = TRUE, has.header=TRUE) {
+read.methylflow.dir <- function(dir, verbose = TRUE, has.header=TRUE) {
   stopifnot(file.exists(dir, "components.tsv") && 
               file.exists(dir, "patterns.tsv") && 
               file.exists(dir, "regions.tsv") &&
