@@ -304,20 +304,7 @@ namespace methylFlow {
                 ListDigraph::Node t = mfGraph.target(arc);
                 
                 MethylRead *read = read_map[t];
-                if (!read  || t == get_sink()) {
-                    continue;
-                }
-                
-                if (s == source) {
-                    continue;
-                }
-                
-                if (s != source && t != get_sink()) {
-                    pattern->merge(read_map[t]);
-                    //std::cout << "new pattern = " << pattern->getMethString() << std::endl;
-                }
-                
-                
+
                 // don't print the source node or nodes connected to sink
                 if (s != source && t != get_sink()) {
                     region_list << idmap[s];
@@ -326,16 +313,34 @@ namespace methylFlow {
                     }
                 }
                 
-                if (childless[t]) {
-                    end = read->end();
-                }
-                
                 flow_map[arc] -= path_flow;
                 
                 // delete arc if no residual flow
                 if (flow_map[arc] < 1e-6) {
                     mfGraph.erase(arc);
                 }
+                
+                if (s == source) {
+                    continue;
+                }
+                
+                
+                if (!read  || t == get_sink()) {
+                    continue;
+                }
+                
+             
+                if (s != source && t != get_sink()) {
+                    pattern->merge(read);
+                    end = read->end();
+                    std::cout << "new pattern = " << pattern->getMethString() << std::endl;
+                }
+                
+              
+              //  if (childless[t]) {
+              //      end = read->end();
+              //  }
+                
                 
             }
 

@@ -93,12 +93,12 @@ namespace methylFlow {
         
         // clear graph, delete pointers to read/region objects
         void clear_graph();
-        
+
         
     protected:
         ListDigraph mfGraph;
-        
         ListDigraph::NodeMap<std::string> nodeName_map;
+
         ListDigraph::NodeMap<int> coverage_map;
         ListDigraph::NodeMap<float> normalized_coverage_map;
         ListDigraph::NodeMap<MethylRead *> read_map;

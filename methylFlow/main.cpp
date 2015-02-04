@@ -105,7 +105,7 @@ int main(int argc, const char **argv)
     opt.add(
             buffer.str().c_str(), //Default
             0, // not required
-            1, // no args expected
+            1, // number of args expected
             0, // no delimiter
             "Display start instructions.", // help description
             "-start",
@@ -120,10 +120,12 @@ int main(int argc, const char **argv)
     opt.add(
             buffer.str().c_str(), //Default
             0, // not required
-            1, // no args expected
+            1, // number of args expected
             0, // no delimiter
             "Display end instructions.", // help description
-            "-end" // flag tokens
+            "-end",
+            "-End",
+            "--end"// flag tokens
             );
 
     
