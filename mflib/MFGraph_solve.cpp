@@ -48,11 +48,14 @@ namespace methylFlow {
                 addArc(source, n, read_map[n]->start() - source_read->start());
             }
         }
-        MethylRead *sink_read = new MethylRead(rightMostStart , rightMostEnd- rightMostStart+1);
+       // MethylRead *sink_read = new MethylRead(rightMostStart , rightMostEnd- rightMostStart+1);
+        MethylRead *sink_read = new MethylRead(rightMostEnd + 1 , 1);
+
         sink = addNode("t", 0, sink_read);
         fake[sink] = true;
         for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
             if (childless[n]) {
+                
                 addArc(n, sink, sink_read->start() - read_map[n]->start());
                 //addArc(n, sink, 1);
             }
@@ -167,6 +170,18 @@ namespace methylFlow {
     
     void MFGraph::regularize()
     {
+        int rightMostEnd = -1;
+        // find childless nodes
+        for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
+            if (countOutArcs(mfGraph, n) == 0) {
+                childless[n] = true;
+                if (read_map[n] && read_map[n]->start() > rightMostStart) {
+                    rightMostEnd = rightMostStart + read_map[n]->length();
+                    
+                }
+            }
+        }
+
         // add the lambda edges
         int lamcnt = 0;
         for (ListDigraph::InArcIt arc(mfGraph, sink); arc != INVALID; ++arc, ++lamcnt) {
@@ -174,9 +189,18 @@ namespace methylFlow {
             nodename << "lambda_" << lamcnt;
             ListDigraph::Node newNode = addNode(nodename.str(), 0);
             ListDigraph::Node node = mfGraph.source(arc);
-            ListDigraph::Arc newArc = addArc(node, newNode, 1);
+            
+            MethylRead read = MethylRead(*read_map[node]);
+            int start = read_map[node]->start();
+            int end = read_map[node]->end();
+            
+            //int newEnd = max(start, min(end, rightMostEnd - rLen));
+            
+            //ListDigraph::Arc newArc = addArc(node, newNode, 1);
+            ListDigraph::Arc newArc = addArc(node, newNode, end - start + 1);
             
             mfGraph.changeSource(arc, newNode);
+            
             childless[node] = false;
             childless[newNode] = true;
         }
@@ -288,7 +312,9 @@ namespace methylFlow {
                 if (s == source) {
                     pattern = new MethylRead(*read_map[t]);
                     start = read_map[t]->start();
-                    end = read_map[sink]->end();
+                    end = read_map[t]->end();
+//                    end = read_map[sink]->end();
+
                     //std::cout << "Original pattern = " << pattern->getMethString() << std::endl;
                     break;
                 }

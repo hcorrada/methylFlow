@@ -684,7 +684,8 @@ namespace methylFlow {
         std::cout << "merge complete" << std::endl;
         print_graph();
 #endif
-        
+        std::cout << "printing graph after merge complete" << std::endl;
+        print_graph();
         if (verbose) {
             std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
         }
