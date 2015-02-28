@@ -170,17 +170,18 @@ namespace methylFlow {
     
     void MFGraph::regularize()
     {
-        int rightMostEnd = -1;
-        // find childless nodes
-        for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
-            if (countOutArcs(mfGraph, n) == 0) {
-                childless[n] = true;
-                if (read_map[n] && read_map[n]->start() > rightMostStart) {
-                    rightMostEnd = rightMostStart + read_map[n]->length();
-                    
-                }
-            }
-        }
+//        
+//        int rightMostEnd = -1;
+//        // find childless nodes
+//        for (ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
+//            if (countOutArcs(mfGraph, n) == 0) {
+//                childless[n] = true;
+//                if (read_map[n] && read_map[n]->start() > rightMostStart) {
+//                    rightMostEnd = rightMostStart + read_map[n]->length();
+//                    
+//                }
+//            }
+//        }
 
         // add the lambda edges
         int lamcnt = 0;

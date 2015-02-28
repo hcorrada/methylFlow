@@ -130,12 +130,13 @@ int main(int argc, const char **argv)
 
     
     // Sam file input
+    const bool DEFAULT_FLAG_SAM = false;
     opt.add(
             "", // Default.
             0, // Required (for now, will switch to stdin if missing in future)
             0, // number of args expected
             0, // delimiter, not needed
-            "SAM input file. Tab-separated format:Default SAM file", // Help description
+            "Input file is in SAM format instead of default tab-separated format.", // Help description
             "-sam", // flag token
             "-SAM", // flag token
             "--sam" //flag token
@@ -219,19 +220,19 @@ int main(int argc, const char **argv)
             "--verbose"
             );
     
-    // select lambda by minimizing
-    // marginal methpct error
+    // use cpg-loss algorithm instead
+    // of region-loss
     const bool DEFAULT_PCTSELECT = false;
     opt.add(
             "", // default (don't do it)
             0, // not required uses default
             0, // no args, it's a flag
             0, // no delimiter
-            "Lambda selection by pct error option.", // help description
+            "Use cpg-loss instead of region-loss.", // help description
             "-p", // flag tokens
             "-P",
-            "-pctselect",
-            "--pctselect"
+            "-cpgloss",
+            "--cpgloss"
             );
 
     opt.parse(argc, argv);
@@ -313,9 +314,11 @@ int main(int argc, const char **argv)
         return 1;
     }
     
-    bool flag_SAM = false;
+    bool flag_SAM;
     if (opt.isSet("-sam")) {
         flag_SAM = true;
+    } else {
+        flag_SAM = DEFAULT_FLAG_SAM;
     }
     
     float lambda;
