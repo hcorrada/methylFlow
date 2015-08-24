@@ -28,6 +28,7 @@ unsigned long mix(unsigned long a, unsigned long b, unsigned long c)
 }
 
 int main (int argc, char* argv[]) {
+    cerr << "start simulation" << endl;
     unsigned long seed = mix(clock(), time(NULL), getpid());
     srand(seed);
     cerr << "rand check " << rand()%1000 << endl;

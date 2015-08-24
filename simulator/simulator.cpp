@@ -16,14 +16,14 @@ std::ifstream methylPosFile;
 
 void simulator::readData(std::ifstream &inputFile){
     
-    inputFile >> chr >> startDNA >> dnaLength >> readLength >> HapNum >> freqFlag >> coverage >> error >> dataFlag >> corrDist ;
+    inputFile >> chr >> startDNA >> dnaLength >> readLength >> HapNum >> freqFlag >> coverage >> error >> dataFlag >> cpgNum >> corrDist ;
     
     if(dataFlag > 0){
         if (freqFlag == 1){
             int x;
             for( int i=0; i < HapNum; i++){
                 inputFile >> x;
-                cerr << "freq " << x << endl;
+                cerr << "freq f " << x << endl;
                 freq.push_back(x);
             }
         }
@@ -59,7 +59,7 @@ void simulator::readData(std::ifstream &inputFile){
             int x;
             for( int i=0; i < HapNum; i++){
                 inputFile >> x;
-                cerr << "freq " << x << endl;
+                cerr << "freq h" << x << endl;
                 freq.push_back(x);
             }
         }
@@ -74,24 +74,34 @@ void simulator::readData(std::ifstream &inputFile){
                 //cout << freq[i] << endl;
             }
         }
+        /*std::stringstream inputFileName;
+        inputFileName.str("");
+        inputFileName << inputFile << "/cpgs.tsv" ;*/
         
-        methylPosFile.open("/cbcb/project-scratch/fdorri/Code/Methylation/methylFlow/1_CpGInfo.txt");
+        string inputFileName;
+        inputFile >> inputFileName;
+       // cerr << inputFileName << endl;
+
+        methylPosFile.open(inputFileName.c_str());
+        //cerr << "input file opend" << endl;
         vector<int> tempPos;
-        int s, p;
+        int ch, cpgPos, cov, meth;
         char t;
         string dummyLine;
         getline(methylPosFile, dummyLine);
         int i = 0;
         //while(!methylPosFile.eof()) {
-        while( i < 100){
+        while( i < cpgNum){
             i++;
-            methylPosFile >> s >> p >> t;
+           // methylPosFile >> s >> p >> t;
+            methylPosFile >> ch >> cpgPos >> cov >> meth;
+
             //dnaLength = max(dnaLength, s + p );
             //dnaMin = min(dnaMin, s);
-            //cerr << "s " << s << " ,p " << p << endl;
+            //cerr << "pos " << cpgPos << " ,cov " << cov << endl;
             //readLength = max(readLength, p);
-            if (s >= startDNA && s+p <= startDNA + dnaLength ){
-                tempPos.push_back(s + p);
+            if (cpgPos >= startDNA && cpgPos <= startDNA + dnaLength ){
+                tempPos.push_back(cpgPos);
             }
         }
         sort(tempPos.begin(), tempPos.end());
@@ -99,13 +109,13 @@ void simulator::readData(std::ifstream &inputFile){
         for(int i=1; i < tempPos.size(); i++){
             if(tempPos[i] != tempPos[i-1]){
                 pos.push_back(tempPos[i]);
-                cerr << tempPos[i] << endl;
+                //cerr << tempPos[i] << endl;
             }
         }
         cerr << "posSize " << pos.size()<< endl;
         cerr << "tempposSize " << tempPos.size()<< endl;
         
-        
+        dnaLength = tempPos[tempPos.size()-1] - startDNA + 100;
         
         
         cerr << dnaLength << endl;
@@ -184,7 +194,7 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
         for( unsigned int j=1; j < pos.size() ; j++){
             int dist = pos[j] - pos[j-1];
             if (computeMethylProbability(corrDist, dist) == 0)
-            hapInfo.push_back(MethylInfo(pos[j], type));
+                hapInfo.push_back(MethylInfo(pos[j], type));
             else{
                 if (type == 'M'){
                     hapInfo.push_back(MethylInfo(pos[j], 'U'));
@@ -197,6 +207,7 @@ void simulator::buildMethylHap(int dnaLength, vector<int> pos, int HapNum, vecto
             }
             
         }
+        cout << "dnaLength in build hap=  " << dnaLength << endl;
         MethylHap methylHap;
         methylHap.length = dnaLength;
         methylHap.methyl = hapInfo;

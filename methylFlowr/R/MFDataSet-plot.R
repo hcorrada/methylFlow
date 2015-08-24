@@ -1,22 +1,22 @@
-plotPatterns <- function(obj, fullPlotRegion, ...) {
+plotPatterns <- function(obj, plotRegion, ...) {
     keep <- components(obj) %over% plotRegion
 
     npats <- npatterns(obj, by.component=TRUE)[keep]
     cids <- components(obj)$cid[keep]
 
     npatterns <- max(npats)
-    plot(0, type="n", xlim=c(start(plotRegion), end(plotRegion)), ylim=c(0,npatterns+1), ...)
+    plot(0, type="n", xlim=c(start(plotRegion), end(plotRegion)+10), ylim=c(0,npatterns+1), ...)
     
-    for (i in seq(along=cids)) {
-        cid <- cids[i]
+    for (j in seq(along=cids)) {
+        cid <- cids[j]
         patterns <- patterns(obj)[patterns(obj)$cid == cid,]
 
         o <- order(patterns$abundance)
         patterns <- patterns[o,]
 
         npatterns <- length(patterns)
-        segments(start(patterns), seq(along=patterns),
-                 end(patterns), seq(along=patterns))
+        segments(min(start(patterns)), seq(along=patterns),
+                 max(end(patterns)), seq(along=patterns))
 	     
 #        text(end(patterns), seq(along=patterns),
  #            labels=sprintf("%.3f", patterns$abundance), pos=4,cex=.8)

@@ -31,9 +31,9 @@ public:
     int chr, var;
     vector<int> freq;
     vector<int> pos;
-    int dnaLength, startDNA, readLength, HapNum, freqFlag, coverage, error, dataFlag, corrDist;
+    int dnaLength, startDNA, readLength, HapNum, freqFlag, coverage, error, dataFlag, cpgNum, corrDist;
 	vector<MethylHap> methylHapVec;
-	
+    //string inputFileName;
 	simulator(){};
     
     ~simulator(){};

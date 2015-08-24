@@ -360,7 +360,7 @@ namespace methylFlow {
                 if (s != source && t != get_sink()) {
                     pattern->merge(read);
                     end = read->end();
-                    std::cout << "new pattern = " << pattern->getMethString() << std::endl;
+                    //std::cout << "new pattern = " << pattern->getMethString() << std::endl;
                 }
                 
               
