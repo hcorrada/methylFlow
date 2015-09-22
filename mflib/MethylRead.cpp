@@ -59,10 +59,62 @@ namespace methylFlow {
     return 0;
   }
     
+    int MethylRead::parseXMtag(std::string XM, std::string CIGAR){
+        //std::cout << "XM Test CIGAR: " << CIGAR << std::endl;
+        //std::cout << "XM Test before: " << XM << std::endl;
+        std::string revisedXM = reviseXMtag(XM, CIGAR);
+        //std::cout << "XM Test after : " << revisedXM << std::endl;
+        return parseRevisedXMtag(revisedXM);
+        
+    }
     
-  int MethylRead::parseXMtag(std::string XM){
+    
+    std::string MethylRead::reviseXMtag(std::string XM, std::string CIGAR){
+        if (CIGAR == "*")
+            return XM;
+        
+        std::vector<CigarEntry> cigarEntries;
+        std::size_t curStringOffset = 0;
+        //We set start=5 because there is "XM:Z:" at the beginning of XM-Tag ...xh.......Z
+        int start = 5;
+        std::size_t found, foundM, foundD, foundI;
+        while (curStringOffset < CIGAR.length()) {
+            foundM = CIGAR.find("M", curStringOffset);
+            foundD = CIGAR.find("D", curStringOffset);
+            foundI = CIGAR.find("I", curStringOffset);
+            
+            found = std::min(std::min(foundM, foundD), foundI);
+            
+            if (found == std::string::npos) {
+                break;
+            }
+            int length = std::atoi(CIGAR.substr(curStringOffset, found - curStringOffset).c_str());
+            
+            CigarEntry entry = {start, length, CIGAR[found]};
+            cigarEntries.push_back(entry);
+            
+            if (CIGAR[found] == 'M' || CIGAR[found] == 'I')
+                start += length;
+                                 
+            curStringOffset = found + 1;
+        }
+        
+        for (int i = cigarEntries.size()-1; i >= 0; i--) {
+            if (cigarEntries.at(i).indel == 'D') {
+                XM.insert(cigarEntries.at(i).start, cigarEntries.at(i).length, '.');
+            } else if (cigarEntries.at(i).indel == 'I') {
+                XM.erase(cigarEntries.at(i).start, cigarEntries.at(i).length);
+            }
+        }
+        return XM;
+    }
+    
+    int MethylRead::parseRevisedXMtag(std::string XM){
+    
       std::size_t foundU, foundM, found;
-      std::size_t curStringOffset = XM.find("XM:Z:", 0) + 5;
+//      std::size_t curStringOffset = XM.find("XM:Z:", 0) + 5;
+      std::size_t curStringOffset = 0;
+      XM.erase(0, 5);
       
       int curPos = 0;
       bool curMeth = false;
@@ -76,10 +128,10 @@ namespace methylFlow {
           if (found == std::string::npos) {
               break;
           }
-          curPos = found - 5;
+          curPos = found;
           curMeth = (XM[found] == 'Z');
 
-	  CpgEntry entry = { curPos, curMeth };
+	      CpgEntry entry = { curPos, curMeth };
           cpgs.push_back(entry);
           curStringOffset = found + 1;
       }

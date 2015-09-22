@@ -15,6 +15,7 @@ namespace methylFlow {
       friend class MFCpgEstimator;
       friend class MFCpgSolver;
       typedef struct {int offset; bool methyl; } CpgEntry;
+      typedef struct {int start; int length; char indel; } CigarEntry;
 
     public:
         friend class MFGraph;
@@ -27,7 +28,10 @@ namespace methylFlow {
         bool isMethConsistent(MethylRead *other);
         ReadComparison compare(MethylRead *other);
         int parseMethyl(std::string methylString);
-        int parseXMtag(std::string XM);
+        int parseXMtag(std::string XM, std::string CIGAR);
+        std::string reviseXMtag(std::string XM, std::string CIGAR);
+        int parseRevisedXMtag(std::string XM);
+
         int merge(MethylRead *other);
         void write();
         

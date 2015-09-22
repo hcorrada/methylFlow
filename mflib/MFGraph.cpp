@@ -167,7 +167,7 @@ namespace methylFlow {
         cpg_stream << "chr\tpos\tCov\tMeth\n";
         
         if(flag_SAM){
-            while (std::getline(instream, input)){
+           while (std::getline(instream, input)){
                 std::cerr << "[methylFlow] 0 Discarding lines start with " << input << std::endl;
                 if(input.size() && input[0] !='@') break;
                 
@@ -176,7 +176,7 @@ namespace methylFlow {
         std::string lastChr = "";
         
         while (!check_count || count < READ_LIMIT) {
-            
+
             if(count >0 || !flag_SAM)
                 std::getline( instream, input );
             count++;
@@ -212,7 +212,6 @@ namespace methylFlow {
             else if(flag_SAM){
                 //parse SAM format
                 std::istringstream buffer(input);
-                std::cout << "test hamid 1" << std::endl;
                 buffer >> QNAME >> FLAG >> RNAME >> POS >> MAPQ >> CIGAR >> RNEXT >> PNEXT >> TLEN >> SEQ >> QUAL >> NM  >> XX >> XM >> XR >> XG;
                 std::cout << XX << "\t" << XG << std::endl;
                 if ( !buffer || !buffer.eof() ) {
@@ -247,7 +246,8 @@ namespace methylFlow {
                 // construct object with read info
                 m = new MethylRead(rPos, rLen);
                 if (methStr != "*"){
-                    m->parseXMtag(XM);
+                    m->parseXMtag(XM,CIGAR);
+                    
                     mVector.push_back(m);
                     std::cout << "start = " << m->start() << std::endl;
                     std::cout << "end = " << m->end() << std::endl;
