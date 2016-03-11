@@ -22,6 +22,7 @@
 #include <string>
 #include <cassert>
 #include <cstdlib>
+#include <climits>
 
 #include <vector>
 #include <lemon/lp.h>
@@ -56,12 +57,12 @@ void Usage(ezOptionParser & opt) {
 int main(int argc, const char **argv)
 {
     std::stringstream buffer;
-    
+
     ezOptionParser opt;
     opt.overview = "MethylFlow: methylation pattern reconstruction";
     opt.syntax = "methylFlow -i reads.tsv -o mfoutput [OPTIONS]";
     opt.example = "methylFlow -i reads.tsv -o mfoutput -l 10.0 -s 30.0 -e 0.1";
-    
+
     // help and usage
     opt.add(
             "", //Default
@@ -74,7 +75,7 @@ int main(int argc, const char **argv)
             "--help",
             "--usage"
             );
-    
+
     // input file
     opt.add(
             "", // Default.
@@ -87,7 +88,7 @@ int main(int argc, const char **argv)
             "--in", // flag token
             "--input" //flag token
             );
-    
+
     // chr flag
     opt.add(
             "", // Default.
@@ -128,7 +129,7 @@ int main(int argc, const char **argv)
             "--end"// flag tokens
             );
 
-    
+
     // Sam file input
     const bool DEFAULT_FLAG_SAM = false;
     opt.add(
@@ -141,8 +142,8 @@ int main(int argc, const char **argv)
             "-SAM", // flag token
             "--sam" //flag token
             );
-    
-    
+
+
     const char * DEFAULT_OUTDIR = "mfoutput";
     // output directory
     opt.add(
@@ -156,7 +157,7 @@ int main(int argc, const char **argv)
             "--out",
             "--output"
             );
-    
+
     // lambda
     const float DEFAULT_LAMBDA = -1.0;
     buffer.str("");
@@ -172,7 +173,7 @@ int main(int argc, const char **argv)
             "-lambda",
             "--lambda"
             );
-    
+
     // scale parameter
     const float DEFAULT_SCALE = 1.0;
     buffer.str("");
@@ -188,7 +189,7 @@ int main(int argc, const char **argv)
             "-scale",
             "--scale"
             );
-    
+
     // epsilon parameter
     const float DEFAULT_EPSILON = 0.1;
     buffer.str("");
@@ -204,7 +205,7 @@ int main(int argc, const char **argv)
             "-eps",
             "--eps"
             );
-    
+
     // verbose option
     const bool DEFAULT_VERBOSE = true;
     buffer.str("");
@@ -219,7 +220,7 @@ int main(int argc, const char **argv)
             "-verbose",
             "--verbose"
             );
-    
+
     // use cpg-loss algorithm instead
     // of region-loss
     const bool DEFAULT_PCTSELECT = false;
@@ -236,13 +237,13 @@ int main(int argc, const char **argv)
             );
 
     opt.parse(argc, argv);
-    
+
     if (opt.isSet("-h")) {
         Usage(opt);
         return 0;
     }
-    
-    
+
+
     std::vector<std::string> badOptions;
     int i;
     if (!opt.gotRequired(badOptions)) {
@@ -251,14 +252,14 @@ int main(int argc, const char **argv)
         Usage(opt);
         return 1;
     }
-    
+
     if (!opt.gotExpected(badOptions)) {
         for (i=0; i < badOptions.size(); ++i)
             std::cerr << "Error: Got unexpected number of arguments for option " << badOptions[i] << ".\n\n";
         Usage(opt);
         return 1;
     }
-    
+
     int status = 0;
     std::istream* instream;
     std::string input_filename;
@@ -271,63 +272,63 @@ int main(int argc, const char **argv)
     }else{
         instream = &std::cin;
     }
-    
+
     std::string chr;
     if (opt.isSet("-chr")) {
         opt.get("-chr")->getString(chr);
     }
-    
-    
+
+
     std::string outdirname;
     if (opt.isSet("-o")) {
         opt.get("-o")->getString(outdirname);
     } else {
         outdirname = DEFAULT_OUTDIR;
     }
-    
+
     buffer.str("");
     std::ofstream comp_stream;
     buffer << outdirname << "/components.tsv";
     comp_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
     if (!comp_stream) status = -1;
-    
+
     buffer.str("");
     std::ofstream pattern_stream;
     buffer << outdirname << "/patterns.tsv";
     pattern_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
     if (!pattern_stream) status = -1;
-    
+
     buffer.str("");
     std::ofstream region_stream;
     buffer << outdirname << "/regions.tsv";
     region_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
     if (!region_stream) status = -1;
-    
+
     buffer.str("");
     std::ofstream cpg_stream;
     buffer << outdirname << "/cpgs.tsv";
     cpg_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
     if (!cpg_stream) status = -1;
-    
+
     if (status == -1) {
         std::cerr << "[methylFlow] Error opening file." << std::endl;
         return 1;
     }
-    
+
     bool flag_SAM;
     if (opt.isSet("-sam")) {
         flag_SAM = true;
     } else {
         flag_SAM = DEFAULT_FLAG_SAM;
     }
-    
+
     float lambda;
     if (opt.isSet("-l")) {
         opt.get("-l")->getFloat(lambda);
     } else {
         lambda = DEFAULT_LAMBDA; // can get from opt?
     }
-    
+
     int start;
     float start_f;
     if (opt.isSet("-start")) {
@@ -337,8 +338,8 @@ int main(int argc, const char **argv)
     } else {
         start = DEFAULT_START; // can get from opt?
     }
-    
-    
+
+
     int end;
     float end_f;
     if (opt.isSet("-end")) {
@@ -347,22 +348,22 @@ int main(int argc, const char **argv)
     } else {
         end = DEFAULT_END; // can get from opt?
     }
-    
-    
+
+
     float scale_mult;
     if (opt.isSet("-s")) {
         opt.get("-s")->getFloat(scale_mult);
     } else {
         scale_mult = DEFAULT_SCALE; // can get from opt?
     }
-    
+
     float epsilon;
     if (opt.isSet("-e")) {
         opt.get("-e")->getFloat(epsilon);
     } else {
         epsilon = DEFAULT_EPSILON; // can we get from opt?
     }
-    
+
     bool verbose;
     if (opt.isSet("-v")) {
         verbose = true;
@@ -376,7 +377,7 @@ int main(int argc, const char **argv)
     } else {
       pctselect = DEFAULT_PCTSELECT;
     }
-    
+
     MFGraph g;
     status = g.run( *instream,
                    comp_stream,
@@ -392,9 +393,8 @@ int main(int argc, const char **argv)
                    epsilon,
                    verbose,
                    pctselect );
-    
+
     // streams are closed when object
     // is destroyed
     return status;
 }
-

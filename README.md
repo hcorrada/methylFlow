@@ -27,6 +27,15 @@ $ make
 $ make install
 ```
 
+To compile with DEBUG flags use 
+
+```shell
+...
+$ mkdir build_devel && cd build_devel
+$ cmake -DCMAKE_BUILD_TYPE=Debug ..
+$ make
+...
+```
 ## Usage
 
 <pre>

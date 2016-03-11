@@ -9,6 +9,9 @@
 #include <string>
 #include <sstream>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "simulator.h"
 
 std::ifstream inputFile;
@@ -32,13 +35,13 @@ int main (int argc, char* argv[]) {
     unsigned long seed = mix(clock(), time(NULL), getpid());
     srand(seed);
     cerr << "rand check " << rand()%1000 << endl;
-    
+
 
     if(argc < 3){
 		cout << "Please enter your input" << endl;
 		return -1;
 	}
-    
+
     inputFile.open(argv[1]);
     std::string outdirname = argv[2];
     std::stringstream buffer;
@@ -48,8 +51,8 @@ int main (int argc, char* argv[]) {
     buffer << outdirname << "/simPattern.txt";
     patternFile.open( buffer.str().c_str() );
     patternFile << "chr" << "\t" << "startDNA" << "\t" << "dnaLength" << "\t" << "ComponentID"  << "\t" << "PatternID"<< "\t" << "PatternFreq" << "\t" << "methylInfo" << endl;
-    
-    
+
+
     buffer.str("");
     std::ofstream shortReadFile;
     buffer << outdirname << "/shortRead.txt";
@@ -57,10 +60,10 @@ int main (int argc, char* argv[]) {
     //shortReadFile << "readID" << "\t" << "start"  << "\t" << "length" << "\t" << "W" << "\t" << "methylInfo" << endl;
 
 
-    
+
     //patternFile.open(argv[2]);
    // shortReadFile.open(argv[3],std::ios_base::app);
-    
+
     simulator * sim= new simulator();
     sim->simulate(inputFile, patternFile, shortReadFile);
     inputFile.close();
@@ -69,5 +72,3 @@ int main (int argc, char* argv[]) {
     delete sim;
 	return 1;
 }
-
-
