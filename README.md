@@ -13,8 +13,9 @@ http://ezoptionparser.sourceforge.net/
 ## Installation
 
 
-This project uses `cmake` for building and required at least
-version 2.6.
+This project uses `cmake` for building and requires at least
+version 2.6. It also uses `c++11` so use a compiler that supports
+this (e.g., g++ >= 4.7 or clang >= 3.4) 
 
 ```shell
 $ git clone https://github.com/hcorrada/methylFlow.git
@@ -27,7 +28,7 @@ $ make
 $ make install
 ```
 
-To compile with DEBUG flags use 
+To compile with DEBUG flags use
 
 ```shell
 ...
@@ -39,7 +40,9 @@ $ make
 ## Usage
 
 <pre>
-USAGE: methylFlow -i reads.tsv -o mfoutput [OPTIONS]
+MethylFlow: methylation pattern reconstruction
+
+USAGE: methylFlow -sam -i reads.sam -o mfoutput [OPTIONS]
 
 OPTIONS:
 
@@ -50,7 +53,8 @@ OPTIONS:
 
 -e, -eps, -E, --eps ARG           Regularization parameter search threshold.
 
--end, -End, --end ARG             Display end instructions.
+-end, -End, --end ARG             Only process reads aligning before given
+                                  location.
 
 -h, -help, --help, --usage        Display usage instructions.
 
@@ -69,13 +73,14 @@ OPTIONS:
 -sam, -SAM, --sam                 Input file is in SAM format instead of default
                                   tab-separated format.
 
--start, -Start, --start ARG       Display start instructions.
+-start, -Start, --start ARG       Only process reads aligning after given
+                                  location.
 
 -v, -verbose, -V, --verbose       Verbose option.
 
 EXAMPLES:
 
-methylFlow -i reads.tsv -o mfoutput -l 10.0 -s 30.0 -e 0.1
+methylFlow -sam -i reads.sam -o mfoutput -l 10.0 -s 30.0 -e 0.1
 </pre>
 
 

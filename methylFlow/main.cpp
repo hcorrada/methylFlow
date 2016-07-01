@@ -60,8 +60,8 @@ int main(int argc, const char **argv)
 
     ezOptionParser opt;
     opt.overview = "MethylFlow: methylation pattern reconstruction";
-    opt.syntax = "methylFlow -i reads.tsv -o mfoutput [OPTIONS]";
-    opt.example = "methylFlow -i reads.tsv -o mfoutput -l 10.0 -s 30.0 -e 0.1";
+    opt.syntax = "methylFlow -sam -i reads.sam -o mfoutput [OPTIONS]";
+    opt.example = "methylFlow -sam -i reads.sam -o mfoutput -l 10.0 -s 30.0 -e 0.1";
 
     // help and usage
     opt.add(
@@ -99,6 +99,7 @@ int main(int argc, const char **argv)
             "-chr", //flag token
             "-Chr" // flag token
             );
+
     //start position
     const float DEFAULT_START = 0;
     buffer.str("");
@@ -108,7 +109,7 @@ int main(int argc, const char **argv)
             0, // not required
             1, // number of args expected
             0, // no delimiter
-            "Display start instructions.", // help description
+            "Only process reads aligning after given location.", // help description
             "-start",
             "-Start",
             "--start"// flag tokens
@@ -123,7 +124,7 @@ int main(int argc, const char **argv)
             0, // not required
             1, // number of args expected
             0, // no delimiter
-            "Display end instructions.", // help description
+            "Only process reads aligning before given location.", // help description
             "-end",
             "-End",
             "--end"// flag tokens
