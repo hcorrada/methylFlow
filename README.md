@@ -15,7 +15,7 @@ http://ezoptionparser.sourceforge.net/
 
 This project uses `cmake` for building and requires at least
 version 2.6. It also uses `c++11` so use a compiler that supports
-this (e.g., g++ >= 4.7 or clang >= 3.4) 
+this (e.g., g++ >= 4.7 or clang >= 3.4)
 
 ```shell
 $ git clone https://github.com/hcorrada/methylFlow.git
@@ -65,8 +65,9 @@ OPTIONS:
 
 -l, -lam, -lambda, --lambda ARG   Regularization parameter value.
 
--o, -out, --out, --output ARG     Output directory. Files written:
-                                  components.tsv, patterns.tsv, regions.tsv
+-o, -out, --out, --output ARG     Output directory. Directory must exist before
+                                  running. Files written: components.tsv,
+                                  patterns.tsv, regions.tsv
 
 -s, -scale, -S, --scale ARG       Scale parameter value.
 

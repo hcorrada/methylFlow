@@ -152,7 +152,7 @@ int main(int argc, const char **argv)
             0, // Not required, uses default
             1, // number of args
             0, // delimiter
-            "Output directory. Files written: components.tsv, patterns.tsv, regions.tsv", // help description
+            "Output directory. Directory must exist before running. Files written: components.tsv, patterns.tsv, regions.tsv", // help description
             "-o", // flag tokens
             "-out",
             "--out",
