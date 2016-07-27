@@ -208,7 +208,7 @@ int main(int argc, const char **argv)
             );
 
     // verbose option
-    const bool DEFAULT_VERBOSE = true;
+    const bool DEFAULT_VERBOSE = false;
     buffer.str("");
     opt.add(
             "", // default
