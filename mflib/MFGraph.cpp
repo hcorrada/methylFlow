@@ -164,10 +164,10 @@ namespace methylFlow {
 
     if(flag_SAM){
       while (std::getline(instream, input)){
+        if(input.size() && input[0] !='@') break;
         if (verbose) {
           std::cerr << "[methylFlow] 0 Discarding lines start with " << input << std::endl;
         }
-        if(input.size() && input[0] !='@') break;
       }
     }
 
