@@ -10,7 +10,7 @@ are included in this repository. The `ezOptionParser.hpp` is also
 included
 http://ezoptionparser.sourceforge.net/
 
-The algorithm is described and tested in this publication: [http://bioinformatics.oxfordjournals.org/content/32/11/1618.abstract)(http://bioinformatics.oxfordjournals.org/content/32/11/1618.abstract)
+The algorithm is described and tested in this publication: [http://bioinformatics.oxfordjournals.org/content/32/11/1618.abstract](http://bioinformatics.oxfordjournals.org/content/32/11/1618.abstract)
 
 ## Installation
 
