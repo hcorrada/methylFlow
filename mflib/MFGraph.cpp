@@ -209,9 +209,9 @@ namespace methylFlow {
           mVector.push_back(m);
         }
 
-#ifndef NDEBUG
-        std::cout << "read: " << readid << " " << m->getString() << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "read: " << readid << " " << m->getString() << std::endl;
+// #endif
       }
 
       else if(flag_SAM){
@@ -219,9 +219,9 @@ namespace methylFlow {
         std::istringstream buffer(input);
         buffer >> QNAME >> FLAG >> RNAME >> POS >> MAPQ >> CIGAR >> RNEXT >> PNEXT >> TLEN >> SEQ >> QUAL >> NM  >> XX >> XM >> XR >> XG;
 
-#ifndef NDEBUG
-        std::cout << XX << "\t" << XG << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << XX << "\t" << XG << std::endl;
+// #endif
         if ( !buffer || !buffer.eof() ) {
           std::cerr << "[methylFlow] Error parsing SAM input" << std::endl;
           return -1;
@@ -237,11 +237,11 @@ namespace methylFlow {
         //                chr = atoi(chromosome.c_str());
         chr = chromosome;
 
-#ifndef NDEBUG
-        std::cout << "chr " << chr << std::endl;
-        std::cout << "str " << XM << std::endl;
-        std::cout << "pos " << POS << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "chr " << chr << std::endl;
+//         std::cout << "str " << XM << std::endl;
+//         std::cout << "pos " << POS << std::endl;
+// #endif
 
         rPos = POS;
         rLen = SEQ.length();
@@ -256,9 +256,9 @@ namespace methylFlow {
 
         //if (verbose) std::cout << "rLen " << rLen << std::endl;
 
-#ifndef NDEBUG
-        std::cout << "rLen " << rLen << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "rLen " << rLen << std::endl;
+// #endif
         // construct object with read info
         m = new MethylRead(rPos, rLen);
         if (methStr != "*"){
@@ -266,15 +266,15 @@ namespace methylFlow {
 
           mVector.push_back(m);
 
-          #ifndef NDEBUG
-          std::cout << "start = " << m->start() << std::endl;
-          std::cout << "end = " << m->end() << std::endl;
-#endif
+//           #ifndef NDEBUG
+//           std::cout << "start = " << m->start() << std::endl;
+//           std::cout << "end = " << m->end() << std::endl;
+// #endif
         }
 
-#ifndef NDEBUG
-        std::cout << "read: " << readid << " " << m->getString() << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "read: " << readid << " " << m->getString() << std::endl;
+// #endif
       }
 
       // we assume the input file is sorted
@@ -366,14 +366,14 @@ namespace methylFlow {
 
   bool MFGraph::processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet)  {
 
-#ifndef NDEBUG
-    std::cout << "processing read " << readid << std::endl;
-    std::cout << "current active set: ";
-    for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); it != pactiveSet->end(); ++it) {
-      std::cout << nodeName_map[*it] << " ";
-    }
-    std::cout << std::endl;
-#endif
+// #ifndef NDEBUG
+//     std::cout << "processing read " << readid << std::endl;
+//     std::cout << "current active set: ";
+//     for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); it != pactiveSet->end(); ++it) {
+//       std::cout << nodeName_map[*it] << " ";
+//     }
+//     std::cout << std::endl;
+// #endif
     
 
     // search for identical/superread/subread from left side of active set
@@ -386,9 +386,9 @@ namespace methylFlow {
 
       ReadComparison cmp = read_map[active_node]->compare(read);
 
-#ifndef NDEBUG
-      std::cout << "checking for identical " << nodeName_map[active_node] << std::endl;
-#endif
+// #ifndef NDEBUG
+//       std::cout << "checking for identical " << nodeName_map[active_node] << std::endl;
+// #endif
 
       bool erased = false;
       switch(cmp) {
@@ -398,9 +398,9 @@ namespace methylFlow {
         // stop looking through active set
         coverage_map[active_node] += 1;
 
-#ifndef NDEBUG
-        std::cout << "found!" << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "found!" << std::endl;
+// #endif
         return false;
 
       case SUPERREAD:
@@ -410,10 +410,10 @@ namespace methylFlow {
         if (read_map[active_node]) delete read_map[active_node];
         read_map[active_node] = read;
 
-#ifndef NDEBUG
-        std::cout << "found!" << std::endl;
-#endif
-        return false;
+// #ifndef NDEBUG
+//         std::cout << "found!" << std::endl;
+// #endif
+//         return false;
 
       case METHOVERLAP:
       case OVERLAP:
@@ -422,9 +422,9 @@ namespace methylFlow {
 
       case NONE:
         // remove node from active set since no more possible overlaps to be found
-#ifndef NDEBUG
-        std::cout << "removing from active set " << nodeName_map[active_node] << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "removing from active set " << nodeName_map[active_node] << std::endl;
+// #endif
         it = pactiveSet->erase(it);
         erased = true;
       default:
@@ -433,9 +433,9 @@ namespace methylFlow {
       if (!erased) ++it;
     }
 
-#ifndef NDEBUG
-    std::cout << "new node added" << std::endl;
-#endif
+// #ifndef NDEBUG
+//     std::cout << "new node added" << std::endl;
+// #endif
 
     // didn't find identical/superread/subread
     // so we need a new node
@@ -447,9 +447,9 @@ namespace methylFlow {
     ListDigraph::NodeMap<bool> reachable(mfGraph, false);
     for (std::list<ListDigraph::Node>::reverse_iterator rit = pactiveSet->rbegin(); rit != pactiveSet->rend(); ++rit) {
       ListDigraph::Node active_node = *rit;
-#ifndef NDEBUG
-      std::cout << "comparing node " << nodeName_map[active_node] << std::endl;
-#endif
+// #ifndef NDEBUG
+//       std::cout << "comparing node " << nodeName_map[active_node] << std::endl;
+// #endif
 
       //      if (read_map[active_node]->start() >= read->start()) {
       //	// we're done
@@ -461,18 +461,18 @@ namespace methylFlow {
       //
       if (reachable[active_node]) {
         // this node is reachable so ignore
-#ifndef NDEBUG
-        std::cout << "reachable" << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "reachable" << std::endl;
+// #endif
         continue;
       }
 
       ReadComparison cmp = read_map[active_node]->compare(read);
       switch(cmp) {
       case METHOVERLAP:
-#ifndef NDEBUG
-        std::cout << "consistent overlap" << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "consistent overlap" << std::endl;
+// #endif
         // add arc since this is a consistent overlap to a node that is not reached
         addArc(active_node, new_node, read->start() - read_map[active_node]->start());
 
@@ -481,49 +481,49 @@ namespace methylFlow {
         for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); &*it != &*rit; ++it) {
           ListDigraph::Node search_node = *it;
 
-#ifndef NDEBUG
-          std::cout << "is this node reachable" << nodeName_map[search_node] << std::endl;
-#endif
+// #ifndef NDEBUG
+//           std::cout << "is this node reachable" << nodeName_map[search_node] << std::endl;
+// #endif
 
           if (reachable[search_node]) {
             // this node is already reachable so skip
-#ifndef NDEBUG
-            std::cout << "it is, skip" << std::endl;
-#endif
+// #ifndef NDEBUG
+//             std::cout << "it is, skip" << std::endl;
+// #endif
             continue;
           }
 
           // see if we can reach this node
-#ifndef NDEBUG
-          std::cout << "try bfs" << std::endl;
-#endif
+// #ifndef NDEBUG
+//           std::cout << "try bfs" << std::endl;
+// #endif
 
           Bfs<ListDigraph> bfs(mfGraph);
           reachable[search_node] = bfs.run(search_node, new_node);
           if (reachable[search_node]) {
-#ifndef NDEBUG
-            std::cout << "reached! mark all the rest" << std::endl;
-#endif
+// #ifndef NDEBUG
+//             std::cout << "reached! mark all the rest" << std::endl;
+// #endif
             // we reached it, so
             // now mark all nodes in the path
             Path<ListDigraph> path = bfs.path(new_node);
             for (PathNodeIt<Path<ListDigraph> > reachable_node(mfGraph, path); reachable_node != INVALID; ++reachable_node) {
-#ifndef NDEBUG
-              std::cout << nodeName_map[reachable_node] << " ";
-#endif
+// #ifndef NDEBUG
+//               std::cout << nodeName_map[reachable_node] << " ";
+// #endif
 
               reachable[reachable_node] = true;
             }
-#ifndef NDEBUG
-            std::cout << std::endl;
-#endif
+// #ifndef NDEBUG
+//             std::cout << std::endl;
+// #endif
           }
         }
         break;
       case OVERLAP:
-#ifndef NDEBUG
-        std::cout << "inconsistent overlap, keep going" << std::endl;
-#endif
+// #ifndef NDEBUG
+//         std::cout << "inconsistent overlap, keep going" << std::endl;
+// #endif
         // do not do anything
         break;
       case IDENTICAL:
@@ -542,9 +542,9 @@ namespace methylFlow {
     // now add it to the active set
     pactiveSet->push_back(new_node);
 
-#ifndef NDEBUG
-    std::cout << std::endl << std::endl;
-#endif
+// #ifndef NDEBUG
+//     std::cout << std::endl << std::endl;
+// #endif
     return true;
   }
 

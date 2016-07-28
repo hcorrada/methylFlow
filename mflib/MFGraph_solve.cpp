@@ -262,16 +262,14 @@ namespace methylFlow {
         // iterate while residual flow
         while (total_flow > 0.00001) {
             
-            flownum++;
-            //std::cout << "flownum= " << flownum << "total_flow = "<< total_flow <<  std::endl;
             // compute residual flow for each arc
             ListDigraph::ArcMap<float> residual_flow(mfGraph);
             for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
                 residual_flow[arc] = (total_flow - flow_map[arc]);
                 if(flow_map[arc] != 0){
-#ifndef NDEBUG
-                    std::cout << "source: " << mfGraph.id(mfGraph.source(arc))<< ", target: " << mfGraph.id(mfGraph.target(arc)) << ", flow: " << flow_map[arc] <<std::endl;
-#endif
+// #ifndef NDEBUG
+//                     std::cout << "source: " << mfGraph.id(mfGraph.source(arc))<< ", target: " << mfGraph.id(mfGraph.target(arc)) << ", flow: " << flow_map[arc] <<std::endl;
+// #endif
                 }
                 
             }
@@ -291,21 +289,30 @@ namespace methylFlow {
             // get the resulting path and it's flow
             Path<ListDigraph> shortestPath = dijkstra.path(sink);
             float path_flow = total_flow - dijkstra.dist(sink);
-            
-            
+
+            // break out if this is not a valid path
+            if (path_flow == 0) {
+#ifndef NDEBUG
+              std::cout << "Found invalid path" << std::endl;
+#endif
+              break;
+            }
+
             // construct a meth fragment from path here
             // and remove path flow from each arc in path
 #ifndef NDEBUG
-            std::cout << "dijkstra.dist: " << dijkstra.dist(sink) << ", path_flow:" << path_flow << ", total flow: " << total_flow << std::endl;
+            std::cout << "dijkstra.dist: " << dijkstra.dist(sink) << ", path_flow:" << path_flow << ", total flow: " << total_flow << " length: " << shortestPath.length() << std::endl;
 #endif
-            
+
+            // it's a valid pattern, so increase number of paths found
+            flownum++;
+
             std::stringstream region_list;
             MethylRead* pattern = NULL;
             int start, end;
             //MethylRead pattern = MethylRead(*read_map[source]);
             //int start = read_map[source]->start();
             //int end = read_map[sink]->end();
-            
             
             for(Path<ListDigraph>::ArcIt arc(shortestPath); arc != INVALID; ++arc) {
                 ListDigraph::Node s = mfGraph.source(arc);
@@ -314,18 +321,31 @@ namespace methylFlow {
                     pattern = new MethylRead(*read_map[t]);
                     start = read_map[t]->start();
                     end = read_map[t]->end();
-//                    end = read_map[sink]->end();
+                    // end = read_map[sink]->end();
 
-                    //std::cout << "Original pattern = " << pattern->getMethString() << std::endl;
+#ifndef NDEBUG
+                    std::cout << "Original pattern = " << pattern->getMethString() << std::endl;
+#endif
                     break;
                 }
                 
             }
-            
-            for(Path<ListDigraph>::ArcIt arc(shortestPath); arc != INVALID; ++arc) {
+
 #ifndef NDEBUG
-                std::cout << " After finding a path, " << "source: " << mfGraph.id(mfGraph.source(arc))<< ", target: " << mfGraph.id(mfGraph.target(arc)) << ", flow: " << flow_map[arc] << " ,arc - pathFlow: " << flow_map[arc] - path_flow << std::endl;
+            if (!pattern) {
+              std::cout << "We should not hit this" << std::endl;
+              for (Path<ListDigraph>::ArcIt arc(shortestPath); arc != INVALID; ++arc) {
+                ListDigraph::Node s = mfGraph.source(arc);
+                ListDigraph::Node t = mfGraph.target(arc);
+                std::cout << mfGraph.id(s) << " -> " << mfGraph.id(t) << std::endl;
+              }
+            }
 #endif
+             
+            for(Path<ListDigraph>::ArcIt arc(shortestPath); arc != INVALID; ++arc) {
+// #ifndef NDEBUG
+//                 std::cout << " After finding a path, " << "source: " << mfGraph.id(mfGraph.source(arc))<< ", target: " << mfGraph.id(mfGraph.target(arc)) << ", flow: " << flow_map[arc] << " ,arc - pathFlow: " << flow_map[arc] - path_flow << std::endl;
+// #endif
                 
                 ListDigraph::Node s = mfGraph.source(arc);
                 ListDigraph::Node t = mfGraph.target(arc);
@@ -370,6 +390,10 @@ namespace methylFlow {
                 
                 
             }
+
+#ifndef NDEBUG
+            std::cout << "new pattern = " << pattern->getMethString() << std::endl;
+#endif
 
             //Note we add source one nucleotide before every read
             patt_stream << chr << "\t" << start << "\t" << end;
