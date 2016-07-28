@@ -270,7 +270,7 @@ int main(int argc, const char **argv)
         input.open( input_filename.c_str() );
         instream = &input;
         if (!instream) status = -1;
-    }else{
+    } else {
         instream = &std::cin;
     }
 
@@ -280,11 +280,9 @@ int main(int argc, const char **argv)
     }
 
 
-    std::string outdirname;
+    std::string outdirname = DEFAULT_OUTDIR;
     if (opt.isSet("-o")) {
         opt.get("-o")->getString(outdirname);
-    } else {
-        outdirname = DEFAULT_OUTDIR;
     }
 
     buffer.str("");
@@ -316,67 +314,45 @@ int main(int argc, const char **argv)
         return 1;
     }
 
-    bool flag_SAM;
+    bool flag_SAM = DEFAULT_FLAG_SAM;
     if (opt.isSet("-sam")) {
         flag_SAM = true;
-    } else {
-        flag_SAM = DEFAULT_FLAG_SAM;
     }
 
-    float lambda;
+    float lambda = DEFAULT_LAMBDA;
     if (opt.isSet("-l")) {
         opt.get("-l")->getFloat(lambda);
-    } else {
-        lambda = DEFAULT_LAMBDA; // can get from opt?
     }
 
-    int start;
-    float start_f;
+    long start = DEFAULT_START;
     if (opt.isSet("-start")) {
-        opt.get("-start")->getFloat(start_f);
-        std::cout << "start_f = " << start_f << std::endl;
-        start = start_f;
-    } else {
-        start = DEFAULT_START; // can get from opt?
-    }
+        opt.get("-start")->getLong(start);
+    } 
 
-
-    int end;
-    float end_f;
+    long end = DEFAULT_END;
     if (opt.isSet("-end")) {
-        opt.get("-end")->getFloat(end_f);
-        end = end_f;
-    } else {
-        end = DEFAULT_END; // can get from opt?
-    }
+        opt.get("-end")->getLong(end);
+    } 
 
 
-    float scale_mult;
+    float scale_mult = DEFAULT_SCALE;
     if (opt.isSet("-s")) {
         opt.get("-s")->getFloat(scale_mult);
-    } else {
-        scale_mult = DEFAULT_SCALE; // can get from opt?
     }
 
-    float epsilon;
+    float epsilon = DEFAULT_EPSILON;
     if (opt.isSet("-e")) {
         opt.get("-e")->getFloat(epsilon);
-    } else {
-        epsilon = DEFAULT_EPSILON; // can we get from opt?
     }
 
-    bool verbose;
+    bool verbose = DEFAULT_VERBOSE;
     if (opt.isSet("-v")) {
         verbose = true;
-    } else {
-        verbose = DEFAULT_VERBOSE;
     }
-
-    bool pctselect;
+    
+    bool pctselect = DEFAULT_PCTSELECT;
     if (opt.isSet("-p")) {
       pctselect = true;
-    } else {
-      pctselect = DEFAULT_PCTSELECT;
     }
 
     MFGraph g;

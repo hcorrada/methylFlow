@@ -1,6 +1,7 @@
 #include <iostream>
-#include<string>
+#include <string>
 #include <stack>
+#include <climits>
 
 #include <lemon/bfs.h>
 #include <lemon/path.h>
@@ -118,8 +119,8 @@ namespace methylFlow {
                    std::ostream & region_stream,
                    std::ostream & cpg_stream,
                    std::string chr,
-                   const int start,
-                   const int end,
+                   const long start,
+                   const long end,
                    const bool flag_SAM,
                    const float lambda,
                    const float scale_mult,
@@ -127,6 +128,11 @@ namespace methylFlow {
                    const bool verbose,
                    const bool pctselect) {
 
+    if (verbose) {
+      
+      std::cout << "start = " << start << std::endl;
+      std::cout << "end = " << end << std::endl;
+    }
 #ifndef NDEBUG
     std::cout << "start = " << start << std::endl;
     std::cout << "end = " << end << std::endl;
@@ -144,15 +150,15 @@ namespace methylFlow {
     ListDigraph::Node node;
     int rightMostPos = 0;
 
-    const int READ_LIMIT = 100000000000;
+    const long READ_LIMIT = LONG_MAX;
 #ifndef NDEBUG
     bool check_count = true;
 #else
     bool check_count = false;
 #endif
 
-    int count = 0;
-    int componentCount = 0;
+    long count = 0;
+    long componentCount = 0;
 
     std::cout << "[methylFlow] Starting methylFlow... " << std::endl;
 
@@ -247,6 +253,8 @@ namespace methylFlow {
           break;
         }
         //rLen = findLength(QNAME);
+
+        //if (verbose) std::cout << "rLen " << rLen << std::endl;
 
 #ifndef NDEBUG
         std::cout << "rLen " << rLen << std::endl;
