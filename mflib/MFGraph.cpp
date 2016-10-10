@@ -3,8 +3,14 @@
 #include <stack>
 #include <climits>
 
+#include <time.h>
+#include <stdio.h>
+//#include <chrono> // for high_resolution_clock
 #include <lemon/bfs.h>
 #include <lemon/path.h>
+
+#include <sys/time.h>
+
 
 #include "MFGraph.hpp"
 #include "MFRegionPrinter.hpp"
@@ -67,7 +73,16 @@ namespace methylFlow {
     return arc;
   }
 
+  int MFGraph::get_graph_size() {
+      int graphSize  = 0;
+      for(ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
+          graphSize++;
+      }
+      return graphSize;
+  }
+    
   void MFGraph::print_graph() {
+      return;
     MethylRead *read;
     for(ListDigraph::NodeIt n(mfGraph); n != INVALID; ++n) {
       std::cout << "Node: " << nodeName_map[n] << " cov: " << coverage_map[n];
@@ -126,6 +141,7 @@ namespace methylFlow {
                    const float scale_mult,
                    const float epsilon,
                    const bool verbose,
+                   const bool verboseTime,
                    const bool pctselect) {
 
     if (verbose) {
@@ -143,6 +159,7 @@ namespace methylFlow {
     std::string QNAME, RNAME, CIGAR, RNEXT, SEQ, QUAL, NM, XX, XM, XR, XG;
     int FLAG, POS, MAPQ, PNEXT, TLEN;
     std::string input;
+    struct timeval tvalBefore, tvalAfter, tvalStartReadProcess, tvalEndReadProcess;
 
     int rPos, rLen;
     std::list<ListDigraph::Node> activeSet;
@@ -160,10 +177,11 @@ namespace methylFlow {
     long count = 0;
     long componentCount = 0;
 
+
     std::cout << "[methylFlow] Starting methylFlow... " << std::endl;
 
     // print headers to output files
-    comp_stream << "chr\tstart\tend\tcid\tnpatterns\ttotal_coverage\ttotal_flow\n";
+    comp_stream << "chr\tstart\tend\tcid\tnnode\tnpatterns\ttotal_coverage\ttotal_flow\n";
     patt_stream << "chr\tstart\tend\tcid\tpid\tabundance\tmethylpat\tregions\n";
     region_stream << "chr\tstart\tend\tcid\trid\traw_coverage\tnorm_coverage\texp_coverage\tmethylpat\n";
     cpg_stream << "chr\tpos\tCov\tMeth\n";
@@ -178,8 +196,16 @@ namespace methylFlow {
     }
 
     std::string lastChr = "";
+      if (verboseTime) {
+          gettimeofday (&tvalStartReadProcess, NULL);
+      }
+    int maxActiveSetSize = 0;
 
     while (!check_count || count < READ_LIMIT) {
+      if (maxActiveSetSize < activeSet.size()) {
+        maxActiveSetSize = activeSet.size();
+      }
+        
       if(count > 0 || !flag_SAM)
         std::getline( instream, input );
 
@@ -226,6 +252,9 @@ namespace methylFlow {
           std::cerr << "[methylFlow] Error parsing SAM input" << std::endl;
           return -1;
         }
+          if (verboseTime) {
+              gettimeofday (&tvalBefore, NULL);
+          }
 
         //parse chr name
         std::string::size_type sz;
@@ -278,11 +307,6 @@ namespace methylFlow {
       }
 
       // we assume the input file is sorted
-      //sort(mVector.begin(), mVector.end(), CompareReadStarts());
-      //for(unsigned int i = 0; i < mVector.size(); i++){
-      //MethylRead * m;
-      //m = mVector.at(i);
-      // std::cout << "read: " << readid << " " << m->getString() << std::endl;
 
       // does this read start after the rightMost end position?
       if (m->start() > rightMostPos || chr != lastChr) {
@@ -307,6 +331,13 @@ namespace methylFlow {
             std::cout << "[methylFlow] start read " << m->start() << std::endl;
             std::cout << "[methylFlow] rightMostPos " << rightMostPos << std::endl;
           }
+            if (verboseTime) {
+                gettimeofday (&tvalEndReadProcess, NULL);
+                std::cout << "Time in miliseconds process component:\t" << componentCount << "\t" << get_graph_size() << "\t" << ((tvalEndReadProcess.tv_sec - tvalStartReadProcess.tv_sec)*1000  + tvalEndReadProcess.tv_usec/1000) - tvalStartReadProcess.tv_usec/1000 << std::endl;
+                gettimeofday (&tvalBefore, NULL);
+            }
+          //std::cout << "[methylFlow] Processing component " << componentCount << std::endl;
+          //std::cout << "[methylFlow] Read number " << get_graph_size() << std::endl;
 
           // count = 0;
           run_component(componentCount,
@@ -320,10 +351,21 @@ namespace methylFlow {
                         scale_mult,
                         epsilon,
                         verbose,
+                        verboseTime,
                         pctselect );
+            if (verboseTime) {
+
+                gettimeofday (&tvalAfter, NULL);
+                std::cout << "Time in miliseconds run component:\t" << componentCount << "\t" << get_graph_size() << "\t" << ((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000  + tvalAfter.tv_usec/1000) - tvalBefore.tv_usec/1000 << std::endl;
+            }
           clear_graph();
+            if (verboseTime) {
+                gettimeofday (&tvalStartReadProcess, NULL);
+        
+            }
         }
       }
+       
 
       // if no reads in active set, add the node to the graph
       if (activeSet.empty()) {
@@ -336,17 +378,28 @@ namespace methylFlow {
       }
 
       // add read to graph
-      if (processRead(m, readid, &activeSet) && m->end() > rightMostPos) {
+      if (processRead(m, readid, &activeSet, verboseTime) && m->end() > rightMostPos) {
         rightMostPos = m->end();
       }
+        if (maxActiveSetSize < activeSet.size()) {
+            maxActiveSetSize = activeSet.size();
+        }
+        
     }
 
+      
     componentCount++;
-    std::cout << "[methylFlow] Processing last component (no. " << componentCount << ")" << std::endl;
+    //std::cout << "[methylFlow] Processing last component (no. " << componentCount << ")" << std::endl;
     if (verbose) {
       std::cout << "[methylFlow] Read number " << count << std::endl;
     }
-
+      
+      if (verboseTime) {
+          gettimeofday (&tvalEndReadProcess, NULL);
+          std::cout << "Time in miliseconds process last component:\t" << componentCount << "\t" << get_graph_size() << "\t" << ((tvalEndReadProcess.tv_sec - tvalStartReadProcess.tv_sec)*1000  + tvalEndReadProcess.tv_usec/1000) - tvalStartReadProcess.tv_usec/1000 << std::endl;
+  
+          gettimeofday (&tvalBefore, NULL);
+      }
     run_component(componentCount,
                   comp_stream,
                   patt_stream,
@@ -358,24 +411,23 @@ namespace methylFlow {
                   scale_mult,
                   epsilon,
                   verbose,
+                  verboseTime,
                   pctselect);
+      if (verboseTime) {
+          gettimeofday (&tvalAfter, NULL);
+          std::cout << "Time in miliseconds run last component:\t" << componentCount << "\t" << get_graph_size() << "\t" << ((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000  + tvalAfter.tv_usec/1000) - tvalBefore.tv_usec/1000 << std::endl;
+          std::cout << "max active size:\t" << maxActiveSetSize << std::endl;
+      }
     clear_graph();
     return 0;
   }
 
 
-  bool MFGraph::processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet)  {
-
-// #ifndef NDEBUG
-//     std::cout << "processing read " << readid << std::endl;
-//     std::cout << "current active set: ";
-//     for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); it != pactiveSet->end(); ++it) {
-//       std::cout << nodeName_map[*it] << " ";
-//     }
-//     std::cout << std::endl;
-// #endif
-    
-
+  bool MFGraph::processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet, const bool verboseTime)  {
+      struct timeval tvalBeforeIndentical, tvalAfterIndentical;
+      if (verboseTime) {
+          gettimeofday (&tvalBeforeIndentical, NULL);
+      }
     // search for identical/superread/subread from left side of active set
     for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); it != pactiveSet->end(); ) {
       ListDigraph::Node active_node = *it;
@@ -386,10 +438,6 @@ namespace methylFlow {
 
       ReadComparison cmp = read_map[active_node]->compare(read);
 
-// #ifndef NDEBUG
-//       std::cout << "checking for identical " << nodeName_map[active_node] << std::endl;
-// #endif
-
       bool erased = false;
       switch(cmp) {
       case IDENTICAL:
@@ -397,10 +445,6 @@ namespace methylFlow {
         // increase coverage of corresponding node
         // stop looking through active set
         coverage_map[active_node] += 1;
-
-// #ifndef NDEBUG
-//         std::cout << "found!" << std::endl;
-// #endif
         return false;
 
       case SUPERREAD:
@@ -409,11 +453,7 @@ namespace methylFlow {
         coverage_map[active_node] += 1;
         if (read_map[active_node]) delete read_map[active_node];
         read_map[active_node] = read;
-
-// #ifndef NDEBUG
-//         std::cout << "found!" << std::endl;
-// #endif
-//         return false;
+        return false;
 
       case METHOVERLAP:
       case OVERLAP:
@@ -422,9 +462,6 @@ namespace methylFlow {
 
       case NONE:
         // remove node from active set since no more possible overlaps to be found
-// #ifndef NDEBUG
-//         std::cout << "removing from active set " << nodeName_map[active_node] << std::endl;
-// #endif
         it = pactiveSet->erase(it);
         erased = true;
       default:
@@ -432,11 +469,9 @@ namespace methylFlow {
       }
       if (!erased) ++it;
     }
-
-// #ifndef NDEBUG
-//     std::cout << "new node added" << std::endl;
-// #endif
-
+      if (verboseTime) {
+          gettimeofday (&tvalAfterIndentical, NULL);
+      }
     // didn't find identical/superread/subread
     // so we need a new node
     ListDigraph::Node new_node = addNode(readid, 1, read);
@@ -447,23 +482,8 @@ namespace methylFlow {
     ListDigraph::NodeMap<bool> reachable(mfGraph, false);
     for (std::list<ListDigraph::Node>::reverse_iterator rit = pactiveSet->rbegin(); rit != pactiveSet->rend(); ++rit) {
       ListDigraph::Node active_node = *rit;
-// #ifndef NDEBUG
-//       std::cout << "comparing node " << nodeName_map[active_node] << std::endl;
-// #endif
-
-      //      if (read_map[active_node]->start() >= read->start()) {
-      //	// we're done
-      //	#ifndef NDEBUG
-      //	std::cout << "got to left-most point" << std::endl;
-      //	#endif
-      //	break;
-      //      }
-      //
       if (reachable[active_node]) {
         // this node is reachable so ignore
-// #ifndef NDEBUG
-//         std::cout << "reachable" << std::endl;
-// #endif
         continue;
       }
 
@@ -481,42 +501,22 @@ namespace methylFlow {
         for (std::list<ListDigraph::Node>::iterator it = pactiveSet->begin(); &*it != &*rit; ++it) {
           ListDigraph::Node search_node = *it;
 
-// #ifndef NDEBUG
-//           std::cout << "is this node reachable" << nodeName_map[search_node] << std::endl;
-// #endif
 
           if (reachable[search_node]) {
             // this node is already reachable so skip
-// #ifndef NDEBUG
-//             std::cout << "it is, skip" << std::endl;
-// #endif
             continue;
           }
 
           // see if we can reach this node
-// #ifndef NDEBUG
-//           std::cout << "try bfs" << std::endl;
-// #endif
-
           Bfs<ListDigraph> bfs(mfGraph);
           reachable[search_node] = bfs.run(search_node, new_node);
           if (reachable[search_node]) {
-// #ifndef NDEBUG
-//             std::cout << "reached! mark all the rest" << std::endl;
-// #endif
             // we reached it, so
             // now mark all nodes in the path
             Path<ListDigraph> path = bfs.path(new_node);
             for (PathNodeIt<Path<ListDigraph> > reachable_node(mfGraph, path); reachable_node != INVALID; ++reachable_node) {
-// #ifndef NDEBUG
-//               std::cout << nodeName_map[reachable_node] << " ";
-// #endif
-
               reachable[reachable_node] = true;
             }
-// #ifndef NDEBUG
-//             std::cout << std::endl;
-// #endif
           }
         }
         break;
@@ -668,6 +668,7 @@ namespace methylFlow {
                                    const float scale_mult,
                                    const float epsilon,
                                    const bool verbose,
+                                   const bool verboseTime,
                                    const bool pctselect ) {
 #ifndef NDEBUG
     std::cout << "starting run_component" << std::endl;
@@ -699,9 +700,17 @@ namespace methylFlow {
     if (verbose) {
       std::cout << "[methylFlow] Component " << componentID << " regions created" << std::endl;
     }
-
-    // solve
-    int res = solve( lambda, scale_mult, epsilon, verbose, pctselect );
+      struct timeval tvalBeforeSolve, tvalAfterSolve;
+      if (verboseTime) {
+          // solve
+          gettimeofday (&tvalBeforeSolve, NULL);
+      }
+    int res = solve( lambda, scale_mult, epsilon, verbose, verboseTime, pctselect );
+      if (verboseTime) {
+          gettimeofday (&tvalAfterSolve, NULL);
+          std::cout << "Time in miliseconds run solve:\t" << componentID << "\t" << get_graph_size() << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000  + tvalAfterSolve.tv_usec/1000) - tvalBeforeSolve.tv_usec/1000 << std::endl;
+      }
+      
     if (res) {
       std::cerr << "[methylFlow] Error solving" << std::endl;
       return res;
@@ -723,9 +732,15 @@ namespace methylFlow {
 #ifndef NDEBUG
     std::cout << "befor decompose" << std::endl;
 #endif
-
+      struct timeval tvalBeforeDecompose, tvalAfterDecompose;
+      if (verboseTime) {
+          gettimeofday (&tvalBeforeDecompose, NULL);
+      }
     int npatterns = decompose(componentID, patt_stream, chr);
-
+      if (verboseTime) {
+          gettimeofday (&tvalAfterDecompose, NULL);
+          std::cout << "Time in miliseconds run decompose:\t" << componentID << "\t" << get_graph_size() << "\t" << ((tvalAfterDecompose.tv_sec - tvalBeforeDecompose.tv_sec)*1000  + tvalAfterDecompose.tv_usec/1000) - tvalBeforeDecompose.tv_usec/1000 << std::endl;
+      }
 #ifndef NDEBUG
     std::cout << "after decompose" << std::endl;
 #endif
@@ -738,7 +753,7 @@ namespace methylFlow {
     int end = read(sink)->end();
 
     comp_stream << chr << "\t" << start << "\t" << end;
-    comp_stream << "\t" << componentID << "\t" << npatterns;
+    comp_stream << "\t" << componentID << "\t" << get_graph_size() << "\t" << npatterns;
     comp_stream << "\t" << tcov << "\t" << tflow << std::endl;
 
     if (verbose) {

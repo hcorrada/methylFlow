@@ -15,7 +15,7 @@ namespace methylFlow {
     ~MFSolver();
     
     // does everything
-    int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose);
+    int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool verboseTime );
 
     // extract flows from LP solution
     int extract_flows();
@@ -49,7 +49,7 @@ namespace methylFlow {
     int solve_for_lambda(const float lambda);
 
     // find the best lambda
-    int search_lambda(const float epislon, float &best_lambda, const float scale_mult, const bool verbose);
+    int search_lambda(const float epislon, float &best_lambda, const float scale_mult, const bool verbose, const bool verboseTime);
     
     // virtual score function
     virtual float score(const float lambda) =0;

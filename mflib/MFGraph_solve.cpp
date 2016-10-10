@@ -1,6 +1,9 @@
 #include <iostream>
 #include <queue>
 
+#include <stdio.h>
+#include <sys/time.h>
+
 #include <lemon/path.h>
 #include <lemon/dijkstra.h>
 
@@ -207,7 +210,7 @@ namespace methylFlow {
         }
     }
     
-    int MFGraph::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool pctselect )
+    int MFGraph::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool verboseTime, const bool pctselect )
     {
         int res;
         
@@ -235,14 +238,32 @@ namespace methylFlow {
         if (verbose) {
             std::cout << "[methylFlow] Solving optimization problem" << std::endl;
         }
-        res = solver->solve(lambda, length_mult, epsilon, verbose);
+        
+        //struct timeval tvalBeforeSolve, tvalAfterSolve;
+      //  gettimeofday (&tvalBeforeSolve, NULL);
+        
+        res = solver->solve(lambda, length_mult, epsilon, verbose, verboseTime);
+        
+      //  gettimeofday (&tvalAfterSolve, NULL);
+      //  std::cout << "Time in miliseconds run solve:solve:\t" << "solve" << "\t" << get_graph_size() << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000  + tvalAfterSolve.tv_usec/1000) - tvalBeforeSolve.tv_usec/1000 << std::endl;
+
+        
+        
         
         if (res) {
             std::cerr << "[methylFlow] Error solving for scale =" << length_mult << std::endl;
             return res;
         }
         
+        
+        //struct timeval tvalBeforeExtract, tvalAfterExtract;
+        //gettimeofday (&tvalBeforeExtract, NULL);
+        
         solver->extract_flows();
+        
+        //gettimeofday (&tvalAfterExtract, NULL);
+        //std::cout << "Time in miliseconds run solve:extract:\t" << "extract" << "\t" << get_graph_size() << "\t" << ((tvalAfterExtract.tv_sec - tvalBeforeExtract.tv_sec)*1000  + tvalAfterExtract.tv_usec/1000) - tvalBeforeExtract.tv_usec/1000 << std::endl;
+
         return 0;
     }
     

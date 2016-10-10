@@ -1,6 +1,11 @@
 #include <iostream>
 #include <cmath>
 
+
+#include <stdio.h>
+#include <sys/time.h>
+
+
 #include <lemon/lp.h>
 
 #include "MFSolver.hpp"
@@ -19,11 +24,21 @@ namespace methylFlow {
     {
     }
     
-  int MFSolver::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose)
+  int MFSolver::solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool verboseTime)
     {
         int res;
+        struct timeval tvalBeforeSolve, tvalAfterSolve;
+        
+        if (verboseTime) {
+            gettimeofday (&tvalBeforeSolve, NULL);
+        }
+
         res = make_lp(length_mult);
         if (res) return res;
+        if (verboseTime) {
+            gettimeofday (&tvalAfterSolve, NULL);
+            std::cout << "Time in miliseconds run make lp:\t" << "make lp" << "\t" << "make lp" << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000  + tvalAfterSolve.tv_usec/1000) - tvalBeforeSolve.tv_usec/1000 << std::endl;
+        }
         
         if (lambda >= 0.)
             return solve_for_lambda(lambda);
@@ -32,31 +47,65 @@ namespace methylFlow {
         if (verbose) {
             std::cout << "[methylFlow] Searching for best lambda" << std::endl;
         }
-        
-        res = search_lambda(epsilon, best_lambda, length_mult, verbose);
+        if (verboseTime) {
+            gettimeofday (&tvalBeforeSolve, NULL);
+        }
+        res = search_lambda(epsilon, best_lambda, length_mult, verbose, verboseTime);
+        if (verboseTime) {
+            gettimeofday (&tvalAfterSolve, NULL);
+            std::cout << "Time in miliseconds run search lambda:\t" << "search lambda" << "\t" << "search lambda" << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000  + tvalAfterSolve.tv_usec/1000) - tvalBeforeSolve.tv_usec/1000 << std::endl;
+        }
         if (res) return res;
         
-        return solve_for_lambda(best_lambda);
+        if (verboseTime) {
+            gettimeofday (&tvalBeforeSolve, NULL);
+        }
+        int solution = solve_for_lambda(best_lambda);
+        if (verboseTime) {
+            gettimeofday (&tvalAfterSolve, NULL);
+            std::cout << "Time in miliseconds run solveLP:\t" << "solve LP" << "\t" << "solve LP" << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000  + tvalAfterSolve.tv_usec/1000) - tvalBeforeSolve.tv_usec/1000 << std::endl;
+        }
+        return solution;
+
+        
     }
     
-  int MFSolver::search_lambda(const float epsilon, float &best_lambda, const float length_mult, const bool verbose)
+  int MFSolver::search_lambda(const float epsilon, float &best_lambda, const float length_mult, const bool verbose, const bool verboseTime)
     {
-        const double powlimit = 6.0;
+        const double powlimitMin = -6.0;
+        const double powlimitMax = 6.0;
         
         float best_deviance;
         float current_deviance, zero_deviance;
         int res;
         float current_lambda, zero_lambda;
         float factor;
-     
-        best_lambda = 0;
-        zero_lambda = 0;
+        struct timeval tvalBeforeSolve, tvalAfterSolve, tvalBeforeFor, tvalAfterFor;
+
+     if (verboseTime) {
+         gettimeofday (&tvalBeforeSolve, NULL);
+     }
+        best_lambda = 0.005;
+        zero_lambda = 0.005;
         solve_for_lambda(zero_lambda);
         zero_deviance = this->score(zero_lambda);
-        
-        for (double curpow = -powlimit; curpow <= powlimit; curpow+=.5) {
+        if (verboseTime) {
+            gettimeofday (&tvalAfterSolve, NULL);
+            std::cout << "Time in miliseconds run zero lambda:\t" << "zero_deviance=" << "\t" << zero_deviance << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000000  + tvalAfterSolve.tv_usec/1) - tvalBeforeSolve.tv_usec/1 << std::endl;
+            gettimeofday (&tvalBeforeFor, NULL);
+        }
+
+        for (double curpow = powlimitMax; curpow <= powlimitMin; curpow-=0.5) {
             current_lambda = pow(2., curpow);
+            if (verboseTime) {
+                gettimeofday (&tvalBeforeSolve, NULL);
+            }
             res = solve_for_lambda(current_lambda);
+            if (verboseTime) {
+                gettimeofday (&tvalAfterSolve, NULL);
+                std::cout << "Time in miliseconds run 24 search:\t" << "current_lambda=" << "\t" << current_lambda << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000000  + tvalAfterSolve.tv_usec/1) - tvalBeforeSolve.tv_usec/1 << std::endl;
+            }
+            
             if (res) return res;
             
             current_deviance = this->score(current_lambda);
@@ -70,15 +119,32 @@ namespace methylFlow {
             if (current_deviance < 0.00001 || (factor = zero_deviance / current_deviance >= 1.0 - epsilon) ) {
                 best_deviance = current_deviance;
                 best_lambda = current_lambda;
-
+                break;
             }
         }
-        
         if (verbose) {
             std::cout << "[methylFlow] best lambda found " << best_lambda << " deviance=" << best_deviance << std::endl;
         }
-	best_lambda = std::max(0.0, best_lambda-0.00001);
-        return solve_for_lambda(best_lambda);
+        
+        if (verboseTime) {
+           // std::cout << "[methylFlow] best lambda found " << best_lambda << " deviance=" << best_deviance << std::endl;
+            gettimeofday (&tvalAfterFor, NULL);
+            std::cout << "Time in miliseconds run 24 search for best lambda:\t" << "for" << "\t" << "for" << "\t" << ((tvalAfterFor.tv_sec - tvalBeforeFor.tv_sec)*1000000  + tvalAfterFor.tv_usec/1) - tvalBeforeFor.tv_usec/1 << std::endl;
+
+        }
+        
+        if (verboseTime) {
+            gettimeofday (&tvalBeforeSolve, NULL);
+        }
+
+        best_lambda = std::max(0.0, best_lambda-0.00001);
+        int solution = solve_for_lambda(best_lambda);
+        if (verboseTime) {
+            gettimeofday (&tvalAfterSolve, NULL);
+            std::cout << "Time in miliseconds run best lambda:\t" << "best_lambada=" << "\t" << best_lambda << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000000  + tvalAfterSolve.tv_usec/1) - tvalBeforeSolve.tv_usec/1 << std::endl;
+        }
+
+        return solution;
     }
     
   int MFSolver::make_lp(const float length_mult)

@@ -23,6 +23,9 @@
 #include <cassert>
 #include <cstdlib>
 #include <climits>
+#include <stdio.h>
+#include <sys/time.h>
+
 
 #include <vector>
 #include <lemon/lp.h>
@@ -221,7 +224,22 @@ int main(int argc, const char **argv)
             "-verbose",
             "--verbose"
             );
-
+    
+    // verbose for elapsed time option
+    const bool DEFAULT_VERBOSE_TIME = false;
+    buffer.str("");
+    opt.add(
+            "", // default
+            0, // no required uses default
+            0, // no args, it's a flag
+            0, // no delimiter
+            "VerboseTime option.", // help description
+            "-vt", // flag tokens
+            "-VT",
+            "-verboseTime",
+            "--verboseTime"
+            );
+    
     // use cpg-loss algorithm instead
     // of region-loss
     const bool DEFAULT_PCTSELECT = false;
@@ -350,12 +368,20 @@ int main(int argc, const char **argv)
         verbose = true;
     }
     
+    bool verboseTime = DEFAULT_VERBOSE_TIME;
+    if (opt.isSet("-vt")) {
+        verboseTime = true;
+    }
+    
     bool pctselect = DEFAULT_PCTSELECT;
     if (opt.isSet("-p")) {
       pctselect = true;
     }
 
     MFGraph g;
+    struct timeval tvalBefore, tvalAfter;
+
+    gettimeofday (&tvalBefore, NULL);
     status = g.run( *instream,
                    comp_stream,
                    pattern_stream,
@@ -369,7 +395,11 @@ int main(int argc, const char **argv)
                    scale_mult,
                    epsilon,
                    verbose,
+                   verboseTime,
                    pctselect );
+    gettimeofday (&tvalAfter, NULL);
+    printf("Time in miliseconds total: %ld miliseconds\n", ((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000  + tvalAfter.tv_usec/1000) - tvalBefore.tv_usec/1000);
+
 
     // streams are closed when object
     // is destroyed

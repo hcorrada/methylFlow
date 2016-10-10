@@ -79,11 +79,15 @@ namespace methylFlow {
                 const float scale_mult,
                 const float epsilon,
                 const bool verbose,
+                const bool verboseTime,
                 const bool pctselect );
         
         // tsv file with readid, pos, length, strand (ignored), methylString, subString
-        bool processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet);
-        
+        bool processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet, const bool verboseTime);
+
+        // print the graph size
+        int get_graph_size();
+
         // print the graph
         void print_graph();
         
@@ -125,6 +129,7 @@ namespace methylFlow {
                                 const float scale_mult,
                                 const float epsilon,
                                 const bool verbose,
+                                const bool verboseTime,
                                 const bool pctselect );
         
         // merge chains in read overlap graph
@@ -144,7 +149,7 @@ namespace methylFlow {
         void regularize();
         
         // solve wrapper
-        int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool pctselect);
+        int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool verboseTime, const bool pctselect);
         
         // run decomposition algorithm
         // componentID: used for printing
