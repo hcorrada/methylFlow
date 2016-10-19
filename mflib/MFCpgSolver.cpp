@@ -90,7 +90,8 @@ namespace methylFlow {
     
     int MFCpgSolver::add_constraints()
     {
-        const ListDigraph &mfGraph = mf->get_graph();
+        /*
+	const ListDigraph &mfGraph = mf->get_graph();
         
         //add sink constraints
         for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
@@ -123,26 +124,27 @@ namespace methylFlow {
                     MethylRead::CpgEntry entry = *it;
                     int loc = rPos + entry.offset - 1;
                     expr += beta_y[loc] - alpha_y[loc];
-                    if (entry.methyl) {
+           /         if (entry.methyl) {
                         expr += beta_m[loc] - alpha_m[loc];
                     }
                 }
                 expr += nu[u] - nu[v];
                 rows[arc] = lp->addRow(expr <= -CONSISTENCY_FACTOR);
             }
-        }
+        }*/
         return 0;
     }
     
     int MFCpgSolver::modify_lambda_constraints(const float lambda)
     {
-        const ListDigraph &mfGraph = mf->get_graph();
+        /*
+	const ListDigraph &mfGraph = mf->get_graph();
         
         for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
             ListDigraph::Node v = mfGraph.source(arc);
             Lp::Row row = rows[arc];
             lp->row(row, -lambda * beta_lambda[v] - (-lambda * alpha_lambda[v]) - nu[v] <= -CONSISTENCY_FACTOR);
-        }
+        }*/
         return 0;
     }
     
