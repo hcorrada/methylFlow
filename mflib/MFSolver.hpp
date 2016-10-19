@@ -15,7 +15,7 @@ namespace methylFlow {
     ~MFSolver();
     
     // does everything
-   virtual  int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool verboseTime );
+    int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool verboseTime );
 
     // extract flows from LP solution
     int extract_flows();
