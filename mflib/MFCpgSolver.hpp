@@ -12,6 +12,7 @@ namespace methylFlow {
   public:
     MFCpgSolver(MFGraph *mfobj, const float length_mult);
     ~MFCpgSolver();
+    int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool verboseTime );
 
   private:
     MFCpgEstimator estimator;
