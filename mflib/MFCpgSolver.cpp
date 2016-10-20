@@ -16,9 +16,14 @@ namespace methylFlow {
     {
     }
 
-	int solve(const float lambda, const float length_mult, const float epsilon, const bool verbose, const bool verboseTime ){
-return 0;
-}    
+
+	int MFCpgSolver::solve_for_lambda(const float lambda){
+		return 0;
+	}    
+
+	int MFCpgSolver::make_lp(const float length_mult){
+		return 0;
+	}
     float MFCpgSolver::score(const float lambda)
     {
         float obj = lp->primal();
