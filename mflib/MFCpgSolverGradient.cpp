@@ -16,6 +16,109 @@ namespace methylFlow {
     {
     }
     
+	
+	//LF Calculation
+	private float LofF(int estimate_f){
+		double sum = 0;
+		for(int i = 0; i <= l; i++){
+			sum += abs(takeLog(ml, ul) - log(numerator(estimate)/denominator(estimate)))
+		}
+		return sum;
+	}
+	
+	private void numerator(int estimate_f){
+		double sum = 0;
+		for(int i = 0; i <= v; i++){
+			if (p(v) == m){
+				for(int j = 0; j <= u; j++){
+					sum += estimate_f/lvu;
+				}
+			}
+		}
+	}
+	
+	private void denominator(int estimate_f){
+		double sum = 0;
+		for(int i = 0; i <= v; i++){
+			if (p(v) == u){
+				for(int j = 0; j <= u; j++){
+					sum += estimate_f/lvu;
+				}
+			}
+		}
+	}
+	
+	private float takeLog(double ml, double ul){
+		return log(ml/ul);
+	}
+	
+	//L Prime F Calculation
+	private float LPrimeOfF(int estimate_f){
+		double sum = 0;
+		for(int i = 0; i <= l; i++){
+			sum += signFunction(estimate_f)*(firstNumerator/firstDenominator - secondNumerator/secondDenominator)
+		}
+	}
+	
+	private double firstNumerator(int estimate_f){
+		if(p(v) == u){
+			return 1/lvu;
+		}
+	}
+	private double firstDenominator(int estimate_f){
+		double sum = 0;
+		for(int i =0; i <= v; i++){
+			if(pv==u){
+				int sum2 = 0;
+				for(int j =0; j <=u; j++){
+						sum2+= estimate_f * vu/lvu;
+				}
+			}
+		}
+		return log(sum);
+	}
+	
+		
+	private double secondNumerator(int estimate_f){
+		if(p(v) == m){
+			return 1/lvu;
+		}
+	}
+	
+	private double secondDenominator(int estimate_f){
+		double sum = 0;
+		for(int i =0; i <= v; i++){
+			if(pv==m){
+				int sum2 = 0;
+				for(int j =0; j <=u; j++){
+						sum2+= estimate_f/lvu;
+				}
+			}
+		}
+		return log(sum);
+	}
+	
+	
+	private int signFunction(int estimate_f){
+		if(estimate_f < 0){
+			return -1;
+		}else if (estimate_f > 0){
+			return 1;
+		}else 
+			return 0;
+	}
+	
+	virtual int solve_for_lambda(const float lambda){
+			
+			double f0 = 0;
+			double fn = 0;
+			for(int i = 0; i < 5; i ++{
+				fn = f0 - LPrimeOfF(f0);
+				f0 = fn;
+			}
+			return LofF(fn);
+	}
+	
     float MFCpgSolverGradient::score(const float lambda)
     {
         float obj = lp->primal();

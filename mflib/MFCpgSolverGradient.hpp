@@ -30,6 +30,7 @@ namespace methylFlow {
     int add_constraints();
     int modify_lambda_constraints(const float lambda);
     void print_primal();
+	virtual int solve_for_lambda(const float lambda);
   };
 } // namespace methylFlow
 #endif // MFCPGSOLVER_H
