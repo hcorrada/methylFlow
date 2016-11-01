@@ -18,34 +18,63 @@ namespace methylFlow {
     
 	
 	//LF Calculation
+	//Loop through the CPGs (number of Ls?)
 	private float LofF(int estimate_f){
 		double sum = 0;
-		for(int i = 0; i <= l; i++){
+		/*for(int i = 0; i <= l; i++){
 			sum += abs(takeLog(ml, ul) - log(numerator(estimate)/denominator(estimate)))
 		}
+		return sum;*/
+		
+		
+			for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
+                     it != m->cpgs.end(); ++it) {
+                                int pos = it->first;
+					MFCpgEstimator::CpgEntry<float> entry = it->second;
+            
+					float u = entry.Cov;
+					float m = entry.Meth;
+					float logmu = takeLog(m,u);
+					
+					sum += abs(takeLog(m, u) - log(numerator(estimate,m,u)/denominator(estimate,u)))
+                }
+	
+	}
+	
+
+	//What is v? Is it list digraph (like i have it here?)
+	//what is P(v) -- how do we calculate it?
+	// what is L(Vu), where do we calculate it?
+	private double numerator(int estimate_f, int m, int u) {
+		double sum = 0;
+		
+		 const ListDigraph &mfGraph = mf->get_graph();
+        for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+            ListDigraph::Node v = mfGraph.source(arc);
+            if (p(v) == m){
+				for(int j = 0; j <= u; j++){
+					sum += estimate_f/lvu;
+				}
+			}
+        }
+
 		return sum;
 	}
 	
-	private void numerator(int estimate_f){
+	private double denominator(int estimate_f, int u){
 		double sum = 0;
-		for(int i = 0; i <= v; i++){
-			if (p(v) == m){
+		
+		 const ListDigraph &mfGraph = mf->get_graph();
+        for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+            ListDigraph::Node v = mfGraph.source(arc);
+            if (p(v) == u){
 				for(int j = 0; j <= u; j++){
 					sum += estimate_f/lvu;
 				}
 			}
-		}
-	}
-	
-	private void denominator(int estimate_f){
-		double sum = 0;
-		for(int i = 0; i <= v; i++){
-			if (p(v) == u){
-				for(int j = 0; j <= u; j++){
-					sum += estimate_f/lvu;
-				}
-			}
-		}
+        }
+
+		return sum;
 	}
 	
 	private float takeLog(double ml, double ul){
@@ -58,43 +87,60 @@ namespace methylFlow {
 		for(int i = 0; i <= l; i++){
 			sum += signFunction(estimate_f)*(firstNumerator/firstDenominator - secondNumerator/secondDenominator)
 		}
+		
+		for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
+                     it != m->cpgs.end(); ++it) {
+                                int pos = it->first;
+					MFCpgEstimator::CpgEntry<float> entry = it->second;
+            
+					float u = entry.Cov;
+					float m = entry.Meth;
+					
+					sum += signFunction(estimate_f) * (firstNumerator(u)/firstDenominator(estimate_f, u) - secondNumerator(m)/secondDenominator(estimate_f,m,u));
+					
+                }
+		
 	}
 	
-	private double firstNumerator(int estimate_f){
+	private double firstNumerator(int u){
 		if(p(v) == u){
 			return 1/lvu;
 		}
 	}
-	private double firstDenominator(int estimate_f){
+	
+	//LVu, vu, pv
+	private double firstDenominator(int estimate_f, int u){
 		double sum = 0;
-		for(int i =0; i <= v; i++){
-			if(pv==u){
-				int sum2 = 0;
-				for(int j =0; j <=u; j++){
-						sum2+= estimate_f * vu/lvu;
+		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+            ListDigraph::Node v = mfGraph.source(arc);
+            if (p(v) == u){
+				for(int j = 0; j <= u; j++){
+					sum += estimate_f * vu /lvu;
 				}
 			}
-		}
+        }
+		
 		return log(sum);
 	}
 	
 		
-	private double secondNumerator(int estimate_f){
+	private double secondNumerator(int m){
 		if(p(v) == m){
 			return 1/lvu;
 		}
 	}
 	
-	private double secondDenominator(int estimate_f){
+	private double secondDenominator(int estimate_f, int m, int u){
 		double sum = 0;
-		for(int i =0; i <= v; i++){
-			if(pv==m){
-				int sum2 = 0;
-				for(int j =0; j <=u; j++){
-						sum2+= estimate_f/lvu;
+		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+            ListDigraph::Node v = mfGraph.source(arc);
+            if (p(v) == m){
+				for(int j = 0; j <= u; j++){
+					sum += estimate_f * vu /lvu;
 				}
 			}
-		}
+        }
+		
 		return log(sum);
 	}
 	
