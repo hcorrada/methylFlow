@@ -17,76 +17,9 @@ namespace methylFlow {
     }
     
 	
-	//LF Calculation
-	//Loop through the CPGs (number of Ls?)
-	private float LofF(int estimate_f){
-		double sum = 0;
-		/*for(int i = 0; i <= l; i++){
-			sum += abs(takeLog(ml, ul) - log(numerator(estimate)/denominator(estimate)))
-		}
-		return sum;*/
-		
-		
-			for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
-                     it != m->cpgs.end(); ++it) {
-                                int pos = it->first;
-					MFCpgEstimator::CpgEntry<float> entry = it->second;
-            
-					float u = entry.Cov;
-					float m = entry.Meth;
-					float logmu = takeLog(m,u);
-					
-					sum += abs(takeLog(m, u) - log(numerator(estimate,m,u)/denominator(estimate,u)))
-                }
-	
-	}
-	
-
-	//What is v? Is it list digraph (like i have it here?)
-	//what is P(v) -- how do we calculate it?
-	// what is L(Vu), where do we calculate it?
-	private double numerator(int estimate_f, int m, int u) {
-		double sum = 0;
-		
-		 const ListDigraph &mfGraph = mf->get_graph();
-        for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
-            ListDigraph::Node v = mfGraph.source(arc);
-            if (p(v) == m){
-				for(int j = 0; j <= u; j++){
-					sum += estimate_f/lvu;
-				}
-			}
-        }
-
-		return sum;
-	}
-	
-	private double denominator(int estimate_f, int u){
-		double sum = 0;
-		
-		 const ListDigraph &mfGraph = mf->get_graph();
-        for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
-            ListDigraph::Node v = mfGraph.source(arc);
-            if (p(v) == u){
-				for(int j = 0; j <= u; j++){
-					sum += estimate_f/lvu;
-				}
-			}
-        }
-
-		return sum;
-	}
-	
-	private float takeLog(double ml, double ul){
-		return log(ml/ul);
-	}
-	
 	//L Prime F Calculation
 	private float LPrimeOfF(int estimate_f){
 		double sum = 0;
-		for(int i = 0; i <= l; i++){
-			sum += signFunction(estimate_f)*(firstNumerator/firstDenominator - secondNumerator/secondDenominator)
-		}
 		
 		for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
                      it != m->cpgs.end(); ++it) {
@@ -94,54 +27,51 @@ namespace methylFlow {
 					MFCpgEstimator::CpgEntry<float> entry = it->second;
             
 					float u = entry.Cov;
-					float m = entry.Meth;
+					float m = entry.Meth
 					
-					sum += signFunction(estimate_f) * (firstNumerator(u)/firstDenominator(estimate_f, u) - secondNumerator(m)/secondDenominator(estimate_f,m,u));
+					sum += signFunction(estimate_f) * (-(firstNumerator(m)/MLofF(estimate_f) + secondNumerator(m)/ULofF(f)));
 					
                 }
 		
 	}
 	
-	private double firstNumerator(int u){
-		if(p(v) == u){
-			return 1/lvu;
-		}
-	}
-	
-	//LVu, vu, pv
-	private double firstDenominator(int estimate_f, int u){
-		double sum = 0;
-		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
-            ListDigraph::Node v = mfGraph.source(arc);
-            if (p(v) == u){
-				for(int j = 0; j <= u; j++){
-					sum += estimate_f * vu /lvu;
-				}
-			}
-        }
-		
-		return log(sum);
-	}
-	
-		
-	private double secondNumerator(int m){
+	private double firstNumerator(int m){
 		if(p(v) == m){
 			return 1/lvu;
 		}
 	}
 	
-	private double secondDenominator(int estimate_f, int m, int u){
+	private int MLofF(double estimate_f){
 		double sum = 0;
 		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
             ListDigraph::Node v = mfGraph.source(arc);
             if (p(v) == m){
 				for(int j = 0; j <= u; j++){
-					sum += estimate_f * vu /lvu;
+					sum += estimate_f /lvu;
 				}
 			}
         }
+		return sum;
+	}
+	
+	private int ULofF(double estimate_f){
+		double sum = 0;
+		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+            ListDigraph::Node v = mfGraph.source(arc);
+            if (p(v) == u){
+				for(int j = 0; j <= u; j++){
+					sum += estimate_f /lvu;
+				}
+			}
+        }
+	}
+	
+	
 		
-		return log(sum);
+	private double secondNumerator(int u){
+		if(p(v) == u){
+			return 1/lvu;
+		}
 	}
 	
 	
@@ -158,11 +88,12 @@ namespace methylFlow {
 			
 			double f0 = 0;
 			double fn = 0;
+			double gamma = 0.01;
 			for(int i = 0; i < 5; i ++{
-				fn = f0 - LPrimeOfF(f0);
 				f0 = fn;
+				fn += -gamma*LPrimeOfF(f0);
 			}
-			return LofF(fn);
+			return fn;
 	}
 	
     float MFCpgSolverGradient::score(const float lambda)
