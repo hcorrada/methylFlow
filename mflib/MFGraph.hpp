@@ -19,7 +19,7 @@ namespace methylFlow {
         friend class MFSolver;
         friend class MFRegionSolver;
         friend class MFCpgSolver;
-        
+        friend class MFCpgSolverSuccessive;
     public:
         MFGraph();
         ~MFGraph();

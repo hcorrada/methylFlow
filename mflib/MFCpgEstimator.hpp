@@ -7,11 +7,12 @@ using namespace lemon;
 
 namespace methylFlow {
     class MFCpgSolver;
-    
+    class MFCpgSolverSuccessive;
+
     class MFCpgEstimator {
         friend class MFCpgSolver;
         friend class MFGraph;
-        
+	friend class MFCpgSolverSuccessive; 
     public:
         MFCpgEstimator(MFGraph *graph, std::ostream * ostream, const float scale_mult);
         ~MFCpgEstimator();
@@ -33,7 +34,8 @@ namespace methylFlow {
         class CpgEntry {
             friend class MFCpgEstimator;
             friend class MFCpgSolver;
-        public:
+            friend class MFCpgSolverSuccessive;
+	public:
             CpgEntry(T cov, T meth) : Cov(cov), Meth(meth), Beta(0) {};
             CpgEntry() : Cov(0), Meth(0), Beta(0) {};
         protected:

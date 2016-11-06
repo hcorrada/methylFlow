@@ -14,6 +14,8 @@ namespace methylFlow {
     private:
       friend class MFCpgEstimator;
       friend class MFCpgSolver;
+      friend class MFCpgSolverSuccessive;
+
       typedef struct {int offset; bool methyl; } CpgEntry;
       typedef struct {int start; int length; char indel; } CigarEntry;
 

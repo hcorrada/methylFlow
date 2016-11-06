@@ -1,10 +1,10 @@
-#include "MFCpgSolverGradient.hpp"
+#include "MFCpgSolverSuccessive.hpp"
 #include "MFCpgEstimator.hpp"
 #include "MFSolver.hpp"
 
 namespace methylFlow {
     
-    MFCpgSolverGradient::MFCpgSolverGradient(MFGraph* mfobj, const float length_mult) : MFSolver(mfobj),
+    MFCpgSolverSuccessive::MFCpgSolverSuccessive(MFGraph* mfobj, const float length_mult) : MFSolver(mfobj),
     estimator(mfobj, &std::cout, length_mult),
     alpha_lambda(mfobj->get_graph()),
     beta_lambda(mfobj->get_graph())
@@ -12,104 +12,11 @@ namespace methylFlow {
         estimator.computeNormalized();
     }
     
-    MFCpgSolverGradient::~MFCpgSolverGradient()
+    MFCpgSolverSuccessive::~MFCpgSolverSuccessive()
     {
     }
     
-	
-	//L Prime F Calculation
-/*
-	 float LPrimeOfF(int estimate_f){
-	
-	double sum = 0;
-		
-		for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
-                     it != m->cpgs.end(); ++it) {
-                                int pos = it->first;
-					MFCpgEstimator::CpgEntry<float> entry = it->second;
-            
-					float u = entry.Cov;
-					float m = entry.Meth
-					
-					sum += signFunction(estimate_f) * (-(firstNumerator(m)/MLofF(estimate_f) + secondNumerator(m)/ULofF(f)));
-					
-                }/
-
-return 0;
-		
-	}
-	
-	 double firstNumerator(int m){
-		/*
-		if(p(v) == m){
-			return 1/lvu;
-		}
-return 0;
-	}
-	
-	 int MLofF(double estimate_f){
-/*	
-	double sum = 0;
-		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
-            ListDigraph::Node v = mfGraph.source(arc);
-            if (p(v) == m){
-				for(int j = 0; j <= u; j++){
-					sum += estimate_f /lvu;
-				}
-			}
-        }
-		return sum;
-
-return 0;
-	}
-	
-	 int ULofF(double estimate_f){
-/*	
-	double sum = 0;
-		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
-            ListDigraph::Node v = mfGraph.source(arc);
-            if (p(v) == u){
-				for(int j = 0; j <= u; j++){
-					sum += estimate_f /lvu;
-				}
-			}
-        }
-return 0;
-	}
-	
-	
-		
-	 double secondNumerator(int u){
-	/*
-		if(p(v) == u){
-			return 1/lvu;
-		}
- return 0;
-	}
-	
-	
-	 int signFunction(int estimate_f){
-		if(estimate_f < 0){
-			return -1;
-		}else if (estimate_f > 0){
-			return 1;
-		}else 
-			return 0;
-	}
-*/	
-	 int solve_for_lambda(const float lambda){
-			
-			double f0 = 0;
-			double fn = 0;
-			double gamma = 0.01;
-			for(int i = 0; i < 5; i ++){
-				f0 = fn;
-				fn += -gamma*LPrimeOfF(f0);
-			}
-			return fn;
-	}
-	
-    float MFCpgSolverGradient::score(const float lambda)
+    float MFCpgSolverSuccessive::score(const float lambda)
     {
         float obj = lp->primal();
         for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
@@ -118,7 +25,7 @@ return 0;
         return obj;
     }
     
-    int MFCpgSolverGradient::add_cols()
+    int MFCpgSolverSuccessive::add_cols()
     {
         for (MFCpgEstimator::CpgMap<float>::iterator it = estimator.normalized_map.begin();
              it != estimator.normalized_map.end(); ++it) {
@@ -156,7 +63,7 @@ return 0;
         return 0;
     }
     
-    int MFCpgSolverGradient::make_deviance_objective(Lp::Expr &obj)
+    int MFCpgSolverSuccessive::make_deviance_objective(Lp::Expr &obj)
     {
         for (MFCpgEstimator::CpgMap<float>::iterator it = estimator.normalized_map.begin();
              it != estimator.normalized_map.end(); ++it) {
@@ -169,7 +76,7 @@ return 0;
         return 0;
     }
     
-    int MFCpgSolverGradient::make_lambda_objective(const float lambda, Lp::Expr &obj)
+    int MFCpgSolverSuccessive::make_lambda_objective(const float lambda, Lp::Expr &obj)
     {
         const ListDigraph &mfGraph = mf->get_graph();
         
@@ -181,7 +88,7 @@ return 0;
         return 0;
     }
     
-    int MFCpgSolverGradient::add_constraints()
+    int MFCpgSolverSuccessive::add_constraints()
     {
         const ListDigraph &mfGraph = mf->get_graph();
         
@@ -227,7 +134,7 @@ return 0;
         return 0;
     }
     
-    int MFCpgSolverGradient::modify_lambda_constraints(const float lambda)
+    int MFCpgSolverSuccessive::modify_lambda_constraints(const float lambda)
     {
         const ListDigraph &mfGraph = mf->get_graph();
         
@@ -239,7 +146,7 @@ return 0;
         return 0;
     }
     
-    void MFCpgSolverGradient::print_primal()
+    void MFCpgSolverSuccessive::print_primal()
     {
         for (MFCpgEstimator::CpgMap<float>::iterator it = estimator.normalized_map.begin();
              it != estimator.normalized_map.end(); ++it) {

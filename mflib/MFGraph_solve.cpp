@@ -10,6 +10,7 @@
 #include "MFGraph.hpp"
 #include "MFRegionSolver.hpp"
 #include "MFCpgSolver.hpp"
+#include "MFCpgSolver.hpp"
 
 namespace methylFlow {
     void MFGraph::add_terminals()

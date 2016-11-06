@@ -14,8 +14,8 @@ ADD_LIBRARY(mflib
   MFRegionSolver.hpp
   MFCpgSolver.cpp
   MFCpgSolver.hpp
-  MFCpgSolverGradient.hpp
-  MFCpgSolverGradient.cpp
+  MFCpgSolverSuccessive.hpp
+  MFCpgSolverSuccessive.cpp
   MethylRead.cpp
   MethylRead.hpp
   MFRegionPrinter.cpp

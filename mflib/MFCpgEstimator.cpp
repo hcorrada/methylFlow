@@ -1,5 +1,6 @@
 #include "MFCpgEstimator.hpp"
 #include "MFCpgSolver.hpp"
+#include "MFCpgSolverSuccessive.hpp"
 
 #include <cmath>
 

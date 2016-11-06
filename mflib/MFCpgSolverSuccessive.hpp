@@ -1,17 +1,17 @@
 #include "MFSolver.hpp"
 #include "MFCpgEstimator.hpp"
 
-#ifndef MFCPGSOLVERGRADIENT_H
-#define MFCPGSOLVERGRADIENT_H
+#ifndef MFCPGSOLVERSUCCESSIVE_H
+#define MFCPGSOLVERSUCCESSIVE_H
 
 namespace methylFlow {
 
-  class MFCpgSolverGradient : public MFSolver {
+  class MFCpgSolverSuccessive : public MFSolver {
     friend class MFCpgEstimator;
     
   public:
-    MFCpgSolverGradient(MFGraph *mfobj, const float length_mult);
-    ~MFCpgSolverGradient();
+    MFCpgSolverSuccessive(MFGraph *mfobj, const float length_mult);
+    ~MFCpgSolverSuccessive();
 
   private:
     MFCpgEstimator estimator;
