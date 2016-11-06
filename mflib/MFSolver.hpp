@@ -34,7 +34,7 @@ namespace methylFlow {
 
     // make the LP object
     // virtual LP creator
-    virtual int make_lp(const float length_mult)=0;
+     int make_lp(const float length_mult);
 
     virtual int add_cols() =0;
     virtual int make_deviance_objective(Lp::Expr &obj) =0;
@@ -46,7 +46,7 @@ namespace methylFlow {
 
     // solve the optimization problem
     // lambda: penalty parameter
-    virtual int solve_for_lambda(const float lambda)=0;
+    int solve_for_lambda(const float lambda);
 
     // find the best lambda
     int search_lambda(const float epislon, float &best_lambda, const float scale_mult, const bool verbose, const bool verboseTime);
