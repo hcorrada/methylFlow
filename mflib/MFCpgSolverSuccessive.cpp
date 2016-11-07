@@ -14,7 +14,79 @@ namespace methylFlow {
     
     MFCpgSolverSuccessive::~MFCpgSolverSuccessive()
     {
-    }
+
+	//L Prime F Calculation
+	 float LPrimeOfF(int estimate_f){
+		float sum = 0;
+		for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
+                     it != m->cpgs.end(); ++it) {
+                                int pos = it->first;
+					MFCpgEstimator::CpgEntry<float> entry = it->second;
+					float u = entry.Cov;
+					float m = entry.Meth
+					sum += signFunction(estimate_f) * (-(firstNumerator(m)/MLofF(estimate_f) + secondNumerator(m)/ULofF(f)));
+                }
+		return sum;
+	}
+	
+	 double firstNumerator(int m){
+		/*
+		if(p(v) == m){
+			return 1/lvu;
+		}*/
+		return 0;
+	}
+	
+	 int MLofF(double estimate_f){
+		/*	
+		double sum = 0;
+		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+            ListDigraph::Node v = mfGraph.source(arc);
+            if (p(v) == m){
+				for(int j = 0; j <= u; j++){
+					sum += estimate_f /lvu;
+				}
+			}
+        }
+		return sum;
+		*/
+		return 0;
+	}
+	
+	 int ULofF(double estimate_f){
+		/*	
+		double sum = 0;
+		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
+            ListDigraph::Node v = mfGraph.source(arc);
+            if (p(v) == u){
+				for(int j = 0; j <= u; j++){
+					sum += estimate_f /lvu;
+				}
+			}
+        }
+		*/
+		return 0;
+	}
+	
+	
+		
+	 double secondNumerator(int u){
+		/*
+		if(p(v) == u){
+			return 1/lvu;
+		}*/
+		return 0;
+	}
+	
+	
+	 int signFunction(int estimate_f){
+		if(estimate_f < 0){
+			return -1;
+		}else if (estimate_f > 0){
+			return 1;
+		}else 
+			return 0;
+	}
     
     float MFCpgSolverSuccessive::score(const float lambda)
     {
