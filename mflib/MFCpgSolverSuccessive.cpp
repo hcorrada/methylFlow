@@ -45,7 +45,7 @@ namespace methylFlow {
             ListDigraph::Node v = mfGraph.source(arc);
             if (ell == m){
 				for(int j = 0; j <= u; j++){
-					sum += estimate_f /lvu;
+					sum += estimate_f /ell;
 				}
 			}
         }
