@@ -18,9 +18,10 @@ namespace methylFlow {
 	//L Prime F Calculation
 	 float MFCpgSolverSuccessive::LPrimeOfF(int estimate_f){
 		float sum = 0;
-		for (std::vector<MethylRead::CpgEntry>::iterator it = m->cpgs.begin();
-                     it != m->cpgs.end(); ++it) {
-                                int pos = it->first;
+		
+		for (MFCpgEstimator::CpgMap<float>::iterator it = estimator.normalized_map.begin();
+             it != estimator.normalized_map.end(); ++it){
+                    int pos = it->first;
 					MFCpgEstimator::CpgEntry<float> entry = it->second;
 					float u = entry.Cov;
 					float m = entry.Meth;
