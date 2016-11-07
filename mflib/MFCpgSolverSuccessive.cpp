@@ -25,57 +25,56 @@ namespace methylFlow {
 					MFCpgEstimator::CpgEntry<float> entry = it->second;
 					float u = entry.Cov;
 					float m = entry.Meth;
-					sum += signFunction(estimate_f) * (-(firstNumerator(m)/MLofF(estimate_f) + secondNumerator(m)/ULofF(estimate_f)));
+					sum += signFunction(estimate_f) * (-(firstNumerator(pos, m)/MLofF(pos,estimate_f) + secondNumerator(pos,m)/ULofF(pos,estimate_f)));
                 }
 		return sum;
 	}
 	
-	 double MFCpgSolverSuccessive::firstNumerator(int m){
-		/*
-		if(p(v) == m){
-			return 1/lvu;
-		}*/
+	 double MFCpgSolverSuccessive::firstNumerator(int ell, int m){
+		
+		if(ell == m){
+			return 1/ell;
+		}
 		return 0;
 	}
 	
-	 int MFCpgSolverSuccessive::MLofF(double estimate_f){
-		/*	
+	 int MFCpgSolverSuccessive::MLofF(int ell, double estimate_f){
+		
 		double sum = 0;
 		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
             ListDigraph::Node v = mfGraph.source(arc);
-            if (p(v) == m){
+            if (ell == m){
 				for(int j = 0; j <= u; j++){
 					sum += estimate_f /lvu;
 				}
 			}
         }
 		return sum;
-		*/
-		return 0;
+
 	}
 	
-	 int MFCpgSolverSuccessive::ULofF(double estimate_f){
-		/*	
+	 int MFCpgSolverSuccessive::ULofF(int ell, double estimate_f){
+		
 		double sum = 0;
 		for (ListDigraph::InArcIt arc(mfGraph, mf->get_sink()); arc != INVALID; ++arc) {
             ListDigraph::Node v = mfGraph.source(arc);
-            if (p(v) == u){
+            if (ell == u){
 				for(int j = 0; j <= u; j++){
-					sum += estimate_f /lvu;
+					sum += estimate_f /ell;
 				}
 			}
         }
-		*/
-		return 0;
+		
+		return sum;
 	}
 	
 	
 		
-	 double MFCpgSolverSuccessive::secondNumerator(int u){
-		/*
-		if(p(v) == u){
-			return 1/lvu;
-		}*/
+	 double MFCpgSolverSuccessive::secondNumerator(int ell, int u){
+		
+		if(ell == u){
+			return 1/ell;
+		}
 		return 0;
 	}
 	
