@@ -23,8 +23,8 @@ namespace methylFlow {
     ListDigraph::NodeMap<Lp::Col> beta_lambda;
 	float LPrimeOfF(int estimate_f);
 	double firstNumerator(int ell, int m);
-	int MLofF(int ell, double estimate_f);
-	int ULofF(int ell, double estimate_f);
+	int MLofF(int ell, double estimate_f, int u, int m);
+	int ULofF(int ell, double estimate_f, int u, int m);
 	double secondNumerator(int ell, int u);
 	int signFunction(int estimate_f);
 
