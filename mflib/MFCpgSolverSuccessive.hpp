@@ -26,7 +26,7 @@ namespace methylFlow {
 	int MLofF(int ell, double estimate_f);
 	int ULofF(int ell, double estimate_f);
 	double secondNumerator(int ell, int u);
-	int signFunction(int ell, int estimate_f);
+	int signFunction(int estimate_f);
 
   protected:
     float score(const float lambda);
