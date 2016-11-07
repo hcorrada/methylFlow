@@ -42,7 +42,7 @@ namespace methylFlow {
 		
 		double sum = 0;
 		for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
-            ListDigraph::Node v = mfGraph.source(arc);
+            ListDigraph::Node v = mf->mfGraph.source(arc);
             if (ell == m){
 				for(int j = 0; j <= u; j++){
 					sum += estimate_f /ell;
@@ -57,7 +57,7 @@ namespace methylFlow {
 		
 		double sum = 0;
 		for (ListDigraph::InArcIt arc(mf->mfGraph, mf->sink); arc != INVALID; ++arc) {
-            ListDigraph::Node v = mfGraph.source(arc);
+            ListDigraph::Node v = mf->mfGraph.source(arc);
             if (ell == u){
 				for(int j = 0; j <= u; j++){
 					sum += estimate_f /ell;
