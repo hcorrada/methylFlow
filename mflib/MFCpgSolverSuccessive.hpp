@@ -21,6 +21,12 @@ namespace methylFlow {
     std::map<int, Lp::Col> beta_m;
     ListDigraph::NodeMap<Lp::Col> alpha_lambda;
     ListDigraph::NodeMap<Lp::Col> beta_lambda;
+	float LPrimeOfF(int estimate_f);
+	double firstNumerator(int m);
+	int MLofF(double estimate_f);
+	int ULofF(double estimate_f);
+	double secondNumerator(int u);
+	int signFunction(int estimate_f);
 
   protected:
     float score(const float lambda);
