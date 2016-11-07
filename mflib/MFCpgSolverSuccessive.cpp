@@ -14,7 +14,7 @@ namespace methylFlow {
     
     MFCpgSolverSuccessive::~MFCpgSolverSuccessive()
     {
-
+	}
 	//L Prime F Calculation
 	 float LPrimeOfF(int estimate_f){
 		float sum = 0;
@@ -23,8 +23,8 @@ namespace methylFlow {
                                 int pos = it->first;
 					MFCpgEstimator::CpgEntry<float> entry = it->second;
 					float u = entry.Cov;
-					float m = entry.Meth
-					sum += signFunction(estimate_f) * (-(firstNumerator(m)/MLofF(estimate_f) + secondNumerator(m)/ULofF(f)));
+					float m = entry.Meth;
+					sum += signFunction(estimate_f) * (-(firstNumerator(m)/MLofF(estimate_f) + secondNumerator(m)/ULofF(estimate_f)));
                 }
 		return sum;
 	}
