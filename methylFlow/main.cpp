@@ -255,6 +255,19 @@ int main(int argc, const char **argv)
             "--cpgloss"
             );
 
+    const bool DEFAULT_GRAPH_ONLY = false;
+    opt.add(
+            "", // default (don't do it)
+            0, // not required uses default
+            0, // no args, it's a flag
+            0, // no delimiter
+            "Print graph info out only, do not solve optimization problem.", // help description
+            "-gr", // flag tokens
+            "-GR",
+            "-graph-only",
+            "--graph-only"
+            );
+
     opt.parse(argc, argv);
 
     if (opt.isSet("-h")) {
@@ -303,35 +316,6 @@ int main(int argc, const char **argv)
         opt.get("-o")->getString(outdirname);
     }
 
-    buffer.str("");
-    std::ofstream comp_stream;
-    buffer << outdirname << "/components.tsv";
-    comp_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
-    if (!comp_stream) status = -1;
-
-    buffer.str("");
-    std::ofstream pattern_stream;
-    buffer << outdirname << "/patterns.tsv";
-    pattern_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
-    if (!pattern_stream) status = -1;
-
-    buffer.str("");
-    std::ofstream region_stream;
-    buffer << outdirname << "/regions.tsv";
-    region_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
-    if (!region_stream) status = -1;
-
-    buffer.str("");
-    std::ofstream cpg_stream;
-    buffer << outdirname << "/cpgs.tsv";
-    cpg_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
-    if (!cpg_stream) status = -1;
-
-    if (status == -1) {
-        std::cerr << "[methylFlow] Error opening file." << std::endl;
-        return 1;
-    }
-
     bool flag_SAM = DEFAULT_FLAG_SAM;
     if (opt.isSet("-sam")) {
         flag_SAM = true;
@@ -378,6 +362,51 @@ int main(int argc, const char **argv)
       pctselect = true;
     }
 
+    bool graph_only = DEFAULT_GRAPH_ONLY;
+    if (opt.isSet("-gr")) {
+      graph_only = true;
+    }
+
+    buffer.str("");
+    std::ofstream comp_stream;
+    buffer << outdirname << "/components.tsv";
+    comp_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
+    if (!comp_stream) status = -1;
+
+    buffer.str("");
+    std::ofstream pattern_stream;
+    buffer << outdirname << "/patterns.tsv";
+    if (!graph_only) pattern_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
+    if (!pattern_stream) status = -1;
+
+    buffer.str("");
+    std::ofstream region_stream;
+    buffer << outdirname << "/regions.tsv";
+    region_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
+    if (!region_stream) status = -1;
+
+    buffer.str("");
+    std::ofstream cpg_stream;
+    buffer << outdirname << "/cpgs.tsv";
+    cpg_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream::trunc );
+    if (!cpg_stream) status = -1;
+
+    buffer.str("");
+    std::ofstream edge_stream;
+    buffer << outdirname << "/edges.tsv";
+    if (graph_only) edge_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream:: trunc );
+    if (!edge_stream) status = -1;
+
+    buffer.str("");
+    std::ofstream path_stream;
+    buffer << outdirname << "/paths.tsv";
+    if (graph_only) path_stream.open( buffer.str().c_str(), std::ofstream::out | std::ofstream:: trunc );
+    if (!path_stream) status = -1;
+    if (status == -1) {
+        std::cerr << "[methylFlow] Error opening file." << std::endl;
+        return 1;
+    }
+
     MFGraph g;
     struct timeval tvalBefore, tvalAfter;
 
@@ -387,6 +416,8 @@ int main(int argc, const char **argv)
                    pattern_stream,
                    region_stream,
                    cpg_stream,
+                   edge_stream,
+                    path_stream,
                    chr,
                    start,
                    end,
@@ -396,7 +427,8 @@ int main(int argc, const char **argv)
                    epsilon,
                    verbose,
                    verboseTime,
-                   pctselect );
+                   pctselect,
+                   graph_only);
     gettimeofday (&tvalAfter, NULL);
     printf("Time in miliseconds total: %ld miliseconds\n", ((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000  + tvalAfter.tv_usec/1000) - tvalBefore.tv_usec/1000);
 

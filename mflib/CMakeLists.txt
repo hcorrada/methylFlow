@@ -20,6 +20,8 @@ ADD_LIBRARY(mflib
   MFRegionPrinter.hpp
   MFCpgEstimator.cpp
   MFCpgEstimator.hpp
+  MFRegionNamer.cpp
+  MFRegionNamer.hpp
 )
 
 INSTALL(

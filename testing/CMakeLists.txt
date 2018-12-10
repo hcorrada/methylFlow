@@ -16,4 +16,5 @@ add_test(sim3 ${CMAKE_BINARY_DIR}/methylFlow/methylFlow -i sim1.tsv -o
 . --pctselect)
 add_test(sim4 ${CMAKE_BINARY_DIR}/methylFlow/methylFlow -i sim2.tsv -o
 . --pctselect)
+add_test(sim5 ${CMAKE_BINARY_DIR}/methylFlow/methylFlow -i sim1.tsv -o . --graph-only)
 

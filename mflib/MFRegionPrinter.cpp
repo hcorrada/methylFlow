@@ -12,11 +12,12 @@ namespace methylFlow {
     MFRegionPrinter::MFRegionPrinter( MFGraph * g,
                                      std::ostream * ostream,
                                      const int cid,
-                                     const float scale, std::string chr ) : mfGraph(g),
+                                      const float scale, std::string chr , const bool gr) : mfGraph(g),
     outstream(ostream),
     componentID(cid),
     scale_mult(scale),
-    chromosome(chr)
+                                                                                                    chromosome(chr),
+                                                                                                    graph_only(gr)
     {
     }
     
@@ -40,10 +41,14 @@ namespace methylFlow {
         if (!read) return;
         
         getstream() << chromosome << "\t"<< read->start() << "\t" << read->end();
-        getstream() << "\t" << componentID << "\t" << idmap[node];
+        getstream() << "\t" << componentID << "\t" << mfGraph->node_name(node);
         getstream() << "\t" << mfGraph->coverage(node);
         getstream() << "\t" << (mfGraph->isNormalized() ? mfGraph->normalized_coverage(node) : 0.);
-        getstream() << "\t" << mfGraph->expected_coverage(node, scale_mult);
+
+        if (!graph_only) {
+          getstream() << "\t" << mfGraph->expected_coverage(node, scale_mult);
+        }
+
         getstream() << "\t" << read->getMethString() << std::endl;
     }
 } // namespace methylFlow

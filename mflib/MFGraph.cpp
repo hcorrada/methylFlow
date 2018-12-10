@@ -2,6 +2,8 @@
 #include <string>
 #include <stack>
 #include <climits>
+#include <stack>
+#include <utility>
 
 #include <time.h>
 #include <stdio.h>
@@ -14,6 +16,7 @@
 
 #include "MFGraph.hpp"
 #include "MFRegionPrinter.hpp"
+#include "MFRegionNamer.hpp"
 #include "MFCpgEstimator.hpp"
 
 namespace methylFlow {
@@ -36,7 +39,8 @@ namespace methylFlow {
     return atoi(QNAME.substr( found +1).c_str());
   }
 
-  MFGraph::~MFGraph() {
+  MFGraph::~MFGraph()
+  {
   }
 
   void MFGraph::clear_graph()
@@ -120,11 +124,65 @@ namespace methylFlow {
   void MFGraph::print_regions(std::ostream & region_stream,
                               const float scale_mult,
                               const int componentId,
-                              std::string chr )
+                              std::string chr,
+                              const bool graph_only ) 
   {
-    MFRegionPrinter regionPrinter(this, &region_stream, componentId, scale_mult, chr);
+    MFRegionPrinter regionPrinter(this, &region_stream, componentId, scale_mult, chr, graph_only);
     BfsVisit<ListDigraph, MFRegionPrinter, BfsVisitDefaultTraits<ListDigraph> > bfs(mfGraph, regionPrinter);
     bfs.run(source);
+  }
+
+  void MFGraph::print_paths(std::ostream & path_stream,
+                            const int componentId,
+                            std::string chr)
+  {
+    int pathNum = 0;
+    //std::cout << "Reached print paths" << std::endl;
+
+    std::stack< std::pair<ListDigraph::Node, Path<ListDigraph> > > s;
+    s.push(std::make_pair(source, Path<ListDigraph>() ));
+
+    std::pair<ListDigraph::Node, Path<ListDigraph> > stack_entry, new_entry;
+    Path<ListDigraph> cur_path, new_path;
+    ListDigraph::Node node;
+
+    while (!s.empty()) {
+      stack_entry = s.top();
+      node = stack_entry.first;
+      cur_path = stack_entry.second;
+
+      //std::cout << "Reached node " << node_name(node) << " on path with length " << cur_path.length() << std::endl;
+      s.pop();
+
+      if (node == sink) {
+        pathNum++;
+        path_stream << chr << "\t" << componentId << "\t" << pathNum << "\t";
+        //std::cout << "Reached the sink, time to print a path" << std::endl;
+        for (Path<ListDigraph>::ArcIt path_arc(cur_path); path_arc != INVALID; ++path_arc) {
+          path_stream << node_name(mfGraph.source(path_arc)) << ","; 
+        }
+        path_stream << node_name(sink) << std::endl;
+      }
+
+      for (ListDigraph::OutArcIt child_arc(mfGraph, node); child_arc != INVALID; ++child_arc) {
+        new_path = Path<ListDigraph>(cur_path);
+        new_path.addBack(child_arc);
+        new_entry = std::make_pair(mfGraph.target(child_arc), new_path);
+        s.push(new_entry);
+      }
+    }
+  }
+
+  void MFGraph::print_edges(std::ostream & edge_stream,
+                            const int componentId,
+                            std::string chr )
+  {
+    for (ListDigraph::ArcIt arc(mfGraph); arc != INVALID; ++arc) {
+      edge_stream << chr << "\t" << componentId << "\t"; 
+      edge_stream << node_name(mfGraph.source(arc)) << "\t";
+      edge_stream << node_name(mfGraph.target(arc)) << "\t";
+      edge_stream << effectiveLength_map[arc] << std::endl;
+    }
   }
 
   // assumes file is sorted by position
@@ -133,6 +191,8 @@ namespace methylFlow {
                    std::ostream & patt_stream,
                    std::ostream & region_stream,
                    std::ostream & cpg_stream,
+                   std::ostream & edge_stream,
+                   std::ostream & path_stream,
                    std::string chr,
                    const long start,
                    const long end,
@@ -142,7 +202,8 @@ namespace methylFlow {
                    const float epsilon,
                    const bool verbose,
                    const bool verboseTime,
-                   const bool pctselect) {
+                   const bool pctselect,
+                   const bool graph_only) {
 
     if (verbose) {
       
@@ -152,6 +213,12 @@ namespace methylFlow {
 #ifndef NDEBUG
     std::cout << "start = " << start << std::endl;
     std::cout << "end = " << end << std::endl;
+#endif
+
+#ifndef NDEBUG
+    if (graph_only) {
+      std::cout << "graph only mode" << std::endl;
+    }
 #endif
 
     std::vector<MethylRead*> mVector;
@@ -181,9 +248,16 @@ namespace methylFlow {
     std::cout << "[methylFlow] Starting methylFlow... " << std::endl;
 
     // print headers to output files
-    comp_stream << "chr\tstart\tend\tcid\tnnode\tnpatterns\ttotal_coverage\ttotal_flow\n";
-    patt_stream << "chr\tstart\tend\tcid\tpid\tabundance\tmethylpat\tregions\n";
-    region_stream << "chr\tstart\tend\tcid\trid\traw_coverage\tnorm_coverage\texp_coverage\tmethylpat\n";
+    if (!graph_only) {
+      comp_stream << "chr\tstart\tend\tcid\tnnode\tnpatterns\ttotal_coverage\ttotal_flow\n";
+      patt_stream << "chr\tstart\tend\tcid\tpid\tabundance\tmethylpat\tregions\n";
+      region_stream << "chr\tstart\tend\tcid\trid\traw_coverage\tnorm_coverage\texp_coverage\tmethylpat\n";
+    } else {
+      comp_stream << "chr\tstart\tend\tcid\tnnode\ttotal_coverage\n";
+      region_stream << "chr\tstart\tend\tcid\trid\traw_coverage\tnorm_coverage\tmethylpat\n";
+      edge_stream << "chr\tcid\tr1\tr2\teff_length\n";
+      path_stream << "chr\tcid" << "\t" << "path_id\t" << "path" << "\n"; 
+    }
     cpg_stream << "chr\tpos\tCov\tMeth\n";
 
     if(flag_SAM){
@@ -345,6 +419,8 @@ namespace methylFlow {
                         patt_stream,
                         region_stream,
                         cpg_stream,
+                        edge_stream,
+                        path_stream,
                         chr,
                         flag_SAM,
                         lambda,
@@ -352,7 +428,8 @@ namespace methylFlow {
                         epsilon,
                         verbose,
                         verboseTime,
-                        pctselect );
+                        pctselect,
+                        graph_only);
             if (verboseTime) {
 
                 gettimeofday (&tvalAfter, NULL);
@@ -405,6 +482,8 @@ namespace methylFlow {
                   patt_stream,
                   region_stream,
                   cpg_stream,
+                  edge_stream,
+                  path_stream,
                   chr,
                   flag_SAM,
                   lambda,
@@ -412,7 +491,8 @@ namespace methylFlow {
                   epsilon,
                   verbose,
                   verboseTime,
-                  pctselect);
+                  pctselect,
+                  graph_only);
       if (verboseTime) {
           gettimeofday (&tvalAfter, NULL);
           std::cout << "Time in miliseconds run last component:\t" << componentCount << "\t" << get_graph_size() << "\t" << ((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000  + tvalAfter.tv_usec/1000) - tvalBefore.tv_usec/1000 << std::endl;
@@ -628,6 +708,11 @@ namespace methylFlow {
       }
     }
 
+    // rename the nodes
+    MFRegionNamer region_namer(this);
+    BfsVisit<ListDigraph, MFRegionNamer, BfsVisitDefaultTraits<ListDigraph> > rename(mfGraph, region_namer);
+    rename.run(source);
+
     // remove source and sink
     //    mfGraph.erase(source);
     //    mfGraph.erase(sink);
@@ -662,6 +747,8 @@ namespace methylFlow {
                                    std::ostream & patt_stream,
                                    std::ostream & region_stream,
                                    std::ostream & cpg_stream,
+                                   std::ostream & edge_stream,
+                                   std::ostream & path_stream,
                                    std::string chr,
                                    const bool flag_SAM,
                                    const float lambda,
@@ -669,7 +756,8 @@ namespace methylFlow {
                                    const float epsilon,
                                    const bool verbose,
                                    const bool verboseTime,
-                                   const bool pctselect ) {
+                                   const bool pctselect,
+                                   const bool graph_only ) {
 #ifndef NDEBUG
     std::cout << "starting run_component" << std::endl;
     print_graph();
@@ -705,60 +793,75 @@ namespace methylFlow {
           // solve
           gettimeofday (&tvalBeforeSolve, NULL);
       }
-    int res = solve( lambda, scale_mult, epsilon, verbose, verboseTime, pctselect );
-      if (verboseTime) {
+
+      int tcov = total_coverage();
+
+      // we compute all the offsets from source!
+      int start = read(source)->start()+1;
+      int end = read(sink)->end();
+
+      if (graph_only) {
+        print_edges( edge_stream, componentID, chr );
+        print_regions( region_stream, scale_mult, componentID, chr, graph_only );
+        print_paths( path_stream, componentID, chr );
+
+        comp_stream << chr << "\t" << start << "\t" << end;
+        comp_stream << "\t" << componentID << "\t" << get_graph_size(); 
+        comp_stream << "\t" << tcov << std::endl;
+        return 0;
+      }
+
+        int res = solve( lambda, scale_mult, epsilon, verbose, verboseTime, pctselect );
+        if (verboseTime) {
           gettimeofday (&tvalAfterSolve, NULL);
           std::cout << "Time in miliseconds run solve:\t" << componentID << "\t" << get_graph_size() << "\t" << ((tvalAfterSolve.tv_sec - tvalBeforeSolve.tv_sec)*1000  + tvalAfterSolve.tv_usec/1000) - tvalBeforeSolve.tv_usec/1000 << std::endl;
-      }
+        }
       
-    if (res) {
-      std::cerr << "[methylFlow] Error solving" << std::endl;
-      return res;
-    }
+        if (res) {
+          std::cerr << "[methylFlow] Error solving" << std::endl;
+          return res;
+        }
 
-    if (verbose) {
-      std::cout << "[methylFlow] Component " << componentID << " estimation complete. Writing regions to file." << std::endl;
-    }
-    print_regions( region_stream, scale_mult, componentID, chr );
+        if (verbose) {
+          std::cout << "[methylFlow] Component " << componentID << " estimation complete. Writing regions to file." << std::endl;
+        }
 
-#ifndef NDEBUG
-    print_graph();
-#endif
-
-    // decompose
-    float tflow = total_flow();
-    int tcov = total_coverage();
+        print_regions( region_stream, scale_mult, componentID, chr, graph_only );
 
 #ifndef NDEBUG
-    std::cout << "befor decompose" << std::endl;
+      print_graph();
 #endif
-      struct timeval tvalBeforeDecompose, tvalAfterDecompose;
-      if (verboseTime) {
+
+        // decompose
+        float tflow = total_flow();
+
+#ifndef NDEBUG
+        std::cout << "befor decompose" << std::endl;
+#endif
+        struct timeval tvalBeforeDecompose, tvalAfterDecompose;
+        if (verboseTime) {
           gettimeofday (&tvalBeforeDecompose, NULL);
-      }
-    int npatterns = decompose(componentID, patt_stream, chr);
-      if (verboseTime) {
+        }
+        int npatterns = decompose(componentID, patt_stream, chr);
+        if (verboseTime) {
           gettimeofday (&tvalAfterDecompose, NULL);
           std::cout << "Time in miliseconds run decompose:\t" << componentID << "\t" << get_graph_size() << "\t" << ((tvalAfterDecompose.tv_sec - tvalBeforeDecompose.tv_sec)*1000  + tvalAfterDecompose.tv_usec/1000) - tvalBeforeDecompose.tv_usec/1000 << std::endl;
-      }
+        }
 #ifndef NDEBUG
-    std::cout << "after decompose" << std::endl;
+        std::cout << "after decompose" << std::endl;
 #endif
 
-    if (verbose) {
-      std::cout << "[methylFlow] Component " << componentID << " wrote " << npatterns << " patterns to file." << std::endl;
-    }
-    // we compute all the offsets from source!
-    int start = read(source)->start()+1;
-    int end = read(sink)->end();
+        if (verbose) {
+          std::cout << "[methylFlow] Component " << componentID << " wrote " << npatterns << " patterns to file." << std::endl;
+        }
 
-    comp_stream << chr << "\t" << start << "\t" << end;
-    comp_stream << "\t" << componentID << "\t" << get_graph_size() << "\t" << npatterns;
-    comp_stream << "\t" << tcov << "\t" << tflow << std::endl;
-
-    if (verbose) {
-      std::cout << "[methylFlow] Finished processing component " << componentID << std::endl;
-    }
-    return 0;
+      comp_stream << chr << "\t" << start << "\t" << end;
+      comp_stream << "\t" << componentID << "\t" << get_graph_size() << "\t" << npatterns;
+      comp_stream << "\t" << tcov << "\t" << tflow << std::endl;
+      
+      if (verbose) {
+        std::cout << "[methylFlow] Finished processing component " << componentID << std::endl;
+      }
+      return 0;
   }
 } // namespace MethylFlow

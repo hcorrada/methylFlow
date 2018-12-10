@@ -29,6 +29,8 @@ namespace methylFlow {
         
         const std::string &node_name(const ListDigraph::Node &node) const;
         std::string &node_name(const ListDigraph::Node &node);
+
+      void rename_node(const ListDigraph::Node &node, const std::string &name);
         
         const int &coverage(const ListDigraph::Node &node) const;
         int &coverage(const ListDigraph::Node &node);
@@ -71,6 +73,8 @@ namespace methylFlow {
                 std::ostream & patt_stream,
                 std::ostream & region_stream,
                 std::ostream & cpg_stream,
+                std::ostream & edge_stream,
+                 std::ostream & path_stream,
                 std::string chr,
                 const long start,
                 const long end,
@@ -80,7 +84,8 @@ namespace methylFlow {
                 const float epsilon,
                 const bool verbose,
                 const bool verboseTime,
-                const bool pctselect );
+                const bool pctselect,
+                const bool graph_only);
         
         // tsv file with readid, pos, length, strand (ignored), methylString, subString
         bool processRead(MethylRead *read, const std::string readid, std::list<ListDigraph::Node> *pactiveSet, const bool verboseTime);
@@ -93,8 +98,13 @@ namespace methylFlow {
         
         void print_regions( std::ostream & region_stream,
                            const float scale_mult,
-                           const int componentId, std::string chr );
-        
+                            const int componentId, std::string chr, const bool graph_only );
+
+      void print_edges( std::ostream & edge_stream,
+                        const int componentId, std::string chr );
+
+      void print_paths(std::ostream & edge_stream, const int componentId, std::string chr);
+
         // clear graph, delete pointers to read/region objects
         void clear_graph();
 
@@ -123,6 +133,8 @@ namespace methylFlow {
                                 std::ostream & patt_stream,
                                 std::ostream & region_stream,
                                 std::ostream & cpg_stream,
+                                std::ostream & edge_stream,
+                                 std::ostream & path_stream,
                                 std::string chr,
                                 const bool flag_SAM,
                                 const float lambda,
@@ -130,7 +142,8 @@ namespace methylFlow {
                                 const float epsilon,
                                 const bool verbose,
                                 const bool verboseTime,
-                                const bool pctselect );
+                                const bool pctselect,
+                                const bool graph_only);
         
         // merge chains in read overlap graph
         void merge_chains();
@@ -177,7 +190,12 @@ namespace methylFlow {
         return nodeName_map[node];
     }
     
-    
+
+  inline void MFGraph::rename_node(const ListDigraph::Node &node, const std::string &name)
+  {
+    nodeName_map[node] = name;
+  }
+
     inline const int &MFGraph::coverage(const ListDigraph::Node &node) const
     {
         return coverage_map[node];
