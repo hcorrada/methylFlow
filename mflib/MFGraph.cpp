@@ -144,7 +144,7 @@ namespace methylFlow {
 
     std::pair<ListDigraph::Node, Path<ListDigraph> > stack_entry, new_entry;
     Path<ListDigraph> cur_path, new_path;
-    ListDigraph::Node node;
+    ListDigraph::Node node, path_node;
 
     while (!s.empty()) {
       stack_entry = s.top();
@@ -159,7 +159,8 @@ namespace methylFlow {
         path_stream << chr << "\t" << componentId << "\t" << pathNum << "\t";
         //std::cout << "Reached the sink, time to print a path" << std::endl;
         for (Path<ListDigraph>::ArcIt path_arc(cur_path); path_arc != INVALID; ++path_arc) {
-          path_stream << node_name(mfGraph.source(path_arc)) << ","; 
+          path_node = mfGraph.source(path_arc);
+          path_stream << node_name(path_node) << ":" << effective_length(path_arc) << ","; 
         }
         path_stream << node_name(sink) << std::endl;
       }
