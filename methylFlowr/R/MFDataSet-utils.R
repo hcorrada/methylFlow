@@ -11,11 +11,11 @@ setMethod("show", "MFDataSet", function(object) {
 })
 
 setMethod("seqinfo", "MFDataSet", function(x) x@seqinfo)
-setMethod("seqinfo<-", "MFDataSet", function(x, new2old = NULL, force=FALSE, value) {
+setMethod("seqinfo<-", "MFDataSet", function(x, new2old = NULL, pruning.mode=c("error", "coarse", "fine", "tidy"), value) {
     x@seqinfo <- value
-    x@regions <- callGeneric(regions(x), new2old, force, value)
-    x@patterns <- callGeneric(patterns(x), new2old, force, value)
-    x@components <- callGeneric(components(x), new2old, force, value)
+    x@regions <- callGeneric(regions(x), new2old, pruning.mode, value)
+    x@patterns <- callGeneric(patterns(x), new2old, pruning.mode, value)
+    x@components <- callGeneric(components(x), new2old, pruning.mode, value)
     x
 })
 
