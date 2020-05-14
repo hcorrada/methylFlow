@@ -12,7 +12,8 @@ namespace methylFlow {
   public:
     MFCpgSolver(MFGraph *mfobj, const float length_mult);
     ~MFCpgSolver();
-
+    int make_lp(const float length_mult);
+    int solve_for_lambda(const float lambda);
   private:
     MFCpgEstimator estimator;
     std::map<int, Lp::Col> alpha_y;
