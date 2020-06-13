@@ -34,7 +34,7 @@ namespace methylFlow {
 
     // make the LP object
     // virtual LP creator
-    int make_lp(const float length_mult);
+     int make_lp(const float length_mult);
 
     virtual int add_cols() =0;
     virtual int make_deviance_objective(Lp::Expr &obj) =0;
